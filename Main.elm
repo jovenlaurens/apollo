@@ -12,11 +12,9 @@ import Json.Decode as Decode
 type Dir 
         = Left
         | Right
-
+        | None
 type Keydir
-    = Key_up
-    | Key_down 
-    | Key_right
+    = Key_right
     | Key_left
     | Key_none
 
@@ -59,7 +57,7 @@ init a =
     
 initModel : Model
 initModel =
-        Model (generatebricks( 10, 5 )) 0 (Paddle  50 Right)
+        Model (generatebricks( 10, 5 )) 0 (Paddle  50 None)
 generateonebrick : ( Int, Int ) -> Brick
 generateonebrick position =
         Brick (150 * Tuple.first position + 2) (20 * Tuple.second position + 2)
@@ -84,6 +82,25 @@ update msg model =
     ( model, Cmd.none )
         |> updatepaddle msg
 
+changeDir : Keydir -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+changeDir keydir ( model, cmd ) = 
+            let
+                dir1=
+                        case keydir of
+                            Key_right ->
+                                    Right
+
+                            Key_left ->
+                                    Left
+
+                            Key_none ->
+                                    None
+                
+                paddle1 = Paddle model.paddle.posx dir1                       
+            in 
+                ( {model| paddle = paddle1}
+                , cmd
+                )
 updatepaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updatepaddle msg ( model, cmd ) = 
     case msg of
@@ -93,8 +110,8 @@ updatepaddle msg ( model, cmd ) =
             , cmd
             )
 
-        _ ->
-            ( model, cmd )
+        Key keydir ->
+            changeDir keydir (model,cmd)
 paddlemove : Model -> Model
 paddlemove model = 
         let
@@ -108,14 +125,17 @@ paddlePosx : Int  -> Dir -> Int
 paddlePosx oldx direction = 
     case direction of
         Right ->
-             oldx + 1
+             oldx + 5
 
         Left ->
-             oldx - 1
+             oldx - 5
+        
+        None ->
+             oldx
 
 makenewpaddle : Int ->Paddle
 makenewpaddle posx =
-    Paddle posx Right
+    Paddle posx None
 
 drawPaddle : Paddle -> Svg msg
 drawPaddle paddle =
@@ -168,16 +188,10 @@ subscriptions model =
 key : Int -> Msg
 key keycode =
     case keycode of
-        38 ->
-            Key Key_up
-        40 ->
-            Key Key_down
-
         37 ->
             Key Key_left
 
         39 ->
             Key Key_right
-
         _ ->
             Key Key_none
