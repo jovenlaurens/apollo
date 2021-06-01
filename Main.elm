@@ -13,6 +13,7 @@ type Dir
         = Left
         | Right
         | None
+
 type Keydir
     = Key_right
     | Key_left
@@ -21,27 +22,40 @@ type Keydir
 type Moveable 
         = Lost
         | Bounce
+
 type Live_status
         = Dead
         | Alive
+
 type alias Brick
         = {
             posx : Int
-            ,posy :Int
-
+            ,posy : Int
+            
         }
+
 type alias Paddle
         ={
-            posx : Int
+            posx : Float
             , dir : Dir
         }
+
+type alias Ball
+        ={
+            posx : Float
+            ,posy : Float
+            ,dir : Float
+        }
+
 --Model
 type alias  Model 
         = { 
             brick : List Brick
             , move_timer : Float
             , paddle : Paddle
+            , ball : Ball
         }
+
 --Msg
 type Msg
     = Key Keydir
@@ -50,6 +64,7 @@ type Msg
 --Main
 main = 
         Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
 --Initialization
 init : () -> ( Model, Cmd Msg )
 init a =
@@ -57,10 +72,11 @@ init a =
     
 initModel : Model
 initModel =
-        Model (generatebricks( 10, 5 )) 0 (Paddle  50 None)
+        Model (generatebricks( 10, 5 )) 0 (Paddle  50.0 None) (Ball 100.0 400.0 45.0 )
+
 generateonebrick : ( Int, Int ) -> Brick
 generateonebrick position =
-        Brick (150 * Tuple.first position + 2) (20 * Tuple.second position + 2)
+        Brick (150 * Tuple.first position) (20 * Tuple.second position)
  
 generatebricks : ( Int, Int ) -> List Brick
 generatebricks size = 
@@ -74,7 +90,7 @@ generatebricks size =
     in
     List.map line rangey
         |> List.concat
-        |>List.map generateonebrick
+        |> List.map generateonebrick
 
 --update
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -82,8 +98,8 @@ update msg model =
     ( model, Cmd.none )
         |> updatepaddle msg
 
-changeDir : Keydir -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-changeDir keydir ( model, cmd ) = 
+changepaddleDir : Keydir -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+changepaddleDir keydir ( model, cmd ) = 
             let
                 dir1=
                         case keydir of
@@ -101,17 +117,25 @@ changeDir keydir ( model, cmd ) =
                 ( {model| paddle = paddle1}
                 , cmd
                 )
+
 updatepaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updatepaddle msg ( model, cmd ) = 
     case msg of
         Tick elapsed ->
             ( { model | move_timer = model.move_timer + elapsed }
                 |> paddlemove
+                |> ballbounce
+                |> ballball
             , cmd
             )
 
         Key keydir ->
-            changeDir keydir (model,cmd)
+            changepaddleDir keydir (model
+                                    |> ballball
+                                    |> ballbounce
+                                    |> ballball
+            ,cmd)
+
 paddlemove : Model -> Model
 paddlemove model = 
         let
@@ -119,21 +143,49 @@ paddlemove model =
         in
             {model | paddle = makenewpaddle newx }
 
+ballball : Model -> Model
+ballball model = 
+        let 
+            newball = ballmove model.ball 
+        in
+            {model | ball = newball}
 
+ballmove : Ball -> Ball
+ballmove ball =
+     Ball (ball.posx + ((cos (degrees ball.dir)) * 0.5)) (ball.posy + ((sin (degrees ball.dir)) * 0.5)) ball.dir
 
-paddlePosx : Int  -> Dir -> Int
+changeballdir : Ball -> Float -> Ball
+changeballdir ball number = 
+        Ball ball.posx ball.posy (number - ball.dir)
+
+ballbounce : Model -> Model
+ballbounce model = 
+        if ((model.ball.posy >= 693.5) && (model.ball.posy <= 696.5) && (model.ball.posx <= (model.paddle.posx + 80.0)) && (model.ball.posx >= model.paddle.posx)) then
+                {model | ball = changeballdir model.ball 360.0 }
+
+        else if ((model.ball.posx >= 1500.5) && ( model.ball.posx <= 1505.5 )) then
+                {model | ball = changeballdir model.ball 540.0 }
+
+        else if ((model.ball.posx >= 0.0) && ( model.ball.posx <= 6.5 )) then
+                {model | ball = changeballdir model.ball 180.0 }
+
+        else if ((model.ball.posy >= 97.5) && ( model.ball.posy <= 102.5 )) then
+                {model | ball = changeballdir model.ball 360.0 }
+        else 
+            model
+paddlePosx : Float  -> Dir -> Float
 paddlePosx oldx direction = 
     case direction of
         Right ->
-             oldx + 5
+             oldx + 5.0
 
         Left ->
-             oldx - 5
+             oldx - 5.0
         
         None ->
              oldx
 
-makenewpaddle : Int ->Paddle
+makenewpaddle : Float ->Paddle
 makenewpaddle posx =
     Paddle posx None
 
@@ -148,20 +200,29 @@ drawPaddle paddle =
         ]
         []
 
-
-drawBricks : List Brick -> List (Svg Msg)
-drawBricks list = 
-        List.map draw list
-
-draw : Brick -> Svg Msg
-draw brick =
+drawBrick : Brick -> Svg Msg
+drawBrick brick =
     Svg.rect[
-                 SvgAttr.width "150"
-                , SvgAttr.height "20"
+                 SvgAttr.width "148"
+                , SvgAttr.height "18"
                 , SvgAttr.fill "Green"
                 , SvgAttr.x (toString (brick.posx))
                 , SvgAttr.y (toString (brick.posy))
     ][]
+
+drawBricks : List Brick -> List (Svg Msg)
+drawBricks list = 
+        List.map drawBrick list
+
+drawball : Ball -> Svg Msg
+drawball ball =
+        Svg.circle[
+                    SvgAttr.cx (toString ball.posx)
+                    ,SvgAttr.cy (toString ball.posy)
+                    ,SvgAttr.r "5"
+                    ,SvgAttr.color "Red"
+                    ][]
+
 view : Model -> Html Msg
 view model =
     div
@@ -174,7 +235,7 @@ view model =
         [ Svg.svg
             [ SvgAttr.width "100%"
             , SvgAttr.height "100%"
-            ] ((drawPaddle model.paddle) :: (drawBricks model.brick))
+            ] (drawball model.ball :: ((drawPaddle model.paddle) :: (drawBricks model.brick)))
         ]
 
 subscriptions : Model -> Sub Msg
