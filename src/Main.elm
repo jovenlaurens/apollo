@@ -10,6 +10,7 @@ import Html.Events exposing (keyCode)
 import Json.Decode as Decode
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
+import Svg.Attributes exposing (y1)
 
 
 type alias Point =
@@ -61,6 +62,7 @@ type alias Ball =
     { pos : Point
     , dir : Float
     , liveStatus : Live_status --need to be improved: whether it should be placed in the ball
+    , radius : Float
     }
 
 
@@ -108,7 +110,10 @@ init a =
 
 initModel : Model
 initModel =
-    Model (generatebricks brick_number) 0 (Paddle (Point 500.0 700.0) Key_none (generateRectLines_4 (Point 500.0 700.0))) (Ball (Point 100.0 400.0) 45.0 Alive)
+    Model 
+        (generatebricks brick_number) 0 
+        (Paddle (Point 500.0 900.0) Key_none (generateRectLines_4 (Point 500.0 700.0))) 
+        (Ball (Point 100.0 400.0) 45.0 Alive ball_radius)
 
 
 brick_width =
@@ -189,16 +194,16 @@ updatepaddle msg ( model, cmd ) =
         Tick elapsed ->
             ( { model | move_timer = model.move_timer + elapsed }
                 |> ballmove
-                --|> ballbounce
                 |> paddlemove
+                |> ballbounce
             , cmd
             )
 
         Key keydir ->
             ( model
                 |> ballmove
-                --|> ballbounce
                 |> paddlechange keydir
+                |> ballbounce
             , cmd
             )
 
@@ -221,24 +226,122 @@ paddlemove model =
 
 ballmove : Model -> Model
 ballmove model =
-    { model | ball = Ball (Point (model.ball.pos.x + (cos (degrees model.ball.dir) * 2)) (model.ball.pos.y + (sin (degrees model.ball.dir) * 2))) model.ball.dir Alive }
+    { model | ball = Ball (Point (model.ball.pos.x + ((cos (degrees model.ball.dir)) * 2)) (model.ball.pos.y + ((sin (degrees model.ball.dir)) * 2))) model.ball.dir Alive ball_radius}
+
+
+checkOneBrick : Brick -> Model -> Model
+checkOneBrick brick model =
+    let
+        x = model.ball.pos.x
+        y = model.ball.pos.y
+        x1 = brick.pos.x
+        x2 = x1 + brick_width
+        y1 = brick.pos.y
+        y2 = y1 - brick_height
+        r = model.ball.radius
+    in
+        if x >= x1 && x <= x2 then
+            if (abs ( y - y1)) <= r && (abs ( y - y2)) <= r then
+                {model | ball = (changeballdir model.ball 360)}
+            else
+                {model| brick = (brick :: (model.brick))}
+        else if y >= y2 && y <= y1 then
+            if (abs ( x - x1)) <= r && (abs ( x - x2)) <= r then
+                {model | ball = (changeballdir model.ball 360)}
+            else
+                {model| brick = (brick :: (model.brick))}
+        else
+            {model| brick = (brick :: (model.brick))}--比较怀疑是所有的判断条件最后都走到了这里orz，于是什么都没有发生，小球被忽视了
+
+
+checkoutBallBrick : Model -> Model
+--把model.brick里的砖块一个个放到上面的函数里检查是不是会发生碰撞，
+--如果碰撞了，球方向改变，这个砖块就碎了，不会被放进原先被清空了的旧的砖块序列，否则会照常放进去。
+checkoutBallBrick model =
+    let bricks = model.brick--可能这里会出问题？小概率）
+    in
+        List.foldr (checkOneBrick) {model | brick = []} bricks
+     
+
+    
+    
+
+checkoutBallPaddle : Model -> Model
+checkoutBallPaddle model =
+    let
+        x = model.ball.pos.x
+        y = model.ball.pos.y
+        x1 = model.paddle.pos.x
+        x2 = x1 + paddle_width
+        d = (model.paddle.pos.y) - y
+        r = model.ball.radius
+    in
+        if x1 <= x && x2 >= x && d <=r then
+            {model | ball = (changeballdir model.ball 360)}
+        else
+            model
+
+
+checkFourOutlines : Model -> Model
+checkFourOutlines model =
+    let
+        x = model.ball.pos.x
+        y = model.ball.pos.y
+        r = model.ball.radius
+    in
+        let
+            angle = 
+                if x <= r || (1000 - x) <= r then
+                    180
+                else if y <= r || (1000 - y) <= r then 
+                    360
+                else
+                    2 * model.ball.dir
+        in
+            {model | ball = (changeballdir model.ball angle )}
+
+            
+
+
 
 
 changeballdir : Ball -> Float -> Ball
 changeballdir ball number =
-    Ball ball.pos (number - ball.dir) ball.liveStatus
+    Ball ball.pos (number - ball.dir) ball.liveStatus ball_radius
 
 
 
 --here are a series of function detecting whether the ball needs to be bounce
---dotLineDistance : (Float, )
-{- checkFourOutlines : Model -> Model
-   checkFourOutlines model =
-       if
--}
-{- ballbounce : Model -> Model
-   ballbounce model =
--}
+--但是失败了
+getABC : Line -> (Float,Float,Float)
+getABC line = 
+    let
+        x1 = line.p1.x
+        y1 = line.p1.y
+        x2 = line.p2.x
+        y2 = line.p2.y
+    in
+        (y1 - y2,x2 - x1,x1 * y2 - x2 * y1)
+
+dotLineDistance : Point -> Line -> Float
+dotLineDistance point line =
+    let 
+        x1 = point.x
+        y1 = point.y
+        (a,b,c) = getABC line
+    in  
+        (abs (a * x1 + b * y1 + c) ) / (sqrt ( a ^ 2 + b ^ 2))
+    
+
+
+
+
+ballbounce : Model -> Model
+ballbounce model = 
+    checkFourOutlines model
+        |> checkoutBallPaddle
+        |> checkoutBallBrick
+
 
 
 paddlePosx : Float -> Keydir -> Float
@@ -253,12 +356,13 @@ paddlePosx oldx direction =
         Key_none ->
             oldx
 
-
+paddle_width = 120
+paddle_height = 20
 drawPaddle : Paddle -> Svg msg
 drawPaddle paddle =
     Svg.rect
-        [ SvgAttr.width "80"
-        , SvgAttr.height "10"
+        [ SvgAttr.width (toString paddle_width)
+        , SvgAttr.height (toString paddle_height)
         , SvgAttr.fill "Blue"
         , SvgAttr.x (toString paddle.pos.x)
         , SvgAttr.y (toString paddle.pos.y)
@@ -282,20 +386,30 @@ drawBricks : List Brick -> List (Svg Msg)
 drawBricks list =
     List.map drawBrick list
 
+ball_radius = 20
 
 drawball : Ball -> Svg Msg
 drawball ball =
     Svg.circle
         [ SvgAttr.cx (toString ball.pos.x)
         , SvgAttr.cy (toString ball.pos.y)
-        , SvgAttr.r "5"
+        , SvgAttr.r (toString ball_radius)
         , SvgAttr.color "Red"
         ]
         []
 
 
-fourBoders =
-    [ ( ( 0, 0 ), ( 0, 1000 ) ), ( ( 0, 0 ), ( 1000, 0 ) ), ( ( 1000, 0 ), ( 1000, 1000 ) ), ( ( 0, 1000 ), ( 1000, 1000 ) ) ]
+drawBorder : Svg Msg
+drawBorder = 
+    Svg.rect
+        [ SvgAttr.width "1000"
+        , SvgAttr.height "1000"
+        , SvgAttr.stroke "Black"
+        , SvgAttr.strokeWidth "20"
+        , SvgAttr.x "0"
+        , SvgAttr.y "1000"
+        ]
+        []
 
 
 fourBorders_String =
@@ -318,7 +432,7 @@ view model =
             , SvgAttr.height "800"
             , SvgAttr.viewBox fourBorders_String
             ]
-            (drawball model.ball :: (drawPaddle model.paddle :: drawBricks model.brick))
+            (drawBorder :: (drawball model.ball :: (drawPaddle model.paddle :: drawBricks model.brick)))
         ]
 
 
