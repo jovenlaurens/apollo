@@ -185,14 +185,37 @@ ballWindow model =
 
 ballBrick : Model->Model
 ballBrick model =
+    model
+
+ballChangeMove : Model ->( Location, Float )->Model
+ballChangeMove model (close_class,distance) =
+    if distance < model.ball.radius && close_class.ylocation == Left then
+        {model | ball = { pos = model.ball.pos, move_x = model.ball.move_x, move_y = -model.ball.move_y, radius = model.ball.radius }}
 
 
 ballMove : Model -> Model
 ballMove model =
     { model | ball = { pos = helpBallMove model.ball.move_x model.ball.move_y model.ball.pos, move_x = model.ball.move_x, move_y = model.ball.move_y, radius = model.ball.radius } }
 
-getCloseClass: Model ->(Point,Location)
+getCloseClass: Model ->( Location, Float )
 getCloseClass model =
+    let
+        ( close_class_x, pointx) =
+            if model.ball.pos.x < ( model.paddle.pos.x - model.paddle.half_length ) then
+                ( Left, model.paddle.pos.x - model.paddle.half_length )
+            else if model.ball.pos.x > ( model.paddle.pos.x + model.paddle.half_length  ) then
+                ( Right, model.paddle.pos.x + model.paddle.half_length )
+            else
+                ( Middle, model.paddle.pos.x )
+        ( close_class_y, pointy ) =
+            if model.ball.pos.y < ( model.paddle.pos.y - model.paddle.half_width ) then
+                ( Left, model.paddle.pos.y - model.paddle.half_width )
+            else if model.ball.pos.y > ( model.paddle.pos.y + model.paddle.half_width ) then
+                (Right, model.paddle.pos.y + model.paddle.half_width )
+            else
+                ( Middle, model.paddle.pos.y )
+    in
+        ( Location close_class_x close_class_y, sqrt ( pointx^2 + pointy ^ 2 ) )
 
 
 paddleMove : Keydir -> Model -> Model
