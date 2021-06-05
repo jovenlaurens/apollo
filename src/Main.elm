@@ -19,10 +19,6 @@ type alias Point =
     }
 
 
-type alias Line =
-    { p1 : Point
-    , p2 : Point
-    }
 
 
 type Keydir
@@ -32,14 +28,6 @@ type Keydir
 
 
 
-{- type
-   Moveable
-   --?
-   = Lost
-   | Bounce
--}
-
-
 type Live_status
     = Dead
     | Alive
@@ -47,14 +35,12 @@ type Live_status
 
 type alias Brick =
     { pos : Point
-    , border : List Line
     }
 
 
 type alias Paddle =
     { pos : Point
     , dir : Keydir
-    , border : List Line
     }
 
 
@@ -112,8 +98,8 @@ initModel : Model
 initModel =
     Model 
         (generatebricks brick_number) 0 
-        (Paddle (Point 500.0 900.0) Key_none (generateRectLines_4 (Point 500.0 700.0))) 
-        (Ball (Point 100.0 400.0) 45.0 Alive ball_radius)
+        (Paddle (Point 500.0 900.0) Key_none ) 
+        (Ball (Point 100.0 600.0) 45.0 Alive ball_radius)
 
 
 brick_width =
@@ -132,20 +118,7 @@ brick_height =
 --宽
 
 
-generateRectLines_4 :
-    Point
-    -> List Line --根据左下角的点画出四条边，默认顺序左上右下，两个点的顺序是下到上，左到右
-generateRectLines_4 point =
-    let
-        point1 = Point point.x (point.y - brick_height)
-        point2 = Point (point.x + brick_width) (point.y - brick_height)
-        point3 = Point (point.x + brick_width) point.y
-    in
-    [ Line point point1 --左边的线
-    , Line point1 point2--上边
-    , Line point2 point3--右边
-    , Line point3 point--下边
-    ]
+
 
 
 generateonebrick : ( Float, Float ) -> Brick
@@ -154,7 +127,7 @@ generateonebrick position =
         pos = Point (brick_width * Tuple.first position + 1) (brick_height * Tuple.second position - 1)
     in
     
-    Brick pos (generateRectLines_4 pos)
+    Brick pos 
 
 toFloatPoint : (Int, Int) -> (Float, Float)
 toFloatPoint (x, y) = 
@@ -210,7 +183,7 @@ updatepaddle msg ( model, cmd ) =
 
 paddlechange : Keydir -> Model -> Model
 paddlechange keydir model =
-    { model | paddle = { pos = model.paddle.pos, dir = keydir, border = model.paddle.border } }--need to be improved: 可不可以只再
+    { model | paddle = { pos = model.paddle.pos, dir = keydir} }--need to be improved: 可不可以只再
 
 
 paddlemove : Model -> Model
@@ -221,12 +194,12 @@ paddlemove model =
         newPoint =
             (Point newx model.paddle.pos.y)
     in
-    { model | paddle = { pos = newPoint, dir = model.paddle.dir, border = (generateRectLines_4 newPoint) } }
+    { model | paddle = { pos = newPoint, dir = model.paddle.dir } }
 
 
 ballmove : Model -> Model
 ballmove model =
-    { model | ball = Ball (Point (model.ball.pos.x + ((cos (degrees model.ball.dir)) * 2)) (model.ball.pos.y + ((sin (degrees model.ball.dir)) * 2))) model.ball.dir Alive ball_radius}
+    { model | ball = Ball (Point (model.ball.pos.x + ((cos (degrees model.ball.dir)) * 10)) (model.ball.pos.y + ((sin (degrees model.ball.dir)) * 10))) model.ball.dir Alive ball_radius}
 
 
 checkOneBrick : Brick -> Model -> Model
@@ -237,17 +210,17 @@ checkOneBrick brick model =
         x1 = brick.pos.x
         x2 = x1 + brick_width
         y1 = brick.pos.y
-        y2 = y1 - brick_height
+        y2 = y1 + brick_height
         r = model.ball.radius
     in
-        if x >= x1 && x <= x2 then
-            if (abs ( y - y1)) <= r && (abs ( y - y2)) <= r then
+        if x >= (x1 - 5) && x <= (x2 + 5) then
+            if ((( y - y2) <= r && (y - y2 > 0)) || ((y1 - y) <= r && (y1 - y) > 0 )) then
                 {model | ball = (changeballdir model.ball 360)}
             else
                 {model| brick = (brick :: (model.brick))}
-        else if y >= y2 && y <= y1 then
-            if (abs ( x - x1)) <= r && (abs ( x - x2)) <= r then
-                {model | ball = (changeballdir model.ball 360)}
+        else if y >= y1 && y <= y2 then
+            if ( (x - x2 > 0 && x - x2 <= r) || (x1 - x > 0 && x1 - x <= r) )then
+                {model | ball = (changeballdir model.ball 180)}
             else
                 {model| brick = (brick :: (model.brick))}
         else
@@ -276,7 +249,7 @@ checkoutBallPaddle model =
         d = (model.paddle.pos.y) - y
         r = model.ball.radius
     in
-        if x1 <= x && x2 >= x && d <=r then
+        if x1 <= (x + 5) && x2 >= (x - 5) && d <=r then
             {model | ball = (changeballdir model.ball 360)}
         else
             model
@@ -311,31 +284,6 @@ changeballdir ball number =
 
 
 
---here are a series of function detecting whether the ball needs to be bounce
---但是失败了
-getABC : Line -> (Float,Float,Float)
-getABC line = 
-    let
-        x1 = line.p1.x
-        y1 = line.p1.y
-        x2 = line.p2.x
-        y2 = line.p2.y
-    in
-        (y1 - y2,x2 - x1,x1 * y2 - x2 * y1)
-
-dotLineDistance : Point -> Line -> Float
-dotLineDistance point line =
-    let 
-        x1 = point.x
-        y1 = point.y
-        (a,b,c) = getABC line
-    in  
-        (abs (a * x1 + b * y1 + c) ) / (sqrt ( a ^ 2 + b ^ 2))
-    
-
-
-
-
 ballbounce : Model -> Model
 ballbounce model = 
     checkFourOutlines model
@@ -348,10 +296,10 @@ paddlePosx : Float -> Keydir -> Float
 paddlePosx oldx direction =
     case direction of
         Key_right ->
-            oldx + 5.0
+            oldx + 8.0
 
         Key_left ->
-            oldx - 5.0
+            oldx - 8.0
 
         Key_none ->
             oldx
