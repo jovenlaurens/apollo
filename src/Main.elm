@@ -1,61 +1,104 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta, onKeyDown)
+import Browser.Navigation exposing (Key)
 import Debug exposing (toString)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
 import Json.Decode as Decode
-import Random
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 
 
-
----- MODEL ----
-
-
 type Dir
-    = Up
-    | Down
-    | Left
+    = Left
     | Right
     | None
 
 
+type Moveable
+    = Lost
+    | Bounce
+
+
 type Live_status
-    = Alive
-    | Dead
+    = Dead
+    | Alive
 
 
-type Msg
-    = Direction Dir
-    | Key_None
-    | Tick Float
-
-
-type alias Model =
-    { blocks : List Block
-    , paddle : Paddle
-    }
-
-
-type alias Block =
-    { body : ( Int, Int )
+type alias Brick =
+    { posx : Int
+    , posy : Int
     }
 
 
 type alias Paddle =
-    { body : ( Int, Int )
+    { posx : Float
     , dir : Dir
-    , state : Live_status
     }
 
 
-initModel : Model
-initModel =
-    Model (addblocks ( 10, 5 )) (Paddle ( 1, 0 ) None Alive)
+type alias Ball =
+    { posx : Float
+    , posy : Float
+    , dir : Float
+    , radius : Float
+    }
+
+
+
+--Model
+
+
+type alias Model =
+    { brick : List Brick
+    , move_timer : Float
+    , paddle : Paddle
+    , ball : Ball
+    }
+
+
+brick_width =
+    100
+
+
+brick_height =
+    25
+
+
+screen_width =
+    1000
+
+
+screen_height =
+    600
+
+
+ball_radius =
+    10
+
+
+
+--Msg
+
+
+type Msg
+    = Key Dir
+    | Tick Float
+
+
+
+--Main
+
+
+main =
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+--Initialization
 
 
 init : () -> ( Model, Cmd Msg )
@@ -63,56 +106,18 @@ init a =
     ( initModel, Cmd.none )
 
 
-
----- UPDATE ----
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    ( model, Cmd.none )
-        |> updatePaddle msg
+initModel : Model
+initModel =
+    Model (generatebricks ( 10, 5 )) 0 (Paddle 50.0 None) (Ball 100.0 400.0 45.0 10)
 
 
-updatePaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-updatePaddle msg ( model, cmd ) =
-    case msg of
-        Tick elapsed ->
-            ( model, cmd )
-
-        Direction dir ->
-            let
-                currentpaddle =
-                    model.paddle
-            in
-            ( { model
-                | paddle = changeDir currentpaddle dir
-              }
-            , cmd
-            )
-
-        _ ->
-            ( model, cmd )
+generateonebrick : ( Int, Int ) -> Brick
+generateonebrick position =
+    Brick (brick_width * Tuple.first position + 2) (brick_height * Tuple.second position + 2)
 
 
-changeDir : Paddle -> Dir -> Paddle
-changeDir paddle dir =
-    { paddle
-        | dir =
-            if paddle.state == Alive then
-                dir
-
-            else
-                paddle.dir
-    }
-
-
-addoneblock : ( Int, Int ) -> Block
-addoneblock pos =
-    Block ( 150 * Tuple.first pos + 2, 20 * Tuple.second pos + 2 )
-
-
-addblocks : ( Int, Int ) -> List Block
-addblocks size =
+generatebricks : ( Int, Int ) -> List Brick
+generatebricks size =
     let
         rangex =
             List.range 0 (Tuple.first size - 1)
@@ -125,11 +130,164 @@ addblocks size =
     in
     List.map line rangey
         |> List.concat
-        |> List.map addoneblock
+        |> List.map generateonebrick
 
 
 
----- VIEW ----
+--update
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( model, Cmd.none )
+        |> updatepaddle msg
+
+
+changepaddleDir : Dir -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+changepaddleDir keydir ( model, cmd ) =
+    let
+        dir1 =
+            case keydir of
+                Right ->
+                    Right
+
+                Left ->
+                    Left
+
+                None ->
+                    None
+
+        paddle1 =
+            Paddle model.paddle.posx dir1
+    in
+    ( { model | paddle = paddle1 }
+    , cmd
+    )
+
+
+updatepaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+updatepaddle msg ( model, cmd ) =
+    case msg of
+        Tick elapsed ->
+            ( { model | move_timer = model.move_timer + elapsed }
+                |> paddlemove
+                |> ballbounce
+                |> ballball
+            , cmd
+            )
+
+        Key keydir ->
+            changepaddleDir keydir
+                ( model
+                    |> ballball
+                    |> ballbounce
+                    |> ballball
+                , cmd
+                )
+
+
+paddlemove : Model -> Model
+paddlemove model =
+    let
+        newx =
+            paddlePosx model.paddle.posx model.paddle.dir
+    in
+    { model | paddle = makenewpaddle newx }
+
+
+ballball : Model -> Model
+ballball model =
+    let
+        newball =
+            ballmove model.ball
+    in
+    { model | ball = newball }
+
+
+ballmove : Ball -> Ball
+ballmove ball =
+    Ball (ball.posx + (cos (degrees ball.dir) * 0.5)) (ball.posy + (sin (degrees ball.dir) * 0.5)) ball.dir 10
+
+
+changeballdir : Ball -> Float -> Ball
+changeballdir ball number =
+    Ball ball.posx ball.posy (number - ball.dir) 10
+
+
+ballbounce : Model -> Model
+ballbounce model =
+    if model.ball.posy >= screen_height - model.ball.radius then
+        { model | ball = changeballdir model.ball 360.0 }
+
+    else if model.ball.posx >= screen_width - model.ball.radius then
+        { model | ball = changeballdir model.ball 540.0 }
+
+    else if model.ball.posx <= 0 + model.ball.radius then
+        { model | ball = changeballdir model.ball 180.0 }
+
+    else if model.ball.posy <= 0 + model.ball.radius then
+        { model | ball = changeballdir model.ball 360.0 }
+
+    else
+        model
+
+
+paddlePosx : Float -> Dir -> Float
+paddlePosx oldx direction =
+    case direction of
+        Right ->
+            oldx + 8.0
+
+        Left ->
+            oldx - 8.0
+
+        None ->
+            oldx
+
+
+makenewpaddle : Float -> Paddle
+makenewpaddle posx =
+    Paddle posx None
+
+
+drawPaddle : Paddle -> Svg msg
+drawPaddle paddle =
+    Svg.rect
+        [ SvgAttr.width "100"
+        , SvgAttr.height "20"
+        , SvgAttr.fill "Blue"
+        , SvgAttr.x (toString paddle.posx)
+        , SvgAttr.y "400"
+        ]
+        []
+
+
+drawBrick : Brick -> Svg Msg
+drawBrick brick =
+    Svg.rect
+        [ SvgAttr.width (toString (brick_width - 2))
+        , SvgAttr.height (toString (brick_height - 2))
+        , SvgAttr.fill "Green"
+        , SvgAttr.x (toString brick.posx)
+        , SvgAttr.y (toString brick.posy)
+        ]
+        []
+
+
+drawBricks : List Brick -> List (Svg Msg)
+drawBricks list =
+    List.map drawBrick list
+
+
+drawball : Ball -> Svg Msg
+drawball ball =
+    Svg.circle
+        [ SvgAttr.cx (toString ball.posx)
+        , SvgAttr.cy (toString ball.posy)
+        , SvgAttr.r (toString ball.radius)
+        , SvgAttr.color "Red"
+        ]
+        []
 
 
 view : Model -> Html Msg
@@ -142,62 +300,11 @@ view model =
         , HtmlAttr.style "top" "0"
         ]
         [ Svg.svg
-            [ SvgAttr.width "100%"
-            , SvgAttr.height "100%"
+            [ SvgAttr.width (toString screen_width)
+            , SvgAttr.height (toString screen_height)
             ]
-            (drawPaddle model.paddle :: drawBlock model.blocks)
+            (drawball model.ball :: (drawPaddle model.paddle :: drawBricks model.brick))
         ]
-
-
-key : Int -> Msg
-key keycode =
-    case keycode of
-        37 ->
-            Direction Left
-
-        39 ->
-            Direction Right
-
-        _ ->
-            Key_None
-
-
-makenewpaddle : ( Int, Int ) -> Paddle
-makenewpaddle pos =
-    Paddle ( Tuple.first pos, Tuple.second pos ) None Alive
-
-
-drawPaddle : Paddle -> Svg msg
-drawPaddle paddle =
-    Svg.rect
-        [ SvgAttr.width "80"
-        , SvgAttr.height "10"
-        , SvgAttr.fill "Blue"
-        , SvgAttr.x (toString (Tuple.first paddle.body))
-        , SvgAttr.y "700"
-        ]
-        []
-
-
-drawBlock : List Block -> List (Svg Msg)
-drawBlock list =
-    List.map draw list
-
-
-draw : Block -> Svg Msg
-draw block =
-    Svg.rect
-        [ SvgAttr.width "150"
-        , SvgAttr.height "20"
-        , SvgAttr.fill "Blue"
-        , SvgAttr.x (toString (Tuple.first block.body))
-        , SvgAttr.y (toString (Tuple.second block.body))
-        ]
-        []
-
-
-
----- PROGRAM ----
 
 
 subscriptions : Model -> Sub Msg
@@ -208,5 +315,14 @@ subscriptions model =
         ]
 
 
-main =
-    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+key : Int -> Msg
+key keycode =
+    case keycode of
+        37 ->
+            Key Left
+
+        39 ->
+            Key Right
+
+        _ ->
+            Key None
