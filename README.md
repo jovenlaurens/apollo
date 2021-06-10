@@ -4,4 +4,4 @@ Ocean Cat Studio
 
 <h2> Logo </h2>
 
-![](Teamlogo.png)
+![](assets/Logo.png)
