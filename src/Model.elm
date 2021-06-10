@@ -1,6 +1,7 @@
 module Model exposing
     ( Model
     , State(..)
+    , init
     )
 
 import Point exposing (Point, move)

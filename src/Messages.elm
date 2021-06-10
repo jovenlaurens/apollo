@@ -1,4 +1,4 @@
-module Messages exposing (Msg(..))
+module Messages exposing (Keydir(..), Msg(..))
 
 
 type Keydir
