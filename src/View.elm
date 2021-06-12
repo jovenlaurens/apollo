@@ -10,6 +10,8 @@ import Star exposing (Spacecraft, spcwidth, spcheight, originX, originY)
 import Debug exposing (toString)
 import Star exposing (Sun, Proton)
 import Star exposing (tracradius)
+import Update exposing (dotLineDistance)
+import Update exposing (getLine)
 
 drawSpacecraft : Spacecraft -> List (Svg msg)
 drawSpacecraft spacecraft =
@@ -58,7 +60,7 @@ drawTrack =
         []
     ]
 
-drawproton : Proton -> List (Svg Msg)
+drawproton : Proton -> List (Svg msg)
 drawproton proton = 
     [Svg.circle
         [ SvgAttr.cx (toString proton.pos.x)
@@ -66,6 +68,61 @@ drawproton proton =
         , SvgAttr.r (toString proton.radius)
         , SvgAttr.fill "blue"
         ][]]
+
+renderInfo : Model -> Html Msg
+renderInfo model = 
+    let
+        ( a, b, c ) =
+            getLine model.spacecraft.pos model.spacecraft.angle
+
+        --得到spacecraft所在重心的那条切线，以ax+by+c=0的形式，记为l1
+        distance_ =
+            dotLineDistance model.proton.pos a b c
+
+        --proton圆心到l1的距离
+        stand =
+            model.proton.radius + (0.5 * spcheight)
+        
+    in
+        div
+        []
+        [
+           div 
+            [ style "color" "#00FF00"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "20px"
+        , style "font-weight" "bold"
+        , style "line-height" "10"
+        , style "position" "absolute"
+        , style "top" "0"
+        , style "width" "200px"
+        , style "height" "50px"
+             ]
+             [ text ((String.fromFloat distance_) ++"   "++ (String.fromFloat stand))
+             ]
+             ,
+             div
+             [style "color" "#00FF00"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "20px"
+        , style "font-weight" "bold"
+        , style "line-height" "10"
+        , style "position" "absolute"
+        , style "top" "300"
+        , style "width" "200px"
+        , style "height" "50px"
+        , style "display"
+            (if distance_ > stand then
+                "none"
+
+             else
+                "block"
+            )
+        ]
+             [text "BOOM!!!!!"]
+        ]
+    
+
 
 view : Model -> Html Msg
 view model =
@@ -76,7 +133,8 @@ view model =
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
         ]
-        [ Svg.svg
+        [ renderInfo model
+            ,Svg.svg
             [ SvgAttr.width "500"
             , SvgAttr.height "500"
             , SvgAttr.viewBox "0 0 1000 1000" 
