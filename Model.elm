@@ -1,7 +1,7 @@
 module Model exposing ( Model, State(..), init)
 import Star exposing (Earth, Proton, Sun, Spacecraft, Point)
 import Messages exposing (Keydir(..), Msg(..))
-
+import Random
 
 type alias Model =
     { sun : Sun
@@ -21,7 +21,7 @@ type State
 init : () -> ( Model, Cmd Msg )
 init a =
     ((Model (Sun (Point 500 500) 60.0) (Earth (Point 1 1) 0 0 0) 
-            (Proton (Point 1 1) 0.0 0.0 0.0 0) (Spacecraft (Point 785.0 495.0) 0.0 Key_none 0.01)
+            (Proton (Point 50 600) 0.2 5.0 1.0 1) (Spacecraft (Point 785.0 495.0) 0.0 Key_none 0.01)
             0 1), Cmd.none)
 
 
