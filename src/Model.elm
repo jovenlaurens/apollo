@@ -25,7 +25,7 @@ initial =
         (Spacecraft (Point 800.0 500.0) 0.0 Key_none 0.01)
         0
         1
-        Playing
+        Stopped
 
 
 type State

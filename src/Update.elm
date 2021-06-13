@@ -28,12 +28,14 @@ updatespc : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updatespc msg ( model, cmd ) =
     case msg of
         Tick elapsed ->
-            ( { model | move_timer = model.move_timer + elapsed }
+            { model | move_timer = model.move_timer + elapsed }
                 |> protonbounce
                 |> spcmove
                 |> protonmove
-            , cmd
-            )
+                |> saveToStorage
+
+        Start ->
+            ( { initial | state = Playing }, Cmd.none )
 
         Key keydir ->
             ( model
