@@ -1,8 +1,16 @@
-module Messages exposing (..)
-import Model exposing (Dir)
---Msg
+module Messages exposing (Keydir(..), Msg(..))
+
+
+type Keydir
+    = Key_right
+    | Key_left
+    | Key_none
 
 
 type Msg
-    = Key Dir
+    = Start
+    | Pause
+    | Resume
     | Tick Float
+    | Key Keydir
+    | Pass Int --when level up
