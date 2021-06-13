@@ -21,7 +21,7 @@ initial : Model
 initial =
     Model (Sun (Point 500 500) 60.0)
         (Earth (Point 1 1) 0 0 0)
-        (Proton (Point 50 350) 0.2 5.0 2.0 1)
+        (Proton (Point 50 350) 0.2 7.5 2.0 1)
         (Spacecraft (Point 800.0 500.0) 0.0 Key_none 0.01)
         0
         1

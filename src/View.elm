@@ -33,7 +33,7 @@ drawSpacecraft spacecraft =
     [ Svg.rect
         [ SvgAttr.width (toString spcwidth)
         , SvgAttr.height (toString spcheight)
-        , SvgAttr.fill "Blue"
+        , SvgAttr.fill "white"
         , SvgAttr.x x_
         , SvgAttr.y y_
         , SvgAttr.transform (String.concat [ "rotate(", an, " ", x_1, " ", y_1, ")" ])
@@ -49,9 +49,7 @@ drawSun sun =
         [ SvgAttr.cx (toString sun.pos.x)
         , SvgAttr.cy (toString sun.pos.y)
         , SvgAttr.r (toString sun.radius)
-        , SvgAttr.stroke "black"
-        , SvgAttr.strokeWidth "2"
-        , SvgAttr.fill "red"
+        , SvgAttr.fill "#f2d647"
         ]
         []
     ]
@@ -69,9 +67,10 @@ drawTrack =
         [ SvgAttr.cx (toString originX)
         , SvgAttr.cy (toString originY)
         , SvgAttr.r (toString tracradius)
-        , SvgAttr.stroke "black"
+        , SvgAttr.stroke "white"
         , SvgAttr.strokeWidth "2"
-        , SvgAttr.strokeDasharray "5,5"
+        , SvgAttr.strokeDasharray "20"
+        , SvgAttr.fillOpacity "0"
         ]
         []
     ]
@@ -83,7 +82,7 @@ drawproton proton =
         [ SvgAttr.cx (toString proton.pos.x)
         , SvgAttr.cy (toString proton.pos.y)
         , SvgAttr.r (toString proton.radius)
-        , SvgAttr.fill "blue"
+        , SvgAttr.fill "#eac444"
         ]
         []
     ]
