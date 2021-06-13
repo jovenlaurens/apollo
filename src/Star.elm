@@ -1,6 +1,12 @@
 module Star exposing (..)
 
-import Point exposing (Point)
+import Messages exposing (Keydir)
+
+
+type alias Point =
+    { x : Float
+    , y : Float
+    }
 
 
 type alias Earth =
@@ -28,7 +34,34 @@ type alias Proton =
 
 type alias Spacecraft =
     { pos : Point
-    , polar_axis : Float
-    , polar_angle : Float
-    , dir : Float --delta angle
+    , angle : Float
+    , dir : Keydir
+    , velocity : Float --delta angle
     }
+
+
+tracradius : Float
+tracradius =
+    300.0
+
+
+spcwidth : Float
+spcwidth =
+    60.0
+
+
+spcheight : Float
+spcheight =
+    20.0
+
+
+originX =
+    500.0
+
+
+originY =
+    500.0
+
+
+sunRadius =
+    60.0

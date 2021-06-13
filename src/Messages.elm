@@ -9,6 +9,8 @@ type Keydir
 
 type Msg
     = Start
+    | Pause
+    | Resume
     | Tick Float
     | Key Keydir
     | Pass Int --when level up

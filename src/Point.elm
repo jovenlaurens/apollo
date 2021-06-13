@@ -1,4 +1,4 @@
-module Point exposing (Point, move)
+module Point exposing (move)
 
 
 type alias Point =

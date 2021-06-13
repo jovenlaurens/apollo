@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp)
@@ -9,13 +9,20 @@ import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
 import Json.Decode as Decode
 import Messages exposing (Keydir(..), Msg(..))
-import Model exposing (Model, init)
+import Model exposing (Model, initial)
+import Update exposing (update)
 import View exposing (view)
 
 
 main =
     Browser.element
-        { init = init
+        { init =
+            \value ->
+                ( value
+                    |> Decode.decodeValue Model.decode
+                    |> Result.withDefault Model.initial
+                , Cmd.none
+                )
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -25,7 +32,11 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ onAnimationFrameDelta Tick
+        [ if model.state == Model.Playing then
+            onAnimationFrameDelta Tick
+
+          else
+            Sub.none
         , onKeyDown (Decode.map key keyCode)
         , onKeyUp (Decode.map key_up keyCode)
         ]
