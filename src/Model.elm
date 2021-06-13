@@ -1,6 +1,7 @@
-module Model exposing ( Model, State(..), init)
-import Star exposing (Earth, Proton, Sun, Spacecraft, Point)
+module Model exposing (Model, State(..), init)
+
 import Messages exposing (Keydir(..), Msg(..))
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun)
 
 
 type alias Model =
@@ -20,9 +21,14 @@ type State
 
 init : () -> ( Model, Cmd Msg )
 init a =
-    ((Model (Sun (Point 500 500) 60.0) (Earth (Point 1 1) 0 0 0) 
-            (Proton (Point 50 350) 0.2 5.0 2.0 1) (Spacecraft (Point 800.0 500.0) 0.0 Key_none 0.01)
-            0 1), Cmd.none)
+    ( Model (Sun (Point 500 500) 60.0)
+        (Earth (Point 1 1) 0 0 0)
+        (Proton (Point 50 350) 0.2 5.0 2.0 1)
+        (Spacecraft (Point 500.0 200.0) 0.0 Key_none 0.01)
+        0
+        1
+    , Cmd.none
+    )
 
 
 decodeState : String -> State

@@ -189,16 +189,19 @@ checkoutspc model =
     in
     if distance_ <= stand then
         let
-            k =
-                tan model.proton.dir
+            di =
+                model.proton.dir
+            an = model.spacecraft.angle
+            proton_ =
+                model.proton
 
             newangle =
-                atan ((b ^ 2) * k + a * b - a ^ 2 + a * b) / (a * b + a ^ 2 + a * b * k)
-
-            proton =
-                model.proton
+                pi - 2 * an - di
+                --还是不对我哭了
+                ---对了！！！
+  
         in
-        { model | proton = { proton | dir = newangle } }
+        { model | proton = { proton_ | dir = newangle } }
 
     else
         model
@@ -223,19 +226,17 @@ getLine pos angle =
         (0, 1, -pos.y)
     else
     let
-        slope = -1 / tan angle
-
-        a =
-            slope
-
-        b =
-            -1
-
         x =
             pos.x
 
         y =
             pos.y
+        a = -1 / ((y - 500) / (x - 500))
+
+
+        b =
+            -1
+
 
         c =
             y - a * x

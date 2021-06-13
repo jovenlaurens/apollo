@@ -82,6 +82,8 @@ renderInfo model =
         --proton圆心到l1的距离
         stand =
             model.proton.radius + (0.5 * spcheight)
+        angle = 
+            model.proton.dir
         
     in
         div
@@ -90,15 +92,15 @@ renderInfo model =
            div 
             [ style "color" "#00FF00"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "20px"
+        , style "font-size" "10px"
         , style "font-weight" "bold"
         , style "line-height" "10"
         , style "position" "absolute"
         , style "top" "0"
-        , style "width" "200px"
+        , style "width" "1000px"
         , style "height" "50px"
              ]
-             [ text ((String.fromFloat distance_) ++"   "++ (String.fromFloat stand))
+             [ text ((String.fromFloat model.proton.dir)++ (String.fromFloat model.spacecraft.angle)) 
              ]
              ,
              div
