@@ -7,14 +7,10 @@ type Keydir
     | Key_none Int
 
 
-
-
-
 type Msg
     = Start
     | Pause
     | Resume
     | Tick Float
     | Key Keydir
-    | Pass Int --when level up
     | Reinit Int

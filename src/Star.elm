@@ -66,4 +66,6 @@ originY =
 sunRadius =
     60.0
 
-availableScale = atan ((0.5 * spcwidth)/(tracradius))
+
+availableScale =
+    atan ((0.5 * spcwidth) / tracradius)

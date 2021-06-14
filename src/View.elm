@@ -15,7 +15,7 @@ import Update exposing (dotLineDistance, getLine)
 drawSpacecraft : List Spacecraft -> List (Svg msg)
 drawSpacecraft spacecraft =
     List.map drawSpacecraft_Inside spacecraft |> List.concat
-    
+
 
 drawSpacecraft_Inside : Spacecraft -> List (Svg msg)
 drawSpacecraft_Inside spacecraft =
@@ -93,6 +93,7 @@ drawSpacecraft_Inside spacecraft =
         []
     ]
 
+
 xShift : Float -> Float -> Float
 xShift x r =
     originX + (((tracradius + r) / tracradius) * (x - originX))
@@ -143,7 +144,7 @@ drawproton proton =
         [ SvgAttr.cx (toString proton.pos.x)
         , SvgAttr.cy (toString proton.pos.y)
         , SvgAttr.r (toString proton.radius)
-        , SvgAttr.fill "#eac444"
+        , SvgAttr.fill "#ffff00"
         ]
         []
     ]
@@ -162,7 +163,6 @@ renderGameButton_1 state =
 
                 Model.Paused ->
                     ( "Resume", Resume )
-        
     in
     button
         [ style "background" "#34495f"
@@ -187,7 +187,7 @@ renderGameButton_1 state =
 
 
 renderGameButton_2 : Int -> Html Msg
-renderGameButton_2 level = 
+renderGameButton_2 level =
     button
         [ style "background" "#34495f"
         , style "border" "0"

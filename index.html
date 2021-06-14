@@ -94,190 +94,6 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
 console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.1/optimize for better performance and smaller assets.');
 
 
-// EQUALITY
-
-function _Utils_eq(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-function _Utils_eqHelp(x, y, depth, stack)
-{
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (typeof x !== 'object' || x === null || y === null)
-	{
-		typeof x === 'function' && _Debug_crash(5);
-		return false;
-	}
-
-	if (depth > 100)
-	{
-		stack.push(_Utils_Tuple2(x,y));
-		return true;
-	}
-
-	/**/
-	if (x.$ === 'Set_elm_builtin')
-	{
-		x = $elm$core$Set$toList(x);
-		y = $elm$core$Set$toList(y);
-	}
-	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	/**_UNUSED/
-	if (x.$ < 0)
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	for (var key in x)
-	{
-		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-var _Utils_equal = F2(_Utils_eq);
-var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
-
-
-
-// COMPARISONS
-
-// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
-// the particular integer values assigned to LT, EQ, and GT.
-
-function _Utils_cmp(x, y, ord)
-{
-	if (typeof x !== 'object')
-	{
-		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
-	}
-
-	/**/
-	if (x instanceof String)
-	{
-		var a = x.valueOf();
-		var b = y.valueOf();
-		return a === b ? 0 : a < b ? -1 : 1;
-	}
-	//*/
-
-	/**_UNUSED/
-	if (typeof x.$ === 'undefined')
-	//*/
-	/**/
-	if (x.$[0] === '#')
-	//*/
-	{
-		return (ord = _Utils_cmp(x.a, y.a))
-			? ord
-			: (ord = _Utils_cmp(x.b, y.b))
-				? ord
-				: _Utils_cmp(x.c, y.c);
-	}
-
-	// traverse conses until end of a list or a mismatch
-	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
-	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
-}
-
-var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
-var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
-var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
-var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
-
-var _Utils_compare = F2(function(x, y)
-{
-	var n = _Utils_cmp(x, y);
-	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
-});
-
-
-// COMMON VALUES
-
-var _Utils_Tuple0_UNUSED = 0;
-var _Utils_Tuple0 = { $: '#0' };
-
-function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
-
-function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
-
-function _Utils_chr_UNUSED(c) { return c; }
-function _Utils_chr(c) { return new String(c); }
-
-
-// RECORDS
-
-function _Utils_update(oldRecord, updatedFields)
-{
-	var newRecord = {};
-
-	for (var key in oldRecord)
-	{
-		newRecord[key] = oldRecord[key];
-	}
-
-	for (var key in updatedFields)
-	{
-		newRecord[key] = updatedFields[key];
-	}
-
-	return newRecord;
-}
-
-
-// APPEND
-
-var _Utils_append = F2(_Utils_ap);
-
-function _Utils_ap(xs, ys)
-{
-	// append Strings
-	if (typeof xs === 'string')
-	{
-		return xs + ys;
-	}
-
-	// append Lists
-	if (!xs.b)
-	{
-		return ys;
-	}
-	var root = _List_Cons(xs.a, ys);
-	xs = xs.b
-	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		curr = curr.b = _List_Cons(xs.a, ys);
-	}
-	return root;
-}
-
-
-
 var _List_Nil_UNUSED = { $: 0 };
 var _List_Nil = { $: '[]' };
 
@@ -803,6 +619,190 @@ function _Debug_regionToString(region)
 		return 'on line ' + region.start.line;
 	}
 	return 'on lines ' + region.start.line + ' through ' + region.end.line;
+}
+
+
+
+// EQUALITY
+
+function _Utils_eq(x, y)
+{
+	for (
+		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
+		isEqual && (pair = stack.pop());
+		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
+		)
+	{}
+
+	return isEqual;
+}
+
+function _Utils_eqHelp(x, y, depth, stack)
+{
+	if (x === y)
+	{
+		return true;
+	}
+
+	if (typeof x !== 'object' || x === null || y === null)
+	{
+		typeof x === 'function' && _Debug_crash(5);
+		return false;
+	}
+
+	if (depth > 100)
+	{
+		stack.push(_Utils_Tuple2(x,y));
+		return true;
+	}
+
+	/**/
+	if (x.$ === 'Set_elm_builtin')
+	{
+		x = $elm$core$Set$toList(x);
+		y = $elm$core$Set$toList(y);
+	}
+	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	/**_UNUSED/
+	if (x.$ < 0)
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	for (var key in x)
+	{
+		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+var _Utils_equal = F2(_Utils_eq);
+var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
+
+
+
+// COMPARISONS
+
+// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
+// the particular integer values assigned to LT, EQ, and GT.
+
+function _Utils_cmp(x, y, ord)
+{
+	if (typeof x !== 'object')
+	{
+		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
+	}
+
+	/**/
+	if (x instanceof String)
+	{
+		var a = x.valueOf();
+		var b = y.valueOf();
+		return a === b ? 0 : a < b ? -1 : 1;
+	}
+	//*/
+
+	/**_UNUSED/
+	if (typeof x.$ === 'undefined')
+	//*/
+	/**/
+	if (x.$[0] === '#')
+	//*/
+	{
+		return (ord = _Utils_cmp(x.a, y.a))
+			? ord
+			: (ord = _Utils_cmp(x.b, y.b))
+				? ord
+				: _Utils_cmp(x.c, y.c);
+	}
+
+	// traverse conses until end of a list or a mismatch
+	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
+	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
+}
+
+var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
+var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
+var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
+var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
+
+var _Utils_compare = F2(function(x, y)
+{
+	var n = _Utils_cmp(x, y);
+	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
+});
+
+
+// COMMON VALUES
+
+var _Utils_Tuple0_UNUSED = 0;
+var _Utils_Tuple0 = { $: '#0' };
+
+function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
+
+function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+
+function _Utils_chr_UNUSED(c) { return c; }
+function _Utils_chr(c) { return new String(c); }
+
+
+// RECORDS
+
+function _Utils_update(oldRecord, updatedFields)
+{
+	var newRecord = {};
+
+	for (var key in oldRecord)
+	{
+		newRecord[key] = oldRecord[key];
+	}
+
+	for (var key in updatedFields)
+	{
+		newRecord[key] = updatedFields[key];
+	}
+
+	return newRecord;
+}
+
+
+// APPEND
+
+var _Utils_append = F2(_Utils_ap);
+
+function _Utils_ap(xs, ys)
+{
+	// append Strings
+	if (typeof xs === 'string')
+	{
+		return xs + ys;
+	}
+
+	// append Lists
+	if (!xs.b)
+	{
+		return ys;
+	}
+	var root = _List_Cons(xs.a, ys);
+	xs = xs.b
+	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		curr = curr.b = _List_Cons(xs.a, ys);
+	}
+	return root;
 }
 
 
@@ -4370,9 +4370,32 @@ function _Browser_load(url)
 	}));
 }
 var $elm$core$Basics$EQ = {$: 'EQ'};
-var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
+var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
+var $elm$core$Array$foldr = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldr,
+			helper,
+			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
+			tree);
+	});
+var $elm$core$Array$toList = function (array) {
+	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
+};
 var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
@@ -4425,30 +4448,19 @@ var $elm$core$Set$toList = function (_v0) {
 	var dict = _v0.a;
 	return $elm$core$Dict$keys(dict);
 };
-var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
-var $elm$core$Array$foldr = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldr,
-			helper,
-			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
-			tree);
+var $elm$core$Basics$GT = {$: 'GT'};
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
 	});
-var $elm$core$Array$toList = function (array) {
-	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
-};
+var $author$project$Star$Earth = F4(
+	function (pos, velocity, lives, radius) {
+		return {lives: lives, pos: pos, radius: radius, velocity: velocity};
+	});
+var $author$project$Star$Point = F2(
+	function (x, y) {
+		return {x: x, y: y};
+	});
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4714,10 +4726,6 @@ var $elm$core$Basics$apL = F2(
 	function (f, x) {
 		return f(x);
 	});
-var $elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
 var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
@@ -4844,8 +4852,173 @@ var $elm$core$Result$isOk = function (result) {
 		return false;
 	}
 };
-var $elm$json$Json$Decode$map = _Json_map1;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$map2 = _Json_map2;
+var $author$project$Model$decodePoint = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Star$Point,
+	A2($elm$json$Json$Decode$field, 'x', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'y', $elm$json$Json$Decode$float));
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $author$project$Model$decodeEarth = A5(
+	$elm$json$Json$Decode$map4,
+	$author$project$Star$Earth,
+	A2($elm$json$Json$Decode$field, 'earthp', $author$project$Model$decodePoint),
+	A2($elm$json$Json$Decode$field, 'earthv', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'earthl', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'earthr', $elm$json$Json$Decode$float));
+var $author$project$Star$Proton = F5(
+	function (pos, dir, radius, velocity, intensity) {
+		return {dir: dir, intensity: intensity, pos: pos, radius: radius, velocity: velocity};
+	});
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $author$project$Model$decodeProton = A6(
+	$elm$json$Json$Decode$map5,
+	$author$project$Star$Proton,
+	A2($elm$json$Json$Decode$field, 'protonp', $author$project$Model$decodePoint),
+	A2($elm$json$Json$Decode$field, 'protond', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'protonr', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'protonv', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'protoni', $elm$json$Json$Decode$int));
+var $author$project$Messages$Key_left = function (a) {
+	return {$: 'Key_left', a: a};
+};
+var $author$project$Messages$Key_none = function (a) {
+	return {$: 'Key_none', a: a};
+};
+var $author$project$Messages$Key_right = function (a) {
+	return {$: 'Key_right', a: a};
+};
+var $author$project$Model$decodeKeydir = function (string) {
+	switch (string) {
+		case 'keyleft_Inside':
+			return $author$project$Messages$Key_left(1);
+		case 'keyright_Inside':
+			return $author$project$Messages$Key_right(1);
+		case 'keyleft_Outside':
+			return $author$project$Messages$Key_left(2);
+		case 'keyright_Outside':
+			return $author$project$Messages$Key_right(2);
+		case 'keynone':
+			return $author$project$Messages$Key_none(1);
+		default:
+			return $author$project$Messages$Key_none(1);
+	}
+};
+var $author$project$Star$Spacecraft = F4(
+	function (pos, angle, dir, velocity) {
+		return {angle: angle, dir: dir, pos: pos, velocity: velocity};
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$Model$decodeListSpc = F8(
+	function (a, b, c, d, e, f, g, h) {
+		var second = A4($author$project$Star$Spacecraft, e, f, g, h);
+		var first = A4($author$project$Star$Spacecraft, a, b, c, d);
+		return (_Utils_eq(d, h) && _Utils_eq(b, f)) ? $elm$core$List$singleton(first) : A2(
+			$elm$core$List$cons,
+			first,
+			$elm$core$List$singleton(second));
+	});
+var $elm$json$Json$Decode$map = _Json_map1;
+var $elm$json$Json$Decode$map8 = _Json_map8;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Model$decodeSpc = A9(
+	$elm$json$Json$Decode$map8,
+	$author$project$Model$decodeListSpc,
+	A2($elm$json$Json$Decode$field, 'spcp1', $author$project$Model$decodePoint),
+	A2($elm$json$Json$Decode$field, 'spcv1', $elm$json$Json$Decode$float),
+	A2(
+		$elm$json$Json$Decode$field,
+		'spcd1',
+		A2($elm$json$Json$Decode$map, $author$project$Model$decodeKeydir, $elm$json$Json$Decode$string)),
+	A2($elm$json$Json$Decode$field, 'spca1', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'spcp2', $author$project$Model$decodePoint),
+	A2($elm$json$Json$Decode$field, 'spcv2', $elm$json$Json$Decode$float),
+	A2(
+		$elm$json$Json$Decode$field,
+		'spcd2',
+		A2($elm$json$Json$Decode$map, $author$project$Model$decodeKeydir, $elm$json$Json$Decode$string)),
+	A2($elm$json$Json$Decode$field, 'spca2', $elm$json$Json$Decode$float));
+var $author$project$Model$Paused = {$: 'Paused'};
+var $author$project$Model$Playing = {$: 'Playing'};
+var $author$project$Model$Stopped = {$: 'Stopped'};
+var $author$project$Model$decodeState = function (string) {
+	switch (string) {
+		case 'playing':
+			return $author$project$Model$Playing;
+		case 'Paused':
+			return $author$project$Model$Paused;
+		default:
+			return $author$project$Model$Stopped;
+	}
+};
+var $author$project$Star$Sun = F2(
+	function (pos, radius) {
+		return {pos: pos, radius: radius};
+	});
+var $author$project$Model$decodeSun = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Star$Sun,
+	A2($elm$json$Json$Decode$field, 'sunp', $author$project$Model$decodePoint),
+	A2($elm$json$Json$Decode$field, 'sunr', $elm$json$Json$Decode$float));
+var $author$project$Model$Model = F8(
+	function (sun, earth, proton, spacecraft, move_timer, level, state, heart) {
+		return {earth: earth, heart: heart, level: level, move_timer: move_timer, proton: proton, spacecraft: spacecraft, state: state, sun: sun};
+	});
+var $author$project$Model$initial = A8(
+	$author$project$Model$Model,
+	A2(
+		$author$project$Star$Sun,
+		A2($author$project$Star$Point, 500, 500),
+		60.0),
+	A4(
+		$author$project$Star$Earth,
+		A2($author$project$Star$Point, 1, 1),
+		0,
+		0,
+		0),
+	A5(
+		$author$project$Star$Proton,
+		A2($author$project$Star$Point, 50, 350),
+		0.2,
+		7.5,
+		2.0,
+		5),
+	$elm$core$List$singleton(
+		A4(
+			$author$project$Star$Spacecraft,
+			A2($author$project$Star$Point, 800.0, 500.0),
+			0.0,
+			$author$project$Messages$Key_none(1),
+			0.01)),
+	0,
+	1,
+	$author$project$Model$Stopped,
+	2);
+var $elm$json$Json$Decode$map6 = _Json_map6;
+var $author$project$Model$decode = A7(
+	$elm$json$Json$Decode$map6,
+	F6(
+		function (earth, sun, spacecraft, proton, level, state) {
+			return _Utils_update(
+				$author$project$Model$initial,
+				{earth: earth, level: level, proton: proton, spacecraft: spacecraft, state: state, sun: sun});
+		}),
+	A2($elm$json$Json$Decode$field, 'earth', $author$project$Model$decodeEarth),
+	A2($elm$json$Json$Decode$field, 'sun', $author$project$Model$decodeSun),
+	A2($elm$json$Json$Decode$field, 'spacecraft', $author$project$Model$decodeSpc),
+	A2($elm$json$Json$Decode$field, 'proton', $author$project$Model$decodeProton),
+	A2($elm$json$Json$Decode$field, 'level', $elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$field,
+		'state',
+		A2($elm$json$Json$Decode$map, $author$project$Model$decodeState, $elm$json$Json$Decode$string)));
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
 var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
@@ -5158,152 +5331,87 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Alive = {$: 'Alive'};
-var $author$project$Main$Ball = F4(
-	function (pos, dir, liveStatus, radius) {
-		return {dir: dir, liveStatus: liveStatus, pos: pos, radius: radius};
-	});
-var $author$project$Main$Key_none = {$: 'Key_none'};
-var $author$project$Main$Model = F4(
-	function (brick, move_timer, paddle, ball) {
-		return {ball: ball, brick: brick, move_timer: move_timer, paddle: paddle};
-	});
-var $author$project$Main$Paddle = F3(
-	function (pos, dir, border) {
-		return {border: border, dir: dir, pos: pos};
-	});
-var $author$project$Main$Point = F2(
-	function (x, y) {
-		return {x: x, y: y};
-	});
-var $author$project$Main$ball_radius = 20;
-var $author$project$Main$brick_number = _Utils_Tuple2(10, 8);
-var $author$project$Main$Line = F2(
-	function (p1, p2) {
-		return {p1: p1, p2: p2};
-	});
-var $author$project$Main$brick_height = 50;
-var $author$project$Main$brick_width = 100;
-var $author$project$Main$generateRectLines_4 = function (point) {
-	var point3 = A2($author$project$Main$Point, point.x + $author$project$Main$brick_width, point.y);
-	var point2 = A2($author$project$Main$Point, point.x + $author$project$Main$brick_width, point.y - $author$project$Main$brick_height);
-	var point1 = A2($author$project$Main$Point, point.x, point.y - $author$project$Main$brick_height);
-	return _List_fromArray(
-		[
-			A2($author$project$Main$Line, point, point1),
-			A2($author$project$Main$Line, point1, point2),
-			A2($author$project$Main$Line, point2, point3),
-			A2($author$project$Main$Line, point3, point)
-		]);
-};
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $author$project$Main$Brick = F2(
-	function (pos, border) {
-		return {border: border, pos: pos};
-	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
-var $author$project$Main$generateonebrick = function (position) {
-	var pos = A2($author$project$Main$Point, ($author$project$Main$brick_width * position.a) + 1, ($author$project$Main$brick_height * position.b) - 1);
-	return A2(
-		$author$project$Main$Brick,
-		pos,
-		$author$project$Main$generateRectLines_4(pos));
-};
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $author$project$Main$toFloatPoint = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return _Utils_Tuple2(x, y);
-};
-var $author$project$Main$generatebricks = function (size) {
-	var rangey = A2($elm$core$List$range, 0, size.b - 1);
-	var rangex = A2($elm$core$List$range, 0, size.a - 1);
-	var line = function (y) {
-		return A2(
-			$elm$core$List$map,
-			function (x) {
-				return A2($elm$core$Tuple$pair, x, y);
-			},
-			rangex);
-	};
-	return A2(
-		$elm$core$List$map,
-		$author$project$Main$generateonebrick,
-		A2(
-			$elm$core$List$map,
-			$author$project$Main$toFloatPoint,
-			$elm$core$List$concat(
-				A2($elm$core$List$map, line, rangey))));
-};
-var $author$project$Main$initModel = A4(
-	$author$project$Main$Model,
-	$author$project$Main$generatebricks($author$project$Main$brick_number),
-	0,
-	A3(
-		$author$project$Main$Paddle,
-		A2($author$project$Main$Point, 500.0, 900.0),
-		$author$project$Main$Key_none,
-		$author$project$Main$generateRectLines_4(
-			A2($author$project$Main$Point, 500.0, 700.0))),
-	A4(
-		$author$project$Main$Ball,
-		A2($author$project$Main$Point, 100.0, 400.0),
-		45.0,
-		$author$project$Main$Alive,
-		$author$project$Main$ball_radius));
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (a) {
-	return _Utils_Tuple2($author$project$Main$initModel, $elm$core$Platform$Cmd$none);
-};
-var $author$project$Main$Tick = function (a) {
+var $author$project$Messages$Tick = function (a) {
 	return {$: 'Tick', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $author$project$Main$Key = function (a) {
+var $author$project$Messages$Key = function (a) {
 	return {$: 'Key', a: a};
 };
-var $author$project$Main$Key_left = {$: 'Key_left'};
-var $author$project$Main$Key_right = {$: 'Key_right'};
-var $author$project$Main$key = function (keycode) {
-	switch (keycode) {
-		case 37:
-			return $author$project$Main$Key($author$project$Main$Key_left);
-		case 39:
-			return $author$project$Main$Key($author$project$Main$Key_right);
-		default:
-			return $author$project$Main$Key($author$project$Main$Key_none);
-	}
-};
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $author$project$Main$key = F2(
+	function (model, keycode) {
+		var _v0 = model.level;
+		if (_v0 === 1) {
+			switch (keycode) {
+				case 37:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_left(1));
+				case 39:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_right(1));
+				default:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+			}
+		} else {
+			switch (keycode) {
+				case 37:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_left(1));
+				case 39:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_right(1));
+				case 65:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_left(2));
+				case 68:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_right(2));
+				default:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+			}
+		}
+	});
 var $elm$html$Html$Events$keyCode = A2($elm$json$Json$Decode$field, 'keyCode', $elm$json$Json$Decode$int);
-var $author$project$Main$key_up = function (keycode) {
-	switch (keycode) {
-		case 37:
-			return $author$project$Main$Key($author$project$Main$Key_none);
-		case 39:
-			return $author$project$Main$Key($author$project$Main$Key_none);
-		default:
-			return $author$project$Main$Key($author$project$Main$Key_none);
-	}
-};
+var $author$project$Main$key_up = F2(
+	function (model, keycode) {
+		var _v0 = model.level;
+		if (_v0 === 1) {
+			switch (keycode) {
+				case 37:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+				case 39:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+				default:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+			}
+		} else {
+			switch (keycode) {
+				case 37:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+				case 39:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+				case 65:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(2));
+				case 68:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(2));
+				default:
+					return $author$project$Messages$Key(
+						$author$project$Messages$Key_none(1));
+			}
+		}
+	});
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
 };
@@ -5842,277 +5950,990 @@ var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				$elm$browser$Browser$Events$onAnimationFrameDelta($author$project$Main$Tick),
+				_Utils_eq(model.state, $author$project$Model$Playing) ? $elm$browser$Browser$Events$onAnimationFrameDelta($author$project$Messages$Tick) : $elm$core$Platform$Sub$none,
 				$elm$browser$Browser$Events$onKeyDown(
-				A2($elm$json$Json$Decode$map, $author$project$Main$key, $elm$html$Html$Events$keyCode)),
+				A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Main$key(model),
+					$elm$html$Html$Events$keyCode)),
 				$elm$browser$Browser$Events$onKeyUp(
-				A2($elm$json$Json$Decode$map, $author$project$Main$key_up, $elm$html$Html$Events$keyCode))
+				A2(
+					$elm$json$Json$Decode$map,
+					$author$project$Main$key_up(model),
+					$elm$html$Html$Events$keyCode))
 			]));
 };
-var $author$project$Main$changeballdir = F2(
-	function (ball, number) {
-		return A4($author$project$Main$Ball, ball.pos, number - ball.dir, ball.liveStatus, $author$project$Main$ball_radius);
-	});
-var $author$project$Main$checkFourOutlines = function (model) {
-	var y = model.ball.pos.y;
-	var x = model.ball.pos.x;
-	var r = model.ball.radius;
-	var angle = ((_Utils_cmp(x, r) < 1) || (_Utils_cmp(1000 - x, r) < 1)) ? 180 : (((_Utils_cmp(y, r) < 1) || (_Utils_cmp(1000 - y, r) < 1)) ? 360 : (2 * model.ball.dir));
-	return _Utils_update(
-		model,
-		{
-			ball: A2($author$project$Main$changeballdir, model.ball, angle)
-		});
+var $author$project$Update$addSpacecraft = function (spacecraft) {
+	return _Utils_ap(
+		spacecraft,
+		$elm$core$List$singleton(
+			A4(
+				$author$project$Star$Spacecraft,
+				A2($author$project$Star$Point, 900.0, 500.0),
+				0.0,
+				$author$project$Messages$Key_none(2),
+				0.01)));
 };
+var $author$project$Update$reinitModel = F2(
+	function (level, model) {
+		var prototype = $author$project$Model$initial;
+		switch (level) {
+			case 1:
+				return prototype;
+			case 2:
+				return _Utils_update(
+					prototype,
+					{
+						level: 2,
+						spacecraft: $author$project$Update$addSpacecraft(model.spacecraft),
+						state: $author$project$Model$Paused
+					});
+			case 3:
+				return model;
+			case 4:
+				return model;
+			default:
+				return model;
+		}
+	});
+var $author$project$Update$checkPass = function (model) {
+	return (model.proton.intensity <= 0) ? A2($author$project$Update$reinitModel, model.level + 1, model) : model;
+};
+var $elm$core$Basics$atan = _Basics_atan;
+var $author$project$Star$spcwidth = 60.0;
+var $author$project$Star$tracradius = 300.0;
+var $author$project$Star$availableScale = $elm$core$Basics$atan((0.5 * $author$project$Star$spcwidth) / $author$project$Star$tracradius);
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
-var $elm$core$Basics$ge = _Utils_ge;
-var $author$project$Main$checkOneBrick = F2(
-	function (brick, model) {
-		var y1 = brick.pos.y;
-		var y2 = y1 - $author$project$Main$brick_height;
-		var y = model.ball.pos.y;
-		var x1 = brick.pos.x;
-		var x2 = x1 + $author$project$Main$brick_width;
-		var x = model.ball.pos.x;
-		var r = model.ball.radius;
-		return ((_Utils_cmp(x, x1) > -1) && (_Utils_cmp(x, x2) < 1)) ? (((_Utils_cmp(
-			$elm$core$Basics$abs(y - y1),
-			r) < 1) && (_Utils_cmp(
-			$elm$core$Basics$abs(y - y2),
-			r) < 1)) ? _Utils_update(
-			model,
-			{
-				ball: A2($author$project$Main$changeballdir, model.ball, 360)
-			}) : _Utils_update(
-			model,
-			{
-				brick: A2($elm$core$List$cons, brick, model.brick)
-			})) : (((_Utils_cmp(y, y2) > -1) && (_Utils_cmp(y, y1) < 1)) ? (((_Utils_cmp(
-			$elm$core$Basics$abs(x - x1),
-			r) < 1) && (_Utils_cmp(
-			$elm$core$Basics$abs(x - x2),
-			r) < 1)) ? _Utils_update(
-			model,
-			{
-				ball: A2($author$project$Main$changeballdir, model.ball, 360)
-			}) : _Utils_update(
-			model,
-			{
-				brick: A2($elm$core$List$cons, brick, model.brick)
-			})) : _Utils_update(
-			model,
-			{
-				brick: A2($elm$core$List$cons, brick, model.brick)
-			}));
+var $elm$core$Basics$pow = _Basics_pow;
+var $elm$core$Basics$sqrt = _Basics_sqrt;
+var $author$project$Update$dotLineDistance = F4(
+	function (point, a, b, c) {
+		var y = point.y;
+		var x = point.x;
+		return $elm$core$Basics$abs(((a * x) + (b * y)) + c) / $elm$core$Basics$sqrt(
+			A2($elm$core$Basics$pow, a, 2) + A2($elm$core$Basics$pow, b, 2));
 	});
-var $author$project$Main$checkoutBallBrick = function (model) {
-	var bricks = model.brick;
-	return A3(
-		$elm$core$List$foldr,
-		$author$project$Main$checkOneBrick,
-		_Utils_update(
-			model,
-			{brick: _List_Nil}),
-		bricks);
-};
-var $author$project$Main$paddle_width = 120;
-var $author$project$Main$checkoutBallPaddle = function (model) {
-	var y = model.ball.pos.y;
-	var x1 = model.paddle.pos.x;
-	var x2 = x1 + $author$project$Main$paddle_width;
-	var x = model.ball.pos.x;
-	var r = model.ball.radius;
-	var d = model.paddle.pos.y - y;
-	return ((_Utils_cmp(x1, x) < 1) && ((_Utils_cmp(x2, x) > -1) && (_Utils_cmp(d, r) < 1))) ? _Utils_update(
-		model,
-		{
-			ball: A2($author$project$Main$changeballdir, model.ball, 360)
-		}) : model;
-};
-var $author$project$Main$ballbounce = function (model) {
-	return $author$project$Main$checkoutBallBrick(
-		$author$project$Main$checkoutBallPaddle(
-			$author$project$Main$checkFourOutlines(model)));
-};
-var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$degrees = function (angleInDegrees) {
-	return (angleInDegrees * $elm$core$Basics$pi) / 180;
+var $author$project$Update$getLine = F2(
+	function (pos, angle) {
+		if ((!angle) || _Utils_eq(angle, $elm$core$Basics$pi)) {
+			return _Utils_Tuple3(1, 0, -pos.x);
+		} else {
+			if (_Utils_eq(angle, ($elm$core$Basics$pi * 1) / 2) || _Utils_eq(angle, ($elm$core$Basics$pi * 3) / 2)) {
+				return _Utils_Tuple3(0, 1, -pos.y);
+			} else {
+				var y = pos.y;
+				var x = pos.x;
+				var b = -1;
+				var a = (-1) / ((y - 500) / (x - 500));
+				var c = y - (a * x);
+				return _Utils_Tuple3(a, b, c);
+			}
+		}
+	});
+var $author$project$Star$originX = 500.0;
+var $author$project$Star$originY = 500.0;
+var $author$project$Star$spcheight = 20.0;
+var $elm$core$Basics$tan = _Basics_tan;
+var $author$project$Update$renewProtonDir = F2(
+	function (spacecraft, model) {
+		var stand = model.proton.radius + (0.5 * $author$project$Star$spcheight);
+		var special = $elm$core$Basics$atan((model.proton.pos.y - $author$project$Star$originY) / (model.proton.pos.x - $author$project$Star$originX));
+		var an = spacecraft.angle;
+		var field = $elm$core$Basics$atan(
+			$elm$core$Basics$tan(-an));
+		var _v0 = A2($author$project$Update$getLine, spacecraft.pos, spacecraft.angle);
+		var a = _v0.a;
+		var b = _v0.b;
+		var c = _v0.c;
+		var distance_ = A4($author$project$Update$dotLineDistance, model.proton.pos, a, b, c);
+		if ((_Utils_cmp(special, (field + $author$project$Star$availableScale) + 0.05) < 1) && ((_Utils_cmp(special, (field - $author$project$Star$availableScale) - 0.05) > -1) && (_Utils_cmp(distance_, stand) < 1))) {
+			var proton_ = model.proton;
+			var old_intensity = model.proton.intensity;
+			var di = model.proton.dir;
+			var newangle = ($elm$core$Basics$pi - (2 * an)) - di;
+			return _Utils_update(
+				model,
+				{
+					proton: _Utils_update(
+						proton_,
+						{dir: newangle, intensity: old_intensity - 1})
+				});
+		} else {
+			return model;
+		}
+	});
+var $author$project$Update$checkoutspc = function (model) {
+	return A3($elm$core$List$foldr, $author$project$Update$renewProtonDir, model, model.spacecraft);
 };
-var $elm$core$Basics$sin = _Basics_sin;
-var $author$project$Main$ballmove = function (model) {
-	return _Utils_update(
-		model,
-		{
-			ball: A4(
-				$author$project$Main$Ball,
-				A2(
-					$author$project$Main$Point,
-					model.ball.pos.x + ($elm$core$Basics$cos(
-						$elm$core$Basics$degrees(model.ball.dir)) * 2),
-					model.ball.pos.y + ($elm$core$Basics$sin(
-						$elm$core$Basics$degrees(model.ball.dir)) * 2)),
-				model.ball.dir,
-				$author$project$Main$Alive,
-				$author$project$Main$ball_radius)
-		});
-};
-var $author$project$Main$paddlechange = F2(
-	function (keydir, model) {
+var $elm$core$Basics$atan2 = _Basics_atan2;
+var $author$project$Update$anglebtwpoint = F2(
+	function (pa, pb) {
+		return A2($elm$core$Basics$atan2, pb.y - pa.y, pa.x - pb.x);
+	});
+var $author$project$Update$distance = F2(
+	function (pa, pb) {
+		var by = pb.y;
+		var bx = pb.x;
+		var ay = pa.y;
+		var ax = pa.x;
+		return $elm$core$Basics$sqrt(
+			A2($elm$core$Basics$pow, ax - bx, 2) + A2($elm$core$Basics$pow, ay - by, 2));
+	});
+var $author$project$Update$checkoutsun = function (model) {
+	var rs = model.sun.radius;
+	var rp = model.proton.radius;
+	var poss = model.sun.pos;
+	var posp = model.proton.pos;
+	var b = $elm$core$Basics$atan((posp.y - poss.y) / (posp.x - poss.x));
+	var ap2s = A2($author$project$Update$anglebtwpoint, posp, poss);
+	var ap = model.proton.dir;
+	var a = model.proton.dir;
+	var newdir = ($elm$core$Basics$pi - a) + (2 * b);
+	if (_Utils_cmp(
+		A2($author$project$Update$distance, posp, poss),
+		rp + rs) < 1) {
+		var proton_ = model.proton;
 		return _Utils_update(
 			model,
 			{
-				paddle: {border: model.paddle.border, dir: keydir, pos: model.paddle.pos}
+				proton: _Utils_update(
+					proton_,
+					{dir: newdir})
+			});
+	} else {
+		return model;
+	}
+};
+var $author$project$Update$protonbounce = function (model) {
+	return $author$project$Update$checkoutspc(
+		$author$project$Update$checkoutsun(model));
+};
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Update$move = F3(
+	function (element, direction, velocity) {
+		var point = element.pos;
+		var movePoint = function (oldpoint) {
+			return _Utils_update(
+				oldpoint,
+				{
+					x: oldpoint.x + (velocity * $elm$core$Basics$cos(direction)),
+					y: oldpoint.y + (velocity * $elm$core$Basics$sin(direction))
+				});
+		};
+		return _Utils_update(
+			element,
+			{
+				pos: movePoint(point)
 			});
 	});
-var $author$project$Main$paddlePosx = F2(
-	function (oldx, direction) {
-		switch (direction.$) {
-			case 'Key_right':
-				return oldx + 5.0;
-			case 'Key_left':
-				return oldx - 5.0;
-			default:
-				return oldx;
-		}
-	});
-var $author$project$Main$paddlemove = function (model) {
-	var newx = A2($author$project$Main$paddlePosx, model.paddle.pos.x, model.paddle.dir);
-	var newPoint = A2($author$project$Main$Point, newx, model.paddle.pos.y);
+var $author$project$Update$protonmove = function (model) {
 	return _Utils_update(
 		model,
 		{
-			paddle: {
-				border: $author$project$Main$generateRectLines_4(newPoint),
-				dir: model.paddle.dir,
-				pos: newPoint
-			}
+			proton: A3($author$project$Update$move, model.proton, model.proton.dir, model.proton.velocity)
 		});
 };
-var $author$project$Main$updatepaddle = F2(
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $author$project$Model$encodeEarth = function (earth) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'earthx',
+				$elm$json$Json$Encode$float(earth.pos.x)),
+				_Utils_Tuple2(
+				'earthy',
+				$elm$json$Json$Encode$float(earth.pos.y)),
+				_Utils_Tuple2(
+				'earthv',
+				$elm$json$Json$Encode$float(earth.velocity)),
+				_Utils_Tuple2(
+				'earthr',
+				$elm$json$Json$Encode$float(earth.radius)),
+				_Utils_Tuple2(
+				'earthl',
+				$elm$json$Json$Encode$int(earth.lives))
+			]));
+};
+var $author$project$Model$encodePoint = function (point) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'x',
+				$elm$json$Json$Encode$float(point.x)),
+				_Utils_Tuple2(
+				'y',
+				$elm$json$Json$Encode$float(point.y))
+			]));
+};
+var $author$project$Model$encodeProton = function (proton) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'protonp',
+				$author$project$Model$encodePoint(proton.pos)),
+				_Utils_Tuple2(
+				'protonv',
+				$elm$json$Json$Encode$float(proton.velocity)),
+				_Utils_Tuple2(
+				'protonr',
+				$elm$json$Json$Encode$float(proton.radius)),
+				_Utils_Tuple2(
+				'protoni',
+				$elm$json$Json$Encode$int(proton.intensity)),
+				_Utils_Tuple2(
+				'protond',
+				$elm$json$Json$Encode$float(proton.dir))
+			]));
+};
+var $author$project$Model$defaultSpacecraft = A4(
+	$author$project$Star$Spacecraft,
+	A2($author$project$Star$Point, 800.0, 500.0),
+	0.0,
+	$author$project$Messages$Key_none(1),
+	0.01);
+var $author$project$Model$encodeKeydir = function (keydir) {
+	_v0$4:
+	while (true) {
+		switch (keydir.$) {
+			case 'Key_left':
+				switch (keydir.a) {
+					case 1:
+						return 'keyleft_Inside';
+					case 2:
+						return 'keyleft_Outside';
+					default:
+						break _v0$4;
+				}
+			case 'Key_right':
+				switch (keydir.a) {
+					case 1:
+						return 'keyright_Inside';
+					case 2:
+						return 'keyright_Outside';
+					default:
+						break _v0$4;
+				}
+			default:
+				break _v0$4;
+		}
+	}
+	return 'keynone';
+};
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Model$encodeSpc = function (spc) {
+	var spc2 = A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$Model$defaultSpacecraft,
+		$elm$core$List$head(
+			$elm$core$List$reverse(spc)));
+	var spc1 = A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$Model$defaultSpacecraft,
+		$elm$core$List$head(spc));
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'spcp1',
+				$author$project$Model$encodePoint(spc1.pos)),
+				_Utils_Tuple2(
+				'spcv1',
+				$elm$json$Json$Encode$float(spc1.velocity)),
+				_Utils_Tuple2(
+				'spca1',
+				$elm$json$Json$Encode$float(spc1.angle)),
+				_Utils_Tuple2(
+				'spcd1',
+				$elm$json$Json$Encode$string(
+					$author$project$Model$encodeKeydir(spc1.dir))),
+				_Utils_Tuple2(
+				'spcp2',
+				$author$project$Model$encodePoint(spc2.pos)),
+				_Utils_Tuple2(
+				'spcv2',
+				$elm$json$Json$Encode$float(spc2.velocity)),
+				_Utils_Tuple2(
+				'spca2',
+				$elm$json$Json$Encode$float(spc2.angle)),
+				_Utils_Tuple2(
+				'spcd2',
+				$elm$json$Json$Encode$string(
+					$author$project$Model$encodeKeydir(spc2.dir)))
+			]));
+};
+var $author$project$Model$encodeState = function (state) {
+	switch (state.$) {
+		case 'Playing':
+			return 'playing';
+		case 'Stopped':
+			return 'stopped';
+		default:
+			return 'paused';
+	}
+};
+var $author$project$Model$encodeSun = function (sun) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'sunp',
+				$author$project$Model$encodePoint(sun.pos)),
+				_Utils_Tuple2(
+				'sunr',
+				$elm$json$Json$Encode$float(sun.radius))
+			]));
+};
+var $author$project$Model$encode = F2(
+	function (indent, model) {
+		return A2(
+			$elm$json$Json$Encode$encode,
+			indent,
+			$elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'earth',
+						$author$project$Model$encodeEarth(model.earth)),
+						_Utils_Tuple2(
+						'sun',
+						$author$project$Model$encodeSun(model.sun)),
+						_Utils_Tuple2(
+						'spacecraft',
+						$author$project$Model$encodeSpc(model.spacecraft)),
+						_Utils_Tuple2(
+						'proton',
+						$author$project$Model$encodeProton(model.proton)),
+						_Utils_Tuple2(
+						'level',
+						$elm$json$Json$Encode$int(model.level)),
+						_Utils_Tuple2(
+						'state',
+						$elm$json$Json$Encode$string(
+							$author$project$Model$encodeState(model.state)))
+					])));
+	});
+var $author$project$Update$save = _Platform_outgoingPort('save', $elm$json$Json$Encode$string);
+var $author$project$Update$saveToStorage = function (model) {
+	return _Utils_Tuple2(
+		model,
+		$author$project$Update$save(
+			A2($author$project$Model$encode, 2, model)));
+};
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $author$project$Update$spcdirchange_inside = F3(
+	function (keydir, index, list) {
+		if (index === 1) {
+			if (list.b) {
+				var x = list.a;
+				var xs = list.b;
+				return A2(
+					$elm$core$List$cons,
+					_Utils_update(
+						x,
+						{dir: keydir}),
+					xs);
+			} else {
+				return list;
+			}
+		} else {
+			if (list.b) {
+				var x = list.a;
+				var xs = list.b;
+				var old = A2(
+					$elm$core$Maybe$withDefault,
+					$author$project$Model$defaultSpacecraft,
+					$elm$core$List$head(
+						A2($elm$core$List$drop, 1, list)));
+				return A2(
+					$elm$core$List$cons,
+					x,
+					$elm$core$List$singleton(
+						_Utils_update(
+							old,
+							{dir: keydir})));
+			} else {
+				return list;
+			}
+		}
+	});
+var $author$project$Update$spcdirchange = F2(
+	function (keydir, model) {
+		return (model.level > 1) ? ((_Utils_eq(
+			keydir,
+			$author$project$Messages$Key_left(2)) || (_Utils_eq(
+			keydir,
+			$author$project$Messages$Key_right(2)) || _Utils_eq(
+			keydir,
+			$author$project$Messages$Key_none(2)))) ? _Utils_update(
+			model,
+			{
+				spacecraft: A3($author$project$Update$spcdirchange_inside, keydir, 2, model.spacecraft)
+			}) : _Utils_update(
+			model,
+			{
+				spacecraft: A3($author$project$Update$spcdirchange_inside, keydir, 1, model.spacecraft)
+			})) : _Utils_update(
+			model,
+			{
+				spacecraft: A3($author$project$Update$spcdirchange_inside, keydir, 1, model.spacecraft)
+			});
+	});
+var $author$project$Update$spcangle = F3(
+	function (angle, velocity, direction) {
+		switch (direction.$) {
+			case 'Key_right':
+				var a = direction.a;
+				return angle - velocity;
+			case 'Key_left':
+				var a = direction.a;
+				return angle + velocity;
+			default:
+				var a = direction.a;
+				return angle;
+		}
+	});
+var $author$project$Update$spcpostrans = function (angle) {
+	var posy = $author$project$Star$originY - ($author$project$Star$tracradius * $elm$core$Basics$sin(angle));
+	var posx = $author$project$Star$originX + ($author$project$Star$tracradius * $elm$core$Basics$cos(angle));
+	return A2($author$project$Star$Point, posx, posy);
+};
+var $author$project$Update$renewSpc = function (spacecraft) {
+	var newangle = A3($author$project$Update$spcangle, spacecraft.angle, spacecraft.velocity, spacecraft.dir);
+	var newPoint = $author$project$Update$spcpostrans(newangle);
+	return _Utils_update(
+		spacecraft,
+		{angle: newangle, pos: newPoint});
+};
+var $author$project$Update$spcmove = function (model) {
+	return _Utils_update(
+		model,
+		{
+			spacecraft: A2($elm$core$List$map, $author$project$Update$renewSpc, model.spacecraft)
+		});
+};
+var $author$project$Update$updatespc = F2(
 	function (msg, _v0) {
 		var model = _v0.a;
 		var cmd = _v0.b;
-		if (msg.$ === 'Tick') {
-			var elapsed = msg.a;
-			return _Utils_Tuple2(
-				$author$project$Main$ballbounce(
-					$author$project$Main$paddlemove(
-						$author$project$Main$ballmove(
-							_Utils_update(
-								model,
-								{move_timer: model.move_timer + elapsed})))),
-				cmd);
-		} else {
-			var keydir = msg.a;
-			return _Utils_Tuple2(
-				$author$project$Main$ballbounce(
-					A2(
-						$author$project$Main$paddlechange,
-						keydir,
-						$author$project$Main$ballmove(model))),
-				cmd);
+		switch (msg.$) {
+			case 'Reinit':
+				var level = msg.a;
+				return _Utils_Tuple2(
+					A2($author$project$Update$reinitModel, level, model),
+					$elm$core$Platform$Cmd$none);
+			case 'Tick':
+				var elapsed = msg.a;
+				return $author$project$Update$saveToStorage(
+					$author$project$Update$checkPass(
+						$author$project$Update$protonmove(
+							$author$project$Update$spcmove(
+								$author$project$Update$protonbounce(
+									_Utils_update(
+										model,
+										{move_timer: model.move_timer + elapsed}))))));
+			case 'Start':
+				return _Utils_Tuple2(
+					_Utils_update(
+						$author$project$Model$initial,
+						{state: $author$project$Model$Playing}),
+					$elm$core$Platform$Cmd$none);
+			case 'Key':
+				var keydir = msg.a;
+				return _Utils_Tuple2(
+					A2($author$project$Update$spcdirchange, keydir, model),
+					cmd);
+			case 'Pause':
+				return $author$project$Update$saveToStorage(
+					_Utils_update(
+						model,
+						{state: $author$project$Model$Paused}));
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{state: $author$project$Model$Playing}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$update = F2(
+var $author$project$Update$update = F2(
 	function (msg, model) {
 		return A2(
-			$author$project$Main$updatepaddle,
+			$author$project$Update$updatespc,
 			msg,
 			_Utils_Tuple2(model, $elm$core$Platform$Cmd$none));
 	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$Main$drawBorder = A2(
-	$elm$svg$Svg$rect,
-	_List_fromArray(
-		[
-			$elm$svg$Svg$Attributes$width('1000'),
-			$elm$svg$Svg$Attributes$height('1000'),
-			$elm$svg$Svg$Attributes$stroke('Black'),
-			$elm$svg$Svg$Attributes$strokeWidth('20'),
-			$elm$svg$Svg$Attributes$x('0'),
-			$elm$svg$Svg$Attributes$y('1000')
-		]),
-	_List_Nil);
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$core$Debug$toString = _Debug_toString;
-var $author$project$Main$drawBrick = function (brick) {
-	return A2(
-		$elm$svg$Svg$rect,
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width(
-				$elm$core$Debug$toString($author$project$Main$brick_width - 2)),
-				$elm$svg$Svg$Attributes$height(
-				$elm$core$Debug$toString($author$project$Main$brick_height - 2)),
-				$elm$svg$Svg$Attributes$fill('Green'),
-				$elm$svg$Svg$Attributes$x(
-				$elm$core$Debug$toString(brick.pos.x)),
-				$elm$svg$Svg$Attributes$y(
-				$elm$core$Debug$toString(brick.pos.y))
-			]),
-		_List_Nil);
-};
-var $author$project$Main$drawBricks = function (list) {
-	return A2($elm$core$List$map, $author$project$Main$drawBrick, list);
-};
-var $author$project$Main$paddle_height = 20;
-var $author$project$Main$drawPaddle = function (paddle) {
-	return A2(
-		$elm$svg$Svg$rect,
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width(
-				$elm$core$Debug$toString($author$project$Main$paddle_width)),
-				$elm$svg$Svg$Attributes$height(
-				$elm$core$Debug$toString($author$project$Main$paddle_height)),
-				$elm$svg$Svg$Attributes$fill('Blue'),
-				$elm$svg$Svg$Attributes$x(
-				$elm$core$Debug$toString(paddle.pos.x)),
-				$elm$svg$Svg$Attributes$y(
-				$elm$core$Debug$toString(paddle.pos.y))
-			]),
-		_List_Nil);
-};
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$svg$Svg$Attributes$color = _VirtualDom_attribute('color');
+var $elm$core$String$concat = function (strings) {
+	return A2($elm$core$String$join, '', strings);
+};
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $author$project$Main$drawball = function (ball) {
-	return A2(
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$core$Debug$toString = _Debug_toString;
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
+var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
+var $author$project$View$xShift = F2(
+	function (x, r) {
+		return $author$project$Star$originX + ((($author$project$Star$tracradius + r) / $author$project$Star$tracradius) * (x - $author$project$Star$originX));
+	});
+var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
+var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
+var $author$project$View$yShift = F2(
+	function (y, r) {
+		return $author$project$Star$originY - ((($author$project$Star$tracradius + r) / $author$project$Star$tracradius) * ($author$project$Star$originY - y));
+	});
+var $author$project$View$drawSpacecraft_Inside = function (spacecraft) {
+	var y_1 = spacecraft.pos.y;
+	var y_ = spacecraft.pos.y - (0.5 * $author$project$Star$spcheight);
+	var x_1 = spacecraft.pos.x;
+	var x_ = spacecraft.pos.x - (0.5 * $author$project$Star$spcwidth);
+	var an = ((($elm$core$Basics$pi / 2) - spacecraft.angle) * 180) / $elm$core$Basics$pi;
+	return _List_fromArray(
+		[
+			A2(
+			$elm$svg$Svg$line,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x1(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth)) - 20)),
+					$elm$svg$Svg$Attributes$y1(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$x2(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y2(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$stroke('#de3337'),
+					$elm$svg$Svg$Attributes$strokeWidth(
+					$elm$core$Debug$toString(0.5 * $author$project$Star$spcheight)),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, -10)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, -10)),
+								')'
+							])))
+				]),
+			_List_Nil),
+			A2(
+			$elm$svg$Svg$circle,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$fill('white'),
+					$elm$svg$Svg$Attributes$cx(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$cy(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$r('15'),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, -10)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, -10)),
+								')'
+							])))
+				]),
+			_List_Nil),
+			A2(
+			$elm$svg$Svg$line,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x1(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y1(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight)) - 25)),
+					$elm$svg$Svg$Attributes$x2(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y2(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight)) + 25)),
+					$elm$svg$Svg$Attributes$stroke('white'),
+					$elm$svg$Svg$Attributes$strokeWidth(
+					$elm$core$Debug$toString(0.25 * $author$project$Star$spcheight)),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, -10)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, -10)),
+								')'
+							])))
+				]),
+			_List_Nil),
+			A2(
+			$elm$svg$Svg$circle,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$fill('#de3337'),
+					$elm$svg$Svg$Attributes$cx(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -10) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$cy(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -10) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$r('5'),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, -10)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, -10)),
+								')'
+							])))
+				]),
+			_List_Nil),
+			A2(
+			$elm$svg$Svg$line,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x1(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), 15) - (0.5 * $author$project$Star$spcwidth)) + (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y1(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), 15) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$x2(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), 15) - (0.5 * $author$project$Star$spcwidth)) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y2(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), 15) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$stroke('white'),
+					$elm$svg$Svg$Attributes$strokeWidth(
+					$elm$core$Debug$toString(0.25 * $author$project$Star$spcheight)),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, 15)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, 15)),
+								')'
+							])))
+				]),
+			_List_Nil),
+			A2(
+			$elm$svg$Svg$line,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x1(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -35) - (0.5 * $author$project$Star$spcwidth)) - (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y1(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -35) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$x2(
+					$elm$core$String$fromFloat(
+						(A2($author$project$View$xShift, x_ + (0.5 * $author$project$Star$spcwidth), -35) - (0.5 * $author$project$Star$spcwidth)) + (0.5 * $author$project$Star$spcwidth))),
+					$elm$svg$Svg$Attributes$y2(
+					$elm$core$String$fromFloat(
+						A2($author$project$View$yShift, y_ + (0.5 * $author$project$Star$spcheight), -35) - (0.5 * $author$project$Star$spcheight))),
+					$elm$svg$Svg$Attributes$stroke('white'),
+					$elm$svg$Svg$Attributes$strokeWidth(
+					$elm$core$Debug$toString(0.25 * $author$project$Star$spcheight)),
+					$elm$svg$Svg$Attributes$transform(
+					$elm$core$String$concat(
+						_List_fromArray(
+							[
+								'rotate(',
+								$elm$core$String$fromFloat(an),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$xShift, x_1, -35)),
+								' ',
+								$elm$core$String$fromFloat(
+								A2($author$project$View$yShift, y_1, -35)),
+								')'
+							])))
+				]),
+			_List_Nil)
+		]);
+};
+var $author$project$View$drawSpacecraft = function (spacecraft) {
+	return $elm$core$List$concat(
+		A2($elm$core$List$map, $author$project$View$drawSpacecraft_Inside, spacecraft));
+};
+var $author$project$View$drawSun = function (sun) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$svg$Svg$circle,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$cx(
+					$elm$core$Debug$toString(sun.pos.x)),
+					$elm$svg$Svg$Attributes$cy(
+					$elm$core$Debug$toString(sun.pos.y)),
+					$elm$svg$Svg$Attributes$r(
+					$elm$core$Debug$toString(sun.radius)),
+					$elm$svg$Svg$Attributes$fill('#f2d647')
+				]),
+			_List_Nil)
+		]);
+};
+var $elm$svg$Svg$Attributes$fillOpacity = _VirtualDom_attribute('fill-opacity');
+var $elm$svg$Svg$Attributes$strokeDasharray = _VirtualDom_attribute('stroke-dasharray');
+var $author$project$View$drawTrack = _List_fromArray(
+	[
+		A2(
 		$elm$svg$Svg$circle,
 		_List_fromArray(
 			[
 				$elm$svg$Svg$Attributes$cx(
-				$elm$core$Debug$toString(ball.pos.x)),
+				$elm$core$Debug$toString($author$project$Star$originX)),
 				$elm$svg$Svg$Attributes$cy(
-				$elm$core$Debug$toString(ball.pos.y)),
+				$elm$core$Debug$toString($author$project$Star$originY)),
 				$elm$svg$Svg$Attributes$r(
-				$elm$core$Debug$toString($author$project$Main$ball_radius)),
-				$elm$svg$Svg$Attributes$color('Red')
+				$elm$core$Debug$toString($author$project$Star$tracradius)),
+				$elm$svg$Svg$Attributes$stroke('white'),
+				$elm$svg$Svg$Attributes$strokeWidth('2'),
+				$elm$svg$Svg$Attributes$strokeDasharray('20'),
+				$elm$svg$Svg$Attributes$fillOpacity('0')
 			]),
-		_List_Nil);
+		_List_Nil)
+	]);
+var $author$project$View$drawproton = function (proton) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$svg$Svg$circle,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$cx(
+					$elm$core$Debug$toString(proton.pos.x)),
+					$elm$svg$Svg$Attributes$cy(
+					$elm$core$Debug$toString(proton.pos.y)),
+					$elm$svg$Svg$Attributes$r(
+					$elm$core$Debug$toString(proton.radius)),
+					$elm$svg$Svg$Attributes$fill('#ffff00')
+				]),
+			_List_Nil)
+		]);
 };
-var $author$project$Main$fourBorders_String = '0 0 1000 1000';
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $author$project$Messages$Pause = {$: 'Pause'};
+var $author$project$Messages$Resume = {$: 'Resume'};
+var $author$project$Messages$Start = {$: 'Start'};
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$View$renderGameButton_1 = function (state) {
+	var _v0 = function () {
+		switch (state.$) {
+			case 'Stopped':
+				return _Utils_Tuple2('New game', $author$project$Messages$Start);
+			case 'Playing':
+				return _Utils_Tuple2('Pause', $author$project$Messages$Pause);
+			default:
+				return _Utils_Tuple2('Resume', $author$project$Messages$Resume);
+		}
+	}();
+	var txt = _v0.a;
+	var msg = _v0.b;
+	return A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'background', '#34495f'),
+				A2($elm$html$Html$Attributes$style, 'border', '0'),
+				A2($elm$html$Html$Attributes$style, 'bottom', '30px'),
+				A2($elm$html$Html$Attributes$style, 'color', '#fff'),
+				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+				A2($elm$html$Html$Attributes$style, 'display', 'block'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Helvetica, Arial, sans-serif'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '18px'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', '300'),
+				A2($elm$html$Html$Attributes$style, 'height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'left', '30px'),
+				A2($elm$html$Html$Attributes$style, 'line-height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+				A2($elm$html$Html$Attributes$style, 'padding', '0'),
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2($elm$html$Html$Attributes$style, 'width', '120px'),
+				$elm$html$Html$Events$onClick(msg)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(txt)
+			]));
+};
+var $author$project$Messages$Reinit = function (a) {
+	return {$: 'Reinit', a: a};
+};
+var $author$project$View$renderGameButton_2 = function (level) {
+	return A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'background', '#34495f'),
+				A2($elm$html$Html$Attributes$style, 'border', '0'),
+				A2($elm$html$Html$Attributes$style, 'bottom', '30px'),
+				A2($elm$html$Html$Attributes$style, 'color', '#fff'),
+				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+				A2($elm$html$Html$Attributes$style, 'display', 'block'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Helvetica, Arial, sans-serif'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '18px'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', '300'),
+				A2($elm$html$Html$Attributes$style, 'height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'left', '180px'),
+				A2($elm$html$Html$Attributes$style, 'line-height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+				A2($elm$html$Html$Attributes$style, 'padding', '0'),
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2($elm$html$Html$Attributes$style, 'width', '120px'),
+				$elm$html$Html$Events$onClick(
+				$author$project$Messages$Reinit(level))
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Restart')
+			]));
+};
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $author$project$Main$view = function (model) {
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$View$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6121,7 +6942,9 @@ var $author$project$Main$view = function (model) {
 				A2($elm$html$Html$Attributes$style, 'height', '100%'),
 				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
 				A2($elm$html$Html$Attributes$style, 'left', '0'),
-				A2($elm$html$Html$Attributes$style, 'top', '0')
+				A2($elm$html$Html$Attributes$style, 'top', '0'),
+				A2($elm$html$Html$Attributes$style, 'background-color', 'black'),
+				A2($elm$html$Html$Attributes$style, 'background-image', 'url(\'assets/Background.jpg\')')
 			]),
 		_List_fromArray(
 			[
@@ -6130,25 +6953,44 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$width('1000'),
-						$elm$svg$Svg$Attributes$height('800'),
-						$elm$svg$Svg$Attributes$viewBox($author$project$Main$fourBorders_String)
+						$elm$svg$Svg$Attributes$height('1000'),
+						$elm$svg$Svg$Attributes$viewBox('0 0 1000 1000')
 					]),
-				A2(
-					$elm$core$List$cons,
-					$author$project$Main$drawBorder,
-					A2(
-						$elm$core$List$cons,
-						$author$project$Main$drawball(model.ball),
-						A2(
-							$elm$core$List$cons,
-							$author$project$Main$drawPaddle(model.paddle),
-							$author$project$Main$drawBricks(model.brick)))))
+				_Utils_ap(
+					$author$project$View$drawTrack,
+					_Utils_ap(
+						$author$project$View$drawSun(model.sun),
+						_Utils_ap(
+							$author$project$View$drawSpacecraft(model.spacecraft),
+							$author$project$View$drawproton(model.proton))))),
+				$author$project$View$renderGameButton_1(model.state),
+				$author$project$View$renderGameButton_2(model.level)
 			]));
 };
+var $elm$core$Result$withDefault = F2(
+	function (def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	{
+		init: function (value) {
+			return _Utils_Tuple2(
+				A2(
+					$elm$core$Result$withDefault,
+					$author$project$Model$initial,
+					A2($elm$json$Json$Decode$decodeValue, $author$project$Model$decode, value)),
+				$elm$core$Platform$Cmd$none);
+		},
+		subscriptions: $author$project$Main$subscriptions,
+		update: $author$project$Update$update,
+		view: $author$project$View$view
+	});
+_Platform_export({'Main':{'init':$author$project$Main$main($elm$json$Json$Decode$value)(0)}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

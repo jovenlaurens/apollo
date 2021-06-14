@@ -29,7 +29,7 @@ initial =
         0
         1
         Stopped
-        5
+        2
 
 
 defaultSpacecraft =
