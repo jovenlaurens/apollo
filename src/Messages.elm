@@ -1,14 +1,20 @@
-module Messages exposing (Msg(..), Keydir(..))
+module Messages exposing (Keydir(..), Msg(..))
 
 
 type Keydir
-    = Key_right
-    | Key_left
-    | Key_none
+    = Key_right Int
+    | Key_left Int
+    | Key_none Int
+
+
+
 
 
 type Msg
     = Start
+    | Pause
+    | Resume
     | Tick Float
     | Key Keydir
     | Pass Int --when level up
+    | Reinit Int

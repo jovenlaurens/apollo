@@ -1,9 +1,20 @@
-module Update exposing (..)
+port module Update exposing (..)
 
 import Messages exposing (Keydir(..), Msg(..))
-import Model exposing (Model)
+import Model exposing (..)
 import Star exposing (Point, Spacecraft, originX, originY, spcheight, spcwidth, tracradius)
 import Svg.Attributes exposing (mode)
+import Star exposing (availableScale)
+import Star exposing (Proton)
+import Html.Attributes exposing (list)
+
+
+port save : String -> Cmd msg
+
+
+saveToStorage : Model -> ( Model, Cmd Msg )
+saveToStorage model =
+    ( model, save (Model.encode 2 model) )
 
 
 
@@ -19,13 +30,18 @@ update msg model =
 updatespc : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updatespc msg ( model, cmd ) =
     case msg of
+        Reinit level ->
+            ( (reinitModel level model), Cmd.none )
         Tick elapsed ->
-            ( { model | move_timer = model.move_timer + elapsed }
-                |> protonbounce
-                |> spcmove
-                |> protonmove
-            , cmd
-            )
+            { model | move_timer = model.move_timer + elapsed }
+                
+                |> protonbounce--改好了
+                |> spcmove--改好了
+                |> protonmove--不用改
+                |> saveToStorage
+
+        Start ->
+            ( { initial | state = Playing }, Cmd.none )
 
         Key keydir ->
             ( model
@@ -33,44 +49,95 @@ updatespc msg ( model, cmd ) =
             , cmd
             )
 
+        Pause ->
+            saveToStorage { model | state = Paused }
+
+        Resume ->
+            ( { model | state = Playing }
+            , Cmd.none
+            )
+        
         _ ->
             ( model, cmd )
 
 
+reinitModel : Int -> Model -> Model
+reinitModel level model = 
+    case level of
+        1 ->
+            initial
+        2 ->--进入第二关
+            {model | proton = (Proton (Point 50 350) 0.2 7.5 2.0 1), spacecraft = (addSpacecraft model.spacecraft)}--关于proton的再生成方法有待商榷
+        3 ->
+            model
+        4 ->
+            model --这里需要一个随机生成proton的函数和计分的东西
+        _ -> 
+            model
+
+
+addSpacecraft : List Spacecraft -> List Spacecraft
+addSpacecraft spacecraft =
+    spacecraft ++ (List.singleton (Spacecraft (Point 900.0 500.0) 0.0 (Key_none 2) 0.01))
+
+
 spcdirchange : Keydir -> Model -> Model
 spcdirchange keydir model =
-    { model
-        | spacecraft =
-            { pos = model.spacecraft.pos
-            , angle = model.spacecraft.angle
-            , dir = keydir
-            , velocity = model.spacecraft.velocity
-            }
-    }
+    
+    if keydir == Key_left 2 || keydir == Key_right 2 ||keydir == Key_none 2 then
+        {model | spacecraft = spcdirchange_inside keydir 2 model.spacecraft}
+    else
+        {model | spacecraft = spcdirchange_inside keydir 1 model.spacecraft}
 
+
+
+spcdirchange_inside : Keydir -> Int -> List Spacecraft -> List Spacecraft
+spcdirchange_inside keydir index list =
+    if index == 1 then
+        case list of
+            x::xs ->
+                ({ x | dir = keydir})::xs
+            _ ->
+                list
+    else
+        case list of
+            x::xs ->
+                let
+                    old = (List.drop 1 list) |> List.head |> Maybe.withDefault defaultSpacecraft
+                in
+                x::({old | dir = keydir} |> List.singleton)
+            _ ->
+                list
+        
 
 spcmove : Model -> Model
 spcmove model =
+    {model | spacecraft = List.map renewSpc model.spacecraft}
+
+
+renewSpc : Spacecraft -> Spacecraft
+renewSpc spacecraft=
     let
         newangle =
-            spcangle model.spacecraft.angle model.spacecraft.velocity model.spacecraft.dir
+            spcangle spacecraft.angle spacecraft.velocity spacecraft.dir
 
         newPoint =
             spcpostrans newangle
     in
-    { model | spacecraft = { pos = newPoint, angle = newangle, dir = model.spacecraft.dir, velocity = model.spacecraft.velocity } }
-
+        { spacecraft | pos = newPoint, angle = newangle}
+    
+    
 
 spcangle : Float -> Float -> Keydir -> Float
 spcangle angle velocity direction =
     case direction of
-        Key_right ->
+        Key_right a->
             angle - velocity
 
-        Key_left ->
+        Key_left a->
             angle + velocity
 
-        Key_none ->
+        Key_none a->
             angle
 
 
@@ -144,6 +211,9 @@ checkoutsun model =
         rs =
             model.sun.radius
 
+        
+        a = model.proton.dir
+        b = atan ((posp.y - poss.y)/(posp.x - poss.x))
         ap2s =
             anglebtwpoint posp poss
 
@@ -151,7 +221,7 @@ checkoutsun model =
             model.proton.dir
 
         newdir =
-            (2 * ap2s) - pi - ap
+            pi - a + 2 * b
     in
     if distance posp poss <= (rp + rs) then
         let
@@ -173,9 +243,18 @@ checkoutspc :
     Model
     -> Model --一个函数全部解决！
 checkoutspc model =
+    List.foldr renewProtonDir model model.spacecraft 
+
+renewProtonDir : Spacecraft -> Model -> Model
+renewProtonDir spacecraft model =
     let
+        an =
+            spacecraft.angle
+        field = tan (-an) |> atan --spacecraft的范围,确保在-pi到pi之间
+        special = atan ((model.proton.pos.y - originY)/(model.proton.pos.x - originX))
+
         ( a, b, c ) =
-            getLine model.spacecraft.pos model.spacecraft.angle
+            getLine spacecraft.pos spacecraft.angle
 
         --得到spacecraft所在重心的那条切线，以ax+by+c=0的形式，记为l1
         distance_ =
@@ -187,61 +266,53 @@ checkoutspc model =
 
         --极限距离：proton半径+半个spacecraft厚度
     in
-    if distance_ <= stand then
+    if special <= field + availableScale + 0.05 && special >= field - availableScale - 0.05 && distance_ <= stand then
         let
             di =
                 model.proton.dir
-            an = model.spacecraft.angle
+
+            
+
             proton_ =
                 model.proton
 
             newangle =
                 pi - 2 * an - di
-                --还是不对我哭了
-                ---对了！！！
-  
         in
         { model | proton = { proton_ | dir = newangle } }
 
     else
         model
 
-
-
 --slope 斜率
-
-
-pi : Float
-pi =
-    acos 0 * 2
-
-
 
 
 getLine : Point -> Float -> ( Float, Float, Float )
 getLine pos angle =
     if angle == 0 || angle == pi then
-        (1, 0, -pos.x)
+        ( 1, 0, -pos.x )
+
     else if angle == (pi * 1 / 2) || angle == (pi * 3 / 2) then
-        (0, 1, -pos.y)
+        ( 0, 1, -pos.y )
+
     else
-    let
-        x =
-            pos.x
+        let
+            x =
+                pos.x
 
-        y =
-            pos.y
-        a = -1 / ((y - 500) / (x - 500))
+            y =
+                pos.y
 
+            a =
+                -1 / ((y - 500) / (x - 500))
 
-        b =
-            -1
+            b =
+                -1
 
-
-        c =
-            y - a * x
-    in
-    ( a, b, c )
+            c =
+                y - a * x
+        in
+        ( a, b, c )
 
 
 dotLineDistance : Point -> Float -> Float -> Float -> Float
