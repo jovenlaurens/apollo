@@ -381,6 +381,28 @@ renewProntonDirInside spacecraft proton =
         special =
             atan ((proton.pos.y - originY) / (proton.pos.x - originX))
 
+        spcwing =
+            spacecraft.pos
+
+        leftwing =
+            { spcwing | x = xShift spacecraft.pos.x -35 - 0.5 * spcwidth - 0.5 * spcwidth, y = yShift spacecraft.pos.y -35 - 0.5 * spcheight }
+
+        _ =
+            Debug.log "x circle is " leftwing.x
+
+        _ =
+            Debug.log "y circle is " leftwing.y
+
+        _ =
+            Debug.log "x is " spacecraft.pos.x
+
+        _ =
+            Debug.log "y is" spacecraft.pos.y
+
+        {-
+           rightwing =
+               {spcwing | x = , y = }
+        -}
         ( a, b, c ) =
             getLine spacecraft.pos spacecraft.angle
 
@@ -429,7 +451,7 @@ getLine pos angle =
                 pos.y
 
             a =
-                -1 / ((y - 500) / (x - 500))
+                -x / y
 
             b =
                 -1
@@ -487,6 +509,16 @@ earthangle angle velocity =
 checkoutearth : Model -> Model
 checkoutearth model =
     List.foldr checkoutearthInside model model.proton
+
+
+xShift : Float -> Float -> Float
+xShift x r =
+    originX + (((tracradius + r) / tracradius) * (x - originX))
+
+
+yShift : Float -> Float -> Float
+yShift y r =
+    originY - (((tracradius + r) / tracradius) * (originY - y))
 
 
 

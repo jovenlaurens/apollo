@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Axis3d exposing (y)
 import Debug exposing (toString)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
@@ -9,7 +10,7 @@ import Model exposing (..)
 import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
-import Update exposing (dotLineDistance, getLine)
+import Update exposing (dotLineDistance, getLine, xShift, yShift)
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -23,85 +24,75 @@ drawSpacecraft_Inside spacecraft =
         an =
             ((pi / 2 - spacecraft.angle) * 180) / pi
 
-        x_ =
-            spacecraft.pos.x - 0.5 * spcwidth
-
-        y_ =
-            spacecraft.pos.y - 0.5 * spcheight
-
-        x_1 =
+        x =
             spacecraft.pos.x
 
-        y_1 =
+        y =
             spacecraft.pos.y
     in
     [ Svg.line
-        [ SvgAttr.x1 (String.fromFloat ((xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth) - 20))
-        , SvgAttr.y1 (String.fromFloat (yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight))
-        , SvgAttr.x2 (String.fromFloat (xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth))
-        , SvgAttr.y2 (String.fromFloat (yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight))
+        -- front of spacecraft
+        [ SvgAttr.x1 (String.fromFloat (x - 20))
+        , SvgAttr.y1 (String.fromFloat y)
+        , SvgAttr.x2 (String.fromFloat x)
+        , SvgAttr.y2 (String.fromFloat y)
         , SvgAttr.stroke "#de3337"
         , SvgAttr.strokeWidth (toString (0.5 * spcheight))
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 -10), " ", String.fromFloat (yShift y_1 -10), ")" ])
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat x, " ", String.fromFloat y, ")" ])
+        ]
+        []
+    , Svg.line
+        --horizontal line
+        [ SvgAttr.x1 (String.fromFloat x)
+        , SvgAttr.y1 (String.fromFloat (y - 25))
+        , SvgAttr.x2 (String.fromFloat x)
+        , SvgAttr.y2 (String.fromFloat (y + 25))
+        , SvgAttr.stroke "white"
+        , SvgAttr.strokeWidth (toString (0.25 * spcheight))
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat x, " ", String.fromFloat y, ")" ])
         ]
         []
     , Svg.circle
+        -- white circle
         [ SvgAttr.fill "white"
-        , SvgAttr.cx (String.fromFloat (xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth))
-        , SvgAttr.cy (String.fromFloat (yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight))
+        , SvgAttr.cx (String.fromFloat x)
+        , SvgAttr.cy (String.fromFloat y)
         , SvgAttr.r "15"
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 -10), " ", String.fromFloat (yShift y_1 -10), ")" ])
-        ]
-        []
-    , Svg.line
-        [ SvgAttr.x1 (String.fromFloat (xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth))
-        , SvgAttr.y1 (String.fromFloat ((yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight) - 25))
-        , SvgAttr.x2 (String.fromFloat (xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth))
-        , SvgAttr.y2 (String.fromFloat ((yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight) + 25))
-        , SvgAttr.stroke "white"
-        , SvgAttr.strokeWidth (toString (0.25 * spcheight))
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 -10), " ", String.fromFloat (yShift y_1 -10), ")" ])
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat x, " ", String.fromFloat y, ")" ])
         ]
         []
     , Svg.circle
+        -- red circle
         [ SvgAttr.fill "#de3337"
-        , SvgAttr.cx (String.fromFloat (xShift (x_ + 0.5 * spcwidth) -10 - 0.5 * spcwidth))
-        , SvgAttr.cy (String.fromFloat (yShift (y_ + 0.5 * spcheight) -10 - 0.5 * spcheight))
+        , SvgAttr.cx (String.fromFloat x)
+        , SvgAttr.cy (String.fromFloat y)
         , SvgAttr.r "5"
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 -10), " ", String.fromFloat (yShift y_1 -10), ")" ])
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat x, " ", String.fromFloat y, ")" ])
         ]
         []
     , Svg.line
-        [ SvgAttr.x1 (String.fromFloat ((xShift (x_ + 0.5 * spcwidth) 15 - 0.5 * spcwidth) + 0.5 * spcwidth))
-        , SvgAttr.y1 (String.fromFloat (yShift (y_ + 0.5 * spcheight) 15 - 0.5 * spcheight))
-        , SvgAttr.x2 (String.fromFloat ((xShift (x_ + 0.5 * spcwidth) 15 - 0.5 * spcwidth) - 0.5 * spcwidth))
-        , SvgAttr.y2 (String.fromFloat (yShift (y_ + 0.5 * spcheight) 15 - 0.5 * spcheight))
+        -- right wing
+        [ SvgAttr.x1 (String.fromFloat (xShift x 25 + 0.5 * spcwidth))
+        , SvgAttr.y1 (String.fromFloat (yShift y 25))
+        , SvgAttr.x2 (String.fromFloat (xShift x 25 - 0.5 * spcwidth))
+        , SvgAttr.y2 (String.fromFloat (yShift y 25))
         , SvgAttr.stroke "white"
         , SvgAttr.strokeWidth (toString (0.25 * spcheight))
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 15), " ", String.fromFloat (yShift y_1 15), ")" ])
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x 25), " ", String.fromFloat (yShift y 25), ")" ])
         ]
         []
     , Svg.line
-        [ SvgAttr.x1 (String.fromFloat ((xShift (x_ + 0.5 * spcwidth) -35 - 0.5 * spcwidth) - 0.5 * spcwidth))
-        , SvgAttr.y1 (String.fromFloat (yShift (y_ + 0.5 * spcheight) -35 - 0.5 * spcheight))
-        , SvgAttr.x2 (String.fromFloat ((xShift (x_ + 0.5 * spcwidth) -35 - 0.5 * spcwidth) + 0.5 * spcwidth))
-        , SvgAttr.y2 (String.fromFloat (yShift (y_ + 0.5 * spcheight) -35 - 0.5 * spcheight))
+        -- left wing
+        [ SvgAttr.x1 (String.fromFloat (xShift x -25 - 0.5 * spcwidth))
+        , SvgAttr.y1 (String.fromFloat (yShift y -25))
+        , SvgAttr.x2 (String.fromFloat (xShift x -25 + 0.5 * spcwidth))
+        , SvgAttr.y2 (String.fromFloat (yShift y -25))
         , SvgAttr.stroke "white"
         , SvgAttr.strokeWidth (toString (0.25 * spcheight))
-        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x_1 -35), " ", String.fromFloat (yShift y_1 -35), ")" ])
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat an, " ", String.fromFloat (xShift x -25), " ", String.fromFloat (yShift y -25), ")" ])
         ]
         []
     ]
-
-
-xShift : Float -> Float -> Float
-xShift x r =
-    originX + (((tracradius + r) / tracradius) * (x - originX))
-
-
-yShift : Float -> Float -> Float
-yShift y r =
-    originY - (((tracradius + r) / tracradius) * (originY - y))
 
 
 drawSun : Sun -> List (Svg msg)
