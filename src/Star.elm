@@ -1,6 +1,6 @@
 module Star exposing (..)
 
-import Messages exposing (Keydir)
+import Messages exposing (Keydir, Earth_State)
 
 
 type alias Point =
@@ -12,8 +12,9 @@ type alias Point =
 type alias Earth =
     { pos : Point
     , velocity : Float
-    , lives : Int
     , radius : Float
+    , angle : Float
+    , show : Earth_State
     }
 
 
@@ -64,7 +65,7 @@ originY =
 
 
 sunRadius =
-    60.0
+    80.0
 
 
 availableScale =

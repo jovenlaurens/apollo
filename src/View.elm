@@ -140,11 +140,18 @@ drawTrack =
 
 drawproton : Proton -> List (Svg msg)
 drawproton proton =
+    let
+        id = proton.intensity
+        h = (toString 60) ++ ", "
+        s = toString (20 * id) ++ "%, "
+        l = toString (50 + 10 * id) ++ "%)"
+        color = "hsl(" ++ h  ++ s ++l
+    in
     [ Svg.circle
         [ SvgAttr.cx (toString proton.pos.x)
         , SvgAttr.cy (toString proton.pos.y)
         , SvgAttr.r (toString proton.radius)
-        , SvgAttr.fill "#ffff00"
+        , SvgAttr.fill color
         ]
         []
     ]
@@ -209,6 +216,29 @@ renderGameButton_2 level =
         ]
         [ text "Restart" ]
 
+--drawEarth:
+
+
+renderInfo : Model -> Html Msg
+renderInfo model =
+    div
+    [    style "background" "#34495f"
+        , style "border" "0"
+        , style "bottom" "30px"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "30px"
+        , style "font-weight" "300"
+        , style "height" "60px"
+        , style "left" "500px"
+        , style "line-height" "60px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "300px"]
+    [text ("Remain chances: "++ toString model.heart)]
 
 view : Model -> Html Msg
 view model =
@@ -229,4 +259,5 @@ view model =
             (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawproton model.proton)
         , renderGameButton_1 model.state
         , renderGameButton_2 model.level
+        , renderInfo model
         ]

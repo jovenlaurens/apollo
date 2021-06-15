@@ -3,9 +3,10 @@ module Model exposing (..)
 import Html.Attributes exposing (list)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Messages exposing (Keydir(..), Msg(..))
+import Messages exposing (Keydir(..), Msg(..),Earth_State(..))
 import Star exposing (Earth, Point, Proton, Spacecraft, Sun)
 import Tuple exposing (first, second)
+import Star exposing (sunRadius)
 
 
 type alias Model =
@@ -17,19 +18,21 @@ type alias Model =
     , level : Int
     , state : State
     , heart : Int
+    , leave_num : Int
     }
 
 
 initial : Model
 initial =
-    Model (Sun (Point 500 500) 60.0)
-        (Earth (Point 1 1) 0 0 0)
-        (Proton (Point 50 350) 0.2 7.5 2.0 5)
+    Model (Sun (Point 500 500) sunRadius)
+        (Earth (Point 1 1) 0 200 0 Not_show)
+        (Proton (Point 300 300) 0.6 7.5 2.0 5)
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
         0
         1
         Stopped
         2
+        1
 
 
 defaultSpacecraft =
@@ -40,6 +43,23 @@ type State
     = Playing
     | Paused
     | Stopped --either user pause or dead
+
+
+
+changeEarthState : String -> Earth_State
+changeEarthState string =
+    case string of
+        "still" -> Still
+        "move" -> Move
+        "not_show" -> Not_show
+        _ -> Not_show
+
+changeEarthString : Earth_State -> String
+changeEarthString sta = 
+    case sta of
+        Still -> "still"
+        Move -> "move"
+        Not_show -> "not_show"
 
 
 decodeState : String -> State
@@ -144,17 +164,19 @@ encodeEarth earth =
         , ( "earthy", Encode.float earth.pos.y )
         , ( "earthv", Encode.float earth.velocity )
         , ( "earthr", Encode.float earth.radius )
-        , ( "earthl", Encode.int earth.lives )
+        , ( "eartha", Encode.float earth.angle )
+        , ( "earthb", Encode.string (changeEarthString earth.show) )
         ]
 
 
 decodeEarth : Decode.Decoder Earth
 decodeEarth =
-    Decode.map4 Earth
+    Decode.map5 Earth
         (Decode.field "earthp" decodePoint)
         (Decode.field "earthv" Decode.float)
-        (Decode.field "earthl" Decode.int)
         (Decode.field "earthr" Decode.float)
+        (Decode.field "eartha" Decode.float)
+        (Decode.field "earthb" (Decode.map changeEarthState Decode.string))
 
 
 encodeProton : Proton -> Encode.Value

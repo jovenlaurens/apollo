@@ -5,6 +5,8 @@ import Messages exposing (Keydir(..), Msg(..))
 import Model exposing (..)
 import Star exposing (Point, Proton, Spacecraft, availableScale, originX, originY, spcheight, spcwidth, tracradius)
 import Svg.Attributes exposing (mode)
+import Html exposing (th)
+import Messages exposing (Earth_State(..))
 
 
 port save : String -> Cmd msg
@@ -35,8 +37,11 @@ updatespc msg ( model, cmd ) =
             { model | move_timer = model.move_timer + elapsed }
                 |> protonbounce
                 |> spcmove
+                |> checkoutearth
+                |> earthmove
                 |> protonmove
-                |> checkPass
+                |> checkPass--这个是不是最好做到msg里，我有这个想法quq
+                |> checkfailed
                 |> saveToStorage
 
         Start ->
@@ -59,11 +64,26 @@ updatespc msg ( model, cmd ) =
 
 checkPass : Model -> Model
 checkPass model =
-    if model.proton.intensity <= 0 then
+    if model.heart <= 0 then
+        reinitModel (model.level) model
+    else if model.proton.intensity <= 0 then
         reinitModel (model.level + 1) model
 
     else
         model
+
+
+reinitProton : Int -> Proton
+reinitProton inten = 
+    let
+        nproton = (Proton (Point 400 300) 0.9 7.5 2.0 5)
+        --从proton的库里随机选一个proton，然后继承原本的intensity,回头写
+    in
+        {nproton | intensity = inten }
+
+    
+
+
 
 
 reinitModel : Int -> Model -> Model
@@ -71,13 +91,19 @@ reinitModel level model =
     let
         prototype =
             initial
+        proEarth =
+            initial.earth
     in
     case level of
         1 ->
             prototype
 
         2 ->
-            { prototype | level = 2, spacecraft = addSpacecraft model.spacecraft, state = Paused }
+            { prototype | level = 2
+                        , spacecraft = addSpacecraft model.spacecraft
+                        , state = Paused 
+                        , earth = {proEarth | show = Still, velocity = 0.1}--earth的参数需要修改
+            }
 
         --关于proton的再生成方法有待商榷
         3 ->
@@ -177,6 +203,8 @@ spcpostrans angle =
 protonmove : Model -> Model
 protonmove model =
     { model | proton = move model.proton model.proton.dir model.proton.velocity }
+        
+
 
 
 move : { a | pos : Point } -> Float -> Float -> { a | pos : Point }
@@ -191,6 +219,17 @@ move element direction velocity =
     in
     { element | pos = movePoint point }
 
+checkfailed : Model -> Model
+checkfailed model =
+    let
+        dis = distance model.proton.pos (Point originX originY)
+        old_heart = model.heart
+    in
+        if dis >= tracradius + 5 then
+            {model | heart = old_heart - 1, proton = reinitProton model.proton.intensity, state = Paused} 
+        else
+            model
+    
 
 protonbounce : Model -> Model
 protonbounce model =
@@ -238,12 +277,6 @@ checkoutsun model =
         b =
             atan ((posp.y - poss.y) / (posp.x - poss.x))
 
-        ap2s =
-            anglebtwpoint posp poss
-
-        ap =
-            model.proton.dir
-
         newdir =
             pi - a + 2 * b
     in
@@ -251,8 +284,9 @@ checkoutsun model =
         let
             proton_ =
                 model.proton
+            old_intensity = model.proton.intensity
         in
-        { model | proton = { proton_ | dir = newdir } }
+        { model | proton = { proton_ | dir = newdir, intensity = old_intensity - 1 } }
 
     else
         model
@@ -307,10 +341,9 @@ renewProtonDir spacecraft model =
             newangle =
                 pi - 2 * an - di
 
-            old_intensity =
-                model.proton.intensity
+
         in
-        { model | proton = { proton_ | dir = newangle, intensity = old_intensity - 1 } }
+        { model | proton = { proton_ | dir = newangle } }
 
     else
         model
@@ -358,3 +391,51 @@ dotLineDistance point a b c =
             point.y
     in
     abs (a * x + b * y + c) / sqrt (a ^ 2 + b ^ 2)
+
+earthmove : Model -> Model
+earthmove model = 
+    let 
+        newangle =
+            earthangle model.earth.angle model.earth.velocity
+        newPoint =
+            earthpostrans newangle model.earth.radius
+        earth_ = model.earth    
+    in
+        { model | earth = { earth_ | angle =newangle, pos = newPoint } }
+
+earthpostrans : Float -> Float -> Point
+earthpostrans angle  radius= 
+        let
+            posx = 
+                    ( 500.0 + radius * cos (angle) )
+            posy = 
+                    ( 500.0 - radius * sin (angle) )
+        in
+            Point posx posy
+earthangle : Float -> Float -> Float
+earthangle angle velocity = 
+            angle + velocity
+
+checkoutearth : Model -> Model  
+checkoutearth model =
+    let
+        posp = 
+            model.proton.pos
+        pose = 
+            model.earth.pos
+        rp = 
+            model.proton.radius
+        re = 
+            model.earth.radius
+    in
+         if (distance posp pose) <= (rp + re)  then
+                loseheart model
+         else
+            model     
+loseheart : Model -> Model
+loseheart model =
+    let
+        heart_ = model.heart - 1
+        
+    in
+        {model | heart = heart_ }   

@@ -1,4 +1,4 @@
-module Messages exposing (Keydir(..), Msg(..))
+module Messages exposing (Keydir(..), Msg(..), Earth_State(..))
 
 
 type Keydir
@@ -6,6 +6,10 @@ type Keydir
     | Key_left Int
     | Key_none Int
 
+type Earth_State
+    = Still
+    | Move
+    | Not_show
 
 type Msg
     = Start
