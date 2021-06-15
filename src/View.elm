@@ -6,11 +6,10 @@ import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (onClick)
 import Messages exposing (Msg(..))
 import Model exposing (..)
-import Star exposing (Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
+import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
 import Update exposing (dotLineDistance, getLine)
-import Text exposing (showText)
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -142,11 +141,20 @@ drawTrack =
 drawproton : Proton -> List (Svg msg)
 drawproton proton =
     let
-        id = proton.intensity
-        h = (toString 60) ++ ", "
-        s = toString (20 * id) ++ "%, "
-        l = toString (50 + 10 * id) ++ "%)"
-        color = "hsl(" ++ h  ++ s ++l
+        id =
+            proton.intensity
+
+        h =
+            toString 60 ++ ", "
+
+        s =
+            toString (20 * id) ++ "%, "
+
+        l =
+            toString (50 + 10 * id) ++ "%)"
+
+        color =
+            "hsl(" ++ h ++ s ++ l
     in
     [ Svg.circle
         [ SvgAttr.cx (toString proton.pos.x)
@@ -218,39 +226,26 @@ renderGameButton_2 level =
         [ text "Restart" ]
 
 
-renderGameButton_3 : Int -> Html Msg
-renderGameButton_3 textIndex =
-    button
-        [ style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "30px"
-        , style "color" "#fff"
-        , style "cursor" "pointer"
-        , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
-        , style "font-weight" "300"
-        , style "height" "60px"
-        , style "left" "900px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "120px"
-        , onClick (ChangeText textIndex 0)
+drawEarth : Earth -> List (Svg msg)
+drawEarth earth =
+    [ Svg.circle
+        [ SvgAttr.cx (toString earth.pos.x)
+        , SvgAttr.cy (toString earth.pos.y)
+        , SvgAttr.r "30"
+        , SvgAttr.fill "#f2d6"
         ]
-        [ text "Next" ]
-
---drawEarth:
+        []
+    ]
 
 
 renderInfo : Model -> Html Msg
 renderInfo model =
     div
-    [    style "background" "#34495f"
+        [ style "background" "#34495f"
         , style "border" "0"
         , style "bottom" "30px"
         , style "color" "#fff"
+        , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "30px"
@@ -261,28 +256,9 @@ renderInfo model =
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "300px"]
-    [text ("Remain chances: "++ toString model.heart)]
-
-renderChatBox : Model -> Html Msg
-renderChatBox model =
-    div
-    [    style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "120px"
-        , style "color" "#fff"
-        , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "30px"
-        , style "font-weight" "300"
-        , style "height" "1000px"
-        , style "left" "900px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "500px"]
-    [text (showText model.text_num)]
+        , style "width" "500px"
+        ]
+        [ text ("Remain chances: " ++ toString model.heart ++ "time" ++ toString model.move_timer) ]
 
 
 view : Model -> Html Msg
@@ -290,7 +266,7 @@ view model =
     div
         [ HtmlAttr.style "width" "100%"
         , HtmlAttr.style "height" "100%"
-        , HtmlAttr.style "position" "absolute"
+        , HtmlAttr.style "position" "fixed"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
         , HtmlAttr.style "background-color" "black"
@@ -301,10 +277,8 @@ view model =
             , SvgAttr.height "1000"
             , SvgAttr.viewBox "0 0 1000 1000"
             ]
-            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawproton model.proton)
+            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ drawproton (getHeadProton model.proton))
         , renderGameButton_1 model.state
         , renderGameButton_2 model.level
-        , renderGameButton_3 model.text_num
         , renderInfo model
-        , renderChatBox model
         ]

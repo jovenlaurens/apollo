@@ -18,4 +18,3 @@ type Msg
     | Tick Float
     | Key Keydir
     | Reinit Int
-    | ChangeText Int Int

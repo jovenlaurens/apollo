@@ -3,44 +3,42 @@ module Model exposing (..)
 import Html.Attributes exposing (list)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Messages exposing (Keydir(..), Msg(..),Earth_State(..))
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun)
+import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, sunRadius)
 import Tuple exposing (first, second)
-import Star exposing (sunRadius)
-import Html exposing (text)
 
 
 type alias Model =
     { sun : Sun
     , earth : Earth
-    , proton : Proton
+    , proton : List Proton
     , spacecraft : List Spacecraft
     , move_timer : Float
     , level : Int
     , state : State
     , heart : Int
-    , leave_num : Int--可以删掉
-    , text_num : Int --重要！
     }
 
 
 initial : Model
 initial =
     Model (Sun (Point 500 500) sunRadius)
-        (Earth (Point 1 1) 0 200 0 Not_show)
-        (Proton (Point 300 300) 0.6 7.5 2.0 5)
+        (Earth (Point 0 0) 0 0 0 Not_show)
+        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 3))
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
         0
         1
         Stopped
-        2
-        1
-        0
+        5
 
 
 defaultSpacecraft =
     Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01
 
+getHeadProton : List Proton -> Proton
+getHeadProton list =
+    List.head list
+        |> Maybe.withDefault (Proton (Point 300 300) 0.6 7.5 2.0 3)
 
 type State
     = Playing
@@ -48,21 +46,33 @@ type State
     | Stopped --either user pause or dead
 
 
-
 changeEarthState : String -> Earth_State
 changeEarthState string =
     case string of
-        "still" -> Still
-        "move" -> Move
-        "not_show" -> Not_show
-        _ -> Not_show
+        "still" ->
+            Still
+
+        "move" ->
+            Move
+
+        "not_show" ->
+            Not_show
+
+        _ ->
+            Not_show
+
 
 changeEarthString : Earth_State -> String
-changeEarthString sta = 
+changeEarthString sta =
     case sta of
-        Still -> "still"
-        Move -> "move"
-        Not_show -> "not_show"
+        Still ->
+            "still"
+
+        Move ->
+            "move"
+
+        Not_show ->
+            "not_show"
 
 
 decodeState : String -> State
@@ -163,8 +173,7 @@ decodeSun =
 encodeEarth : Earth -> Encode.Value
 encodeEarth earth =
     Encode.object
-        [ ( "earthx", Encode.float earth.pos.x )
-        , ( "earthy", Encode.float earth.pos.y )
+        [ ( "earthp", encodePoint earth.pos )
         , ( "earthv", Encode.float earth.velocity )
         , ( "earthr", Encode.float earth.radius )
         , ( "eartha", Encode.float earth.angle )
@@ -193,14 +202,17 @@ encodeProton proton =
         ]
 
 
-decodeProton : Decode.Decoder Proton
+decodeProton : Decode.Decoder (List Proton)
 decodeProton =
-    Decode.map5 Proton
-        (Decode.field "protonp" decodePoint)
-        (Decode.field "protond" Decode.float)
-        (Decode.field "protonr" Decode.float)
-        (Decode.field "protonv" Decode.float)
-        (Decode.field "protoni" Decode.int)
+    Decode.list
+        (Decode.map5
+            Proton
+            (Decode.field "protonp" decodePoint)
+            (Decode.field "protond" Decode.float)
+            (Decode.field "protonr" Decode.float)
+            (Decode.field "protonv" Decode.float)
+            (Decode.field "protoni" Decode.int)
+        )
 
 
 encodeSpc : List Spacecraft -> Encode.Value
@@ -260,19 +272,17 @@ encode indent model =
             [ ( "earth", encodeEarth model.earth )
             , ( "sun", encodeSun model.sun )
             , ( "spacecraft", encodeSpc model.spacecraft )
-            , ( "proton", encodeProton model.proton )
+            , ( "proton", Encode.list encodeProton model.proton )
             , ( "level", Encode.int model.level )
             , ( "state", Encode.string (encodeState model.state) )
-            , ( "heart", Encode.int model.heart)
-            , ( "text", Encode.int model.text_num)
             ]
         )
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map8
-        (\earth sun spacecraft proton level state heart text->
+    Decode.map6
+        (\earth sun spacecraft proton level state ->
             { initial
                 | earth = earth
                 , sun = sun
@@ -280,8 +290,6 @@ decode =
                 , proton = proton
                 , level = level
                 , state = state
-                , heart = heart
-                , text_num = text
             }
         )
         (Decode.field "earth" decodeEarth)
@@ -290,5 +298,3 @@ decode =
         (Decode.field "proton" decodeProton)
         (Decode.field "level" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
-        (Decode.field "heart" Decode.int)
-        (Decode.field "text" Decode.int)
