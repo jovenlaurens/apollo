@@ -1,11 +1,15 @@
-module Messages exposing (Keydir(..), Msg(..))
+module Messages exposing (Keydir(..), Msg(..), Earth_State(..))
 
 
 type Keydir
-    = Key_right
-    | Key_left
-    | Key_none
+    = Key_right Int
+    | Key_left Int
+    | Key_none Int
 
+type Earth_State
+    = Still
+    | Move
+    | Not_show
 
 type Msg
     = Start
@@ -13,4 +17,4 @@ type Msg
     | Resume
     | Tick Float
     | Key Keydir
-    | Pass Int --when level up
+    | Reinit Int

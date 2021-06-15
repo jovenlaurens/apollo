@@ -1,37 +1,74 @@
 module Model exposing (..)
 
+import Html.Attributes exposing (list)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Messages exposing (Keydir(..), Msg(..))
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun)
+import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, sunRadius)
+import Tuple exposing (first, second)
 
 
 type alias Model =
     { sun : Sun
     , earth : Earth
-    , proton : Proton
-    , spacecraft : Spacecraft
+    , proton : List Proton
+    , spacecraft : List Spacecraft
     , move_timer : Float
     , level : Int
     , state : State
+    , heart : Int
     }
 
 
 initial : Model
 initial =
-    Model (Sun (Point 500 500) 60.0)
-        (Earth (Point 1 1) 0 0 0)
-        (Proton (Point 50 350) 0.2 5.0 2.0 1)
-        (Spacecraft (Point 800.0 500.0) 0.0 Key_none 0.01)
+    Model (Sun (Point 500 500) sunRadius)
+        (Earth (Point 0 0) 0 0 0 Not_show)
+        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 3))
+        (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
         0
         1
         Stopped
+        5
+
+
+defaultSpacecraft =
+    Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01
 
 
 type State
     = Playing
     | Paused
     | Stopped --either user pause or dead
+
+
+changeEarthState : String -> Earth_State
+changeEarthState string =
+    case string of
+        "still" ->
+            Still
+
+        "move" ->
+            Move
+
+        "not_show" ->
+            Not_show
+
+        _ ->
+            Not_show
+
+
+changeEarthString : Earth_State -> String
+changeEarthString sta =
+    case sta of
+        Still ->
+            "still"
+
+        Move ->
+            "move"
+
+        Not_show ->
+            "not_show"
 
 
 decodeState : String -> State
@@ -63,11 +100,17 @@ encodeState state =
 encodeKeydir : Keydir -> String
 encodeKeydir keydir =
     case keydir of
-        Key_left ->
-            "keyleft"
+        Key_left 1 ->
+            "keyleft_Inside"
 
-        Key_right ->
-            "keyright"
+        Key_right 1 ->
+            "keyright_Inside"
+
+        Key_left 2 ->
+            "keyleft_Outside"
+
+        Key_right 2 ->
+            "keyright_Outside"
 
         _ ->
             "keynone"
@@ -76,14 +119,23 @@ encodeKeydir keydir =
 decodeKeydir : String -> Keydir
 decodeKeydir string =
     case string of
-        "keyleft" ->
-            Key_left
+        "keyleft_Inside" ->
+            Key_left 1
 
-        "keyright" ->
-            Key_right
+        "keyright_Inside" ->
+            Key_right 1
+
+        "keyleft_Outside" ->
+            Key_left 2
+
+        "keyright_Outside" ->
+            Key_right 2
+
+        "keynone" ->
+            Key_none 1
 
         _ ->
-            Key_none
+            Key_none 1
 
 
 encodePoint : Point -> Encode.Value
@@ -117,21 +169,22 @@ decodeSun =
 encodeEarth : Earth -> Encode.Value
 encodeEarth earth =
     Encode.object
-        [ ( "earthx", Encode.float earth.pos.x )
-        , ( "earthy", Encode.float earth.pos.y )
+        [ ( "earthp", encodePoint earth.pos )
         , ( "earthv", Encode.float earth.velocity )
         , ( "earthr", Encode.float earth.radius )
-        , ( "earthl", Encode.int earth.lives )
+        , ( "eartha", Encode.float earth.angle )
+        , ( "earthb", Encode.string (changeEarthString earth.show) )
         ]
 
 
 decodeEarth : Decode.Decoder Earth
 decodeEarth =
-    Decode.map4 Earth
+    Decode.map5 Earth
         (Decode.field "earthp" decodePoint)
         (Decode.field "earthv" Decode.float)
-        (Decode.field "earthl" Decode.int)
         (Decode.field "earthr" Decode.float)
+        (Decode.field "eartha" Decode.float)
+        (Decode.field "earthb" (Decode.map changeEarthState Decode.string))
 
 
 encodeProton : Proton -> Encode.Value
@@ -145,33 +198,66 @@ encodeProton proton =
         ]
 
 
-decodeProton : Decode.Decoder Proton
+decodeProton : Decode.Decoder (List Proton)
 decodeProton =
-    Decode.map5 Proton
-        (Decode.field "protonp" decodePoint)
-        (Decode.field "protond" Decode.float)
-        (Decode.field "protonr" Decode.float)
-        (Decode.field "protonv" Decode.float)
-        (Decode.field "protoni" Decode.int)
+    Decode.list
+        (Decode.map5
+            Proton
+            (Decode.field "protonp" decodePoint)
+            (Decode.field "protond" Decode.float)
+            (Decode.field "protonr" Decode.float)
+            (Decode.field "protonv" Decode.float)
+            (Decode.field "protoni" Decode.int)
+        )
 
 
-encodeSpc : Spacecraft -> Encode.Value
+encodeSpc : List Spacecraft -> Encode.Value
 encodeSpc spc =
+    let
+        spc1 =
+            List.head spc |> Maybe.withDefault defaultSpacecraft
+
+        spc2 =
+            List.reverse spc |> List.head |> Maybe.withDefault defaultSpacecraft
+    in
     Encode.object
-        [ ( "spcp", encodePoint spc.pos )
-        , ( "spcv", Encode.float spc.velocity )
-        , ( "spca", Encode.float spc.angle )
-        , ( "spcd", Encode.string (encodeKeydir spc.dir) )
+        [ ( "spcp1", encodePoint spc1.pos )
+        , ( "spcv1", Encode.float spc1.velocity )
+        , ( "spca1", Encode.float spc1.angle )
+        , ( "spcd1", Encode.string (encodeKeydir spc1.dir) )
+        , ( "spcp2", encodePoint spc2.pos )
+        , ( "spcv2", Encode.float spc2.velocity )
+        , ( "spca2", Encode.float spc2.angle )
+        , ( "spcd2", Encode.string (encodeKeydir spc2.dir) )
         ]
 
 
-decodeSpc : Decode.Decoder Spacecraft
+decodeSpc : Decode.Decoder (List Spacecraft)
 decodeSpc =
-    Decode.map4 Spacecraft
-        (Decode.field "spcp" decodePoint)
-        (Decode.field "spca" Decode.float)
-        (Decode.field "spcd" (Decode.map decodeKeydir Decode.string))
-        (Decode.field "spcv" Decode.float)
+    Decode.map8 decodeListSpc
+        (Decode.field "spcp1" decodePoint)
+        (Decode.field "spcv1" Decode.float)
+        (Decode.field "spcd1" (Decode.map decodeKeydir Decode.string))
+        (Decode.field "spca1" Decode.float)
+        (Decode.field "spcp2" decodePoint)
+        (Decode.field "spcv2" Decode.float)
+        (Decode.field "spcd2" (Decode.map decodeKeydir Decode.string))
+        (Decode.field "spca2" Decode.float)
+
+
+decodeListSpc a b c d e f g h =
+    let
+        first =
+            Spacecraft a b c d
+
+        second =
+            Spacecraft e f g h
+    in
+    if d == h && b == f then
+        List.singleton first
+
+    else
+        first :: List.singleton second
 
 
 encode : Int -> Model -> String
@@ -182,7 +268,7 @@ encode indent model =
             [ ( "earth", encodeEarth model.earth )
             , ( "sun", encodeSun model.sun )
             , ( "spacecraft", encodeSpc model.spacecraft )
-            , ( "proton", encodeProton model.proton )
+            , ( "proton", Encode.list encodeProton model.proton )
             , ( "level", Encode.int model.level )
             , ( "state", Encode.string (encodeState model.state) )
             ]
