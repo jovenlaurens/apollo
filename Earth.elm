@@ -45,3 +45,13 @@ loseheart model =
         
     in
         {model | heart = heart_ }   
+
+
+drawearth : Earth -> Svg Msg
+drawearth earth = 
+        Svg.circle
+        [ SvgAttr.cx (toString earth.pos.x)
+        , SvgAttr.cy (toString earth.pos.y)
+        , SvgAttr.r (toString earth.radius)
+        , SvgAttr.color "blue"
+        ][]
