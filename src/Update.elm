@@ -385,38 +385,28 @@ renewProntonDirInside spacecraft proton =
             spacecraft.pos
 
         leftwing =
-            { spcwing | x = xShift spacecraft.pos.x -35 - 0.5 * spcwidth - 0.5 * spcwidth, y = yShift spacecraft.pos.y -35 - 0.5 * spcheight }
+            { spcwing | x = xShift spacecraft.pos.x -25, y = yShift spacecraft.pos.y -25 }
 
-        _ =
-            Debug.log "x circle is " leftwing.x
+        rightwing =
+            { spcwing | x = xShift spacecraft.pos.x 25, y = yShift spacecraft.pos.y 25 }
 
-        _ =
-            Debug.log "y circle is " leftwing.y
+        ( a1, b1, c1 ) =
+            getLine leftwing spacecraft.angle
 
-        _ =
-            Debug.log "x is " spacecraft.pos.x
-
-        _ =
-            Debug.log "y is" spacecraft.pos.y
-
-        {-
-           rightwing =
-               {spcwing | x = , y = }
-        -}
-        ( a, b, c ) =
-            getLine spacecraft.pos spacecraft.angle
+        ( a2, b2, c2 ) =
+            getLine rightwing spacecraft.angle
 
         --得到spacecraft所在重心的那条切线，以ax+by+c=0的形式，记为l1
-        distance_ =
-            dotLineDistance proton.pos a b c
+        d1 =
+            dotLineDistance proton.pos a1 b1 c1
+
+        d2 =
+            dotLineDistance proton.pos a2 b2 c2
 
         --proton圆心到l1的距离
-        stand =
-            proton.radius + (0.5 * spcheight)
-
         --极限距离：proton半径+半个spacecraft厚度
     in
-    if special <= field + availableScale + 0.05 && special >= field - availableScale - 0.05 && distance_ <= stand then
+    if special <= field + availableScale + 0.05 && special >= field - availableScale - 0.05 && (d1 <= proton.radius || d2 <= proton.radius) then
         let
             di =
                 proton.dir
@@ -451,7 +441,7 @@ getLine pos angle =
                 pos.y
 
             a =
-                -x / y
+                -(x - originX) / (y - originY)
 
             b =
                 -1
