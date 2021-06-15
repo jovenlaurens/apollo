@@ -40,6 +40,7 @@ getHeadProton list =
     List.head list
         |> Maybe.withDefault (Proton (Point 300 300) 0.6 7.5 2.0 3)
 
+
 type State
     = Playing
     | Paused

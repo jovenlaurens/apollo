@@ -258,7 +258,7 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "500px"
         ]
-        [ text ("Remain chances: " ++ toString model.heart ++ "time" ++ toString model.move_timer) ]
+        [ text ("Remain chances: " ++ toString model.heart ++ "level" ++ toString model.level ++ "isi" ++ printp (getHeadProton model.proton) ++ "time" ++ toString (modBy 1000 (round model.move_timer))) ]
 
 
 view : Model -> Html Msg
@@ -277,8 +277,13 @@ view model =
             , SvgAttr.height "1000"
             , SvgAttr.viewBox "0 0 1000 1000"
             ]
-            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ drawproton (getHeadProton model.proton))
+            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ List.map drawproton model.proton)
         , renderGameButton_1 model.state
         , renderGameButton_2 model.level
         , renderInfo model
         ]
+
+
+printp : Proton -> String
+printp proton =
+    Debug.toString proton.intensity

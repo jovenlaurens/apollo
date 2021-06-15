@@ -41,6 +41,7 @@ updatespc msg ( model, cmd ) =
                 |> protonmove
                 |> checkPass
                 |> checkfailed
+                |> checkAddProton model.move_timer
                 |> saveToStorage
 
         Start ->
@@ -61,32 +62,56 @@ updatespc msg ( model, cmd ) =
             )
 
 
+checkAddProton : Float -> Model -> Model
+checkAddProton time model =
+    if model.level >= 0 then
+        let
+            old_proton =
+                model.proton
+        in
+        if modBy 1000 (round time) == 0 then
+            { model | proton = List.append old_proton initial.proton }
+
+        else
+            model
+
+    else
+        model
+
+
 checkPass : Model -> Model
 checkPass model =
+    let
+        nproton =
+            List.filter (\a -> a.intensity > 0) model.proton
+    in
     if model.heart <= 0 then
         reinitModel model.level model
 
-    else if model.level <= 3 && List.length model.proton <= 0 then
+    else if List.length nproton <= 0 then
         reinitModel (model.level + 1) model
-        --else if model.level == 4 &&
 
     else
         model
 
 
 reinitProton : Int -> List Proton -> List Proton
-reinitProton inten list=
+reinitProton inten list =
     case list of
-        x::xs ->
+        x :: xs ->
             let
                 proton =
                     Proton (Point 400 300) 0.9 7.5 2.0 5
-                
-                nproton = {proton | intensity = inten}
+
+                nproton =
+                    { proton | intensity = inten }
+
                 --从proton的库里随机选一个proton，然后继承原本的intensity,回头写
             in
-                nproton::xs
-        _ -> list
+            nproton :: xs
+
+        _ ->
+            list
 
 
 reinitModel : Int -> Model -> Model
@@ -121,7 +146,7 @@ reinitModel level model =
 
         4 ->
             { prototype
-                | level = 3
+                | level = 4
                 , state = Paused
                 , proton = prototype.proton
                 , earth = { proEarth | pos = Point 500.0 500.0, show = Move, velocity = 0.02, radius = 3.0 } --earth的参数需要修改
@@ -216,14 +241,18 @@ spcpostrans angle =
 
 protonmove : Model -> Model
 protonmove model =
-    { model | proton = ( List.map move model.proton) }
+    { model | proton = List.map move model.proton }
 
 
 move : Proton -> Proton
 move element =
     let
-        direction = element.dir
-        velocity = element.velocity
+        direction =
+            element.dir
+
+        velocity =
+            element.velocity
+
         point =
             element.pos
 
@@ -237,10 +266,10 @@ move element =
 checkfailed : Model -> Model
 checkfailed model =
     List.foldr checkfailedInside model model.proton
-    
+
 
 checkfailedInside : Proton -> Model -> Model
-checkfailedInside proton model=
+checkfailedInside proton model =
     let
         dis =
             distance proton.pos (Point originX originY)
@@ -282,8 +311,8 @@ distance pa pb =
 
 checkoutsun : Model -> Model
 checkoutsun model =
-    {model | proton = List.map (checkoutsunInside model )model.proton }
-    
+    { model | proton = List.map (checkoutsunInside model) model.proton }
+
 
 checkoutsunInside : Model -> Proton -> Proton
 checkoutsunInside model proton =
@@ -311,12 +340,10 @@ checkoutsunInside model proton =
     in
     if distance posp poss <= (rp + rs) then
         let
-        
-
             old_intensity =
                 proton.intensity
         in
-        { proton | dir = newdir, intensity = old_intensity - 1 } 
+        { proton | dir = newdir, intensity = old_intensity - 1 }
 
     else
         proton
@@ -335,10 +362,11 @@ checkoutspc model =
 renewProtonDir : Spacecraft -> Model -> Model
 renewProtonDir spacecraft model =
     let
-        newproton = List.map (renewProntonDirInside spacecraft) model.proton
+        newproton =
+            List.map (renewProntonDirInside spacecraft) model.proton
     in
-        {model|proton = newproton}
-    
+    { model | proton = newproton }
+
 
 renewProntonDirInside : Spacecraft -> Proton -> Proton
 renewProntonDirInside spacecraft proton =
@@ -374,10 +402,12 @@ renewProntonDirInside spacecraft proton =
             newangle =
                 pi - 2 * an - di
         in
-        { proton | dir = newangle } 
+        { proton | dir = newangle }
 
     else
         proton
+
+
 
 --slope 斜率
 
@@ -456,9 +486,14 @@ earthangle angle velocity =
 
 checkoutearth : Model -> Model
 checkoutearth model =
-    List.foldr checkoutearthInside model model.proton--可能有问题
+    List.foldr checkoutearthInside model model.proton
 
-checkoutearthInside :  Proton ->Model -> Model
+
+
+--可能有问题
+
+
+checkoutearthInside : Proton -> Model -> Model
 checkoutearthInside proton model =
     let
         posp =

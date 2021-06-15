@@ -4453,10 +4453,25 @@ var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
-var $author$project$Star$Earth = F4(
-	function (pos, velocity, lives, radius) {
-		return {lives: lives, pos: pos, radius: radius, velocity: velocity};
+var $author$project$Star$Earth = F5(
+	function (pos, velocity, radius, angle, show) {
+		return {angle: angle, pos: pos, radius: radius, show: show, velocity: velocity};
 	});
+var $author$project$Messages$Move = {$: 'Move'};
+var $author$project$Messages$Not_show = {$: 'Not_show'};
+var $author$project$Messages$Still = {$: 'Still'};
+var $author$project$Model$changeEarthState = function (string) {
+	switch (string) {
+		case 'still':
+			return $author$project$Messages$Still;
+		case 'move':
+			return $author$project$Messages$Move;
+		case 'not_show':
+			return $author$project$Messages$Not_show;
+		default:
+			return $author$project$Messages$Not_show;
+	}
+};
 var $author$project$Star$Point = F2(
 	function (x, y) {
 		return {x: x, y: y};
@@ -4860,28 +4875,35 @@ var $author$project$Model$decodePoint = A3(
 	$author$project$Star$Point,
 	A2($elm$json$Json$Decode$field, 'x', $elm$json$Json$Decode$float),
 	A2($elm$json$Json$Decode$field, 'y', $elm$json$Json$Decode$float));
-var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $elm$json$Json$Decode$map4 = _Json_map4;
-var $author$project$Model$decodeEarth = A5(
-	$elm$json$Json$Decode$map4,
+var $elm$json$Json$Decode$map = _Json_map1;
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Model$decodeEarth = A6(
+	$elm$json$Json$Decode$map5,
 	$author$project$Star$Earth,
 	A2($elm$json$Json$Decode$field, 'earthp', $author$project$Model$decodePoint),
 	A2($elm$json$Json$Decode$field, 'earthv', $elm$json$Json$Decode$float),
-	A2($elm$json$Json$Decode$field, 'earthl', $elm$json$Json$Decode$int),
-	A2($elm$json$Json$Decode$field, 'earthr', $elm$json$Json$Decode$float));
+	A2($elm$json$Json$Decode$field, 'earthr', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'eartha', $elm$json$Json$Decode$float),
+	A2(
+		$elm$json$Json$Decode$field,
+		'earthb',
+		A2($elm$json$Json$Decode$map, $author$project$Model$changeEarthState, $elm$json$Json$Decode$string)));
 var $author$project$Star$Proton = F5(
 	function (pos, dir, radius, velocity, intensity) {
 		return {dir: dir, intensity: intensity, pos: pos, radius: radius, velocity: velocity};
 	});
-var $elm$json$Json$Decode$map5 = _Json_map5;
-var $author$project$Model$decodeProton = A6(
-	$elm$json$Json$Decode$map5,
-	$author$project$Star$Proton,
-	A2($elm$json$Json$Decode$field, 'protonp', $author$project$Model$decodePoint),
-	A2($elm$json$Json$Decode$field, 'protond', $elm$json$Json$Decode$float),
-	A2($elm$json$Json$Decode$field, 'protonr', $elm$json$Json$Decode$float),
-	A2($elm$json$Json$Decode$field, 'protonv', $elm$json$Json$Decode$float),
-	A2($elm$json$Json$Decode$field, 'protoni', $elm$json$Json$Decode$int));
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Model$decodeProton = $elm$json$Json$Decode$list(
+	A6(
+		$elm$json$Json$Decode$map5,
+		$author$project$Star$Proton,
+		A2($elm$json$Json$Decode$field, 'protonp', $author$project$Model$decodePoint),
+		A2($elm$json$Json$Decode$field, 'protond', $elm$json$Json$Decode$float),
+		A2($elm$json$Json$Decode$field, 'protonr', $elm$json$Json$Decode$float),
+		A2($elm$json$Json$Decode$field, 'protonv', $elm$json$Json$Decode$float),
+		A2($elm$json$Json$Decode$field, 'protoni', $elm$json$Json$Decode$int)));
 var $author$project$Messages$Key_left = function (a) {
 	return {$: 'Key_left', a: a};
 };
@@ -4924,9 +4946,7 @@ var $author$project$Model$decodeListSpc = F8(
 			first,
 			$elm$core$List$singleton(second));
 	});
-var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map8 = _Json_map8;
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Model$decodeSpc = A9(
 	$elm$json$Json$Decode$map8,
 	$author$project$Model$decodeListSpc,
@@ -4970,25 +4990,28 @@ var $author$project$Model$Model = F8(
 	function (sun, earth, proton, spacecraft, move_timer, level, state, heart) {
 		return {earth: earth, heart: heart, level: level, move_timer: move_timer, proton: proton, spacecraft: spacecraft, state: state, sun: sun};
 	});
+var $author$project$Star$sunRadius = 80.0;
 var $author$project$Model$initial = A8(
 	$author$project$Model$Model,
 	A2(
 		$author$project$Star$Sun,
 		A2($author$project$Star$Point, 500, 500),
-		60.0),
-	A4(
-		$author$project$Star$Earth,
-		A2($author$project$Star$Point, 1, 1),
-		0,
-		0,
-		0),
+		$author$project$Star$sunRadius),
 	A5(
-		$author$project$Star$Proton,
-		A2($author$project$Star$Point, 50, 350),
-		0.2,
-		7.5,
-		2.0,
-		5),
+		$author$project$Star$Earth,
+		A2($author$project$Star$Point, 0, 0),
+		0,
+		0,
+		0,
+		$author$project$Messages$Not_show),
+	$elm$core$List$singleton(
+		A5(
+			$author$project$Star$Proton,
+			A2($author$project$Star$Point, 300, 300),
+			0.6,
+			7.5,
+			2.0,
+			3)),
 	$elm$core$List$singleton(
 		A4(
 			$author$project$Star$Spacecraft,
@@ -4999,7 +5022,7 @@ var $author$project$Model$initial = A8(
 	0,
 	1,
 	$author$project$Model$Stopped,
-	2);
+	5);
 var $elm$json$Json$Decode$map6 = _Json_map6;
 var $author$project$Model$decode = A7(
 	$elm$json$Json$Decode$map6,
@@ -5963,6 +5986,44 @@ var $author$project$Main$subscriptions = function (model) {
 					$elm$html$Html$Events$keyCode))
 			]));
 };
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Update$checkAddProton = F2(
+	function (time, model) {
+		if (model.level >= 0) {
+			var old_proton = model.proton;
+			return (A2(
+				$elm$core$Basics$modBy,
+				1000,
+				$elm$core$Basics$round(time)) >= 0) ? _Utils_update(
+				model,
+				{
+					proton: A2($elm$core$List$append, old_proton, $author$project$Model$initial.proton)
+				}) : model;
+		} else {
+			return model;
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $author$project$Update$addSpacecraft = function (spacecraft) {
 	return _Utils_ap(
 		spacecraft,
@@ -5977,6 +6038,7 @@ var $author$project$Update$addSpacecraft = function (spacecraft) {
 var $author$project$Update$reinitModel = F2(
 	function (level, model) {
 		var prototype = $author$project$Model$initial;
+		var proEarth = $author$project$Model$initial.earth;
 		switch (level) {
 			case 1:
 				return prototype;
@@ -5984,24 +6046,161 @@ var $author$project$Update$reinitModel = F2(
 				return _Utils_update(
 					prototype,
 					{
+						earth: _Utils_update(
+							proEarth,
+							{
+								pos: A2($author$project$Star$Point, 700.0, 500.0),
+								radius: 0,
+								show: $author$project$Messages$Still,
+								velocity: 0
+							}),
 						level: 2,
+						proton: prototype.proton,
 						spacecraft: $author$project$Update$addSpacecraft(model.spacecraft),
 						state: $author$project$Model$Paused
 					});
 			case 3:
-				return model;
+				return _Utils_update(
+					prototype,
+					{
+						earth: _Utils_update(
+							proEarth,
+							{
+								pos: A2($author$project$Star$Point, 500.0, 500.0),
+								radius: 3.0,
+								show: $author$project$Messages$Move,
+								velocity: 0.02
+							}),
+						level: 3,
+						proton: prototype.proton,
+						state: $author$project$Model$Paused
+					});
 			case 4:
-				return model;
+				return _Utils_update(
+					prototype,
+					{
+						earth: _Utils_update(
+							proEarth,
+							{
+								pos: A2($author$project$Star$Point, 500.0, 500.0),
+								radius: 3.0,
+								show: $author$project$Messages$Move,
+								velocity: 0.02
+							}),
+						level: 4,
+						proton: prototype.proton,
+						state: $author$project$Model$Paused
+					});
 			default:
-				return model;
+				return prototype;
 		}
 	});
 var $author$project$Update$checkPass = function (model) {
-	return (model.proton.intensity <= 0) ? A2($author$project$Update$reinitModel, model.level + 1, model) : model;
+	var nproton = A2(
+		$elm$core$List$filter,
+		function (a) {
+			return a.intensity > 0;
+		},
+		model.proton);
+	return (model.heart <= 0) ? A2($author$project$Update$reinitModel, model.level, model) : (($elm$core$List$length(nproton) <= 0) ? A2($author$project$Update$reinitModel, model.level + 1, model) : model);
+};
+var $elm$core$Basics$pow = _Basics_pow;
+var $elm$core$Basics$sqrt = _Basics_sqrt;
+var $author$project$Update$distance = F2(
+	function (pa, pb) {
+		var by = pb.y;
+		var bx = pb.x;
+		var ay = pa.y;
+		var ax = pa.x;
+		return $elm$core$Basics$sqrt(
+			A2($elm$core$Basics$pow, ax - bx, 2) + A2($elm$core$Basics$pow, ay - by, 2));
+	});
+var $author$project$Star$originX = 500.0;
+var $author$project$Star$originY = 500.0;
+var $author$project$Update$reinitProton = F2(
+	function (inten, list) {
+		if (list.b) {
+			var x = list.a;
+			var xs = list.b;
+			var proton = A5(
+				$author$project$Star$Proton,
+				A2($author$project$Star$Point, 400, 300),
+				0.9,
+				7.5,
+				2.0,
+				5);
+			var nproton = _Utils_update(
+				proton,
+				{intensity: inten});
+			return A2($elm$core$List$cons, nproton, xs);
+		} else {
+			return list;
+		}
+	});
+var $author$project$Star$tracradius = 300.0;
+var $author$project$Update$checkfailedInside = F2(
+	function (proton, model) {
+		var old_heart = model.heart;
+		var dis = A2(
+			$author$project$Update$distance,
+			proton.pos,
+			A2($author$project$Star$Point, $author$project$Star$originX, $author$project$Star$originY));
+		return (_Utils_cmp(dis, $author$project$Star$tracradius + 20) > -1) ? _Utils_update(
+			model,
+			{
+				heart: old_heart - 1,
+				proton: A2($author$project$Update$reinitProton, proton.intensity, model.proton),
+				state: $author$project$Model$Paused
+			}) : model;
+	});
+var $author$project$Update$checkfailed = function (model) {
+	return A3($elm$core$List$foldr, $author$project$Update$checkfailedInside, model, model.proton);
+};
+var $author$project$Update$loseheart = function (model) {
+	var heart_ = model.heart - 1;
+	return _Utils_update(
+		model,
+		{heart: heart_});
+};
+var $author$project$Update$checkoutearthInside = F2(
+	function (proton, model) {
+		var rp = proton.radius;
+		var re = model.earth.radius;
+		var posp = proton.pos;
+		var pose = model.earth.pos;
+		return (_Utils_cmp(
+			A2($author$project$Update$distance, posp, pose),
+			rp + re) < 1) ? $author$project$Update$loseheart(model) : model;
+	});
+var $author$project$Update$checkoutearth = function (model) {
+	return A3($elm$core$List$foldr, $author$project$Update$checkoutearthInside, model, model.proton);
+};
+var $author$project$Update$earthangle = F2(
+	function (angle, velocity) {
+		return angle + velocity;
+	});
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Update$earthpostrans = F3(
+	function (center, angle, radius) {
+		var posy = center.y - (radius * $elm$core$Basics$sin(angle));
+		var posx = center.x + (radius * $elm$core$Basics$cos(angle));
+		return A2($author$project$Star$Point, posx, posy);
+	});
+var $author$project$Update$earthmove = function (model) {
+	var newangle = A2($author$project$Update$earthangle, model.earth.angle, model.earth.velocity);
+	var newPoint = A3($author$project$Update$earthpostrans, model.earth.pos, newangle, model.earth.radius);
+	var earth_ = model.earth;
+	return _Utils_update(
+		model,
+		{
+			earth: _Utils_update(
+				earth_,
+				{angle: newangle, pos: newPoint})
+		});
 };
 var $elm$core$Basics$atan = _Basics_atan;
 var $author$project$Star$spcwidth = 60.0;
-var $author$project$Star$tracradius = 300.0;
 var $author$project$Star$availableScale = $elm$core$Basics$atan((0.5 * $author$project$Star$spcwidth) / $author$project$Star$tracradius);
 var $elm$core$Basics$negate = function (n) {
 	return -n;
@@ -6009,8 +6208,6 @@ var $elm$core$Basics$negate = function (n) {
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
-var $elm$core$Basics$pow = _Basics_pow;
-var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $author$project$Update$dotLineDistance = F4(
 	function (point, a, b, c) {
 		var y = point.y;
@@ -6018,7 +6215,6 @@ var $author$project$Update$dotLineDistance = F4(
 		return $elm$core$Basics$abs(((a * x) + (b * y)) + c) / $elm$core$Basics$sqrt(
 			A2($elm$core$Basics$pow, a, 2) + A2($elm$core$Basics$pow, b, 2));
 	});
-var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$Basics$pi = _Basics_pi;
 var $author$project$Update$getLine = F2(
 	function (pos, angle) {
@@ -6037,14 +6233,12 @@ var $author$project$Update$getLine = F2(
 			}
 		}
 	});
-var $author$project$Star$originX = 500.0;
-var $author$project$Star$originY = 500.0;
 var $author$project$Star$spcheight = 20.0;
 var $elm$core$Basics$tan = _Basics_tan;
-var $author$project$Update$renewProtonDir = F2(
-	function (spacecraft, model) {
-		var stand = model.proton.radius + (0.5 * $author$project$Star$spcheight);
-		var special = $elm$core$Basics$atan((model.proton.pos.y - $author$project$Star$originY) / (model.proton.pos.x - $author$project$Star$originX));
+var $author$project$Update$renewProntonDirInside = F2(
+	function (spacecraft, proton) {
+		var stand = proton.radius + (0.5 * $author$project$Star$spcheight);
+		var special = $elm$core$Basics$atan((proton.pos.y - $author$project$Star$originY) / (proton.pos.x - $author$project$Star$originX));
 		var an = spacecraft.angle;
 		var field = $elm$core$Basics$atan(
 			$elm$core$Basics$tan(-an));
@@ -6052,97 +6246,100 @@ var $author$project$Update$renewProtonDir = F2(
 		var a = _v0.a;
 		var b = _v0.b;
 		var c = _v0.c;
-		var distance_ = A4($author$project$Update$dotLineDistance, model.proton.pos, a, b, c);
+		var distance_ = A4($author$project$Update$dotLineDistance, proton.pos, a, b, c);
 		if ((_Utils_cmp(special, (field + $author$project$Star$availableScale) + 0.05) < 1) && ((_Utils_cmp(special, (field - $author$project$Star$availableScale) - 0.05) > -1) && (_Utils_cmp(distance_, stand) < 1))) {
-			var proton_ = model.proton;
-			var old_intensity = model.proton.intensity;
-			var di = model.proton.dir;
+			var di = proton.dir;
 			var newangle = ($elm$core$Basics$pi - (2 * an)) - di;
 			return _Utils_update(
-				model,
-				{
-					proton: _Utils_update(
-						proton_,
-						{dir: newangle, intensity: old_intensity - 1})
-				});
+				proton,
+				{dir: newangle});
 		} else {
-			return model;
+			return proton;
 		}
+	});
+var $author$project$Update$renewProtonDir = F2(
+	function (spacecraft, model) {
+		var newproton = A2(
+			$elm$core$List$map,
+			$author$project$Update$renewProntonDirInside(spacecraft),
+			model.proton);
+		return _Utils_update(
+			model,
+			{proton: newproton});
 	});
 var $author$project$Update$checkoutspc = function (model) {
 	return A3($elm$core$List$foldr, $author$project$Update$renewProtonDir, model, model.spacecraft);
 };
-var $elm$core$Basics$atan2 = _Basics_atan2;
-var $author$project$Update$anglebtwpoint = F2(
-	function (pa, pb) {
-		return A2($elm$core$Basics$atan2, pb.y - pa.y, pa.x - pb.x);
-	});
-var $author$project$Update$distance = F2(
-	function (pa, pb) {
-		var by = pb.y;
-		var bx = pb.x;
-		var ay = pa.y;
-		var ax = pa.x;
-		return $elm$core$Basics$sqrt(
-			A2($elm$core$Basics$pow, ax - bx, 2) + A2($elm$core$Basics$pow, ay - by, 2));
+var $author$project$Update$checkoutsunInside = F2(
+	function (model, proton) {
+		var rs = model.sun.radius;
+		var rp = proton.radius;
+		var poss = model.sun.pos;
+		var posp = proton.pos;
+		var b = $elm$core$Basics$atan((posp.y - poss.y) / (posp.x - poss.x));
+		var a = proton.dir;
+		var newdir = ($elm$core$Basics$pi - a) + (2 * b);
+		if (_Utils_cmp(
+			A2($author$project$Update$distance, posp, poss),
+			rp + rs) < 1) {
+			var old_intensity = proton.intensity;
+			return _Utils_update(
+				proton,
+				{dir: newdir, intensity: old_intensity - 1});
+		} else {
+			return proton;
+		}
 	});
 var $author$project$Update$checkoutsun = function (model) {
-	var rs = model.sun.radius;
-	var rp = model.proton.radius;
-	var poss = model.sun.pos;
-	var posp = model.proton.pos;
-	var b = $elm$core$Basics$atan((posp.y - poss.y) / (posp.x - poss.x));
-	var ap2s = A2($author$project$Update$anglebtwpoint, posp, poss);
-	var ap = model.proton.dir;
-	var a = model.proton.dir;
-	var newdir = ($elm$core$Basics$pi - a) + (2 * b);
-	if (_Utils_cmp(
-		A2($author$project$Update$distance, posp, poss),
-		rp + rs) < 1) {
-		var proton_ = model.proton;
-		return _Utils_update(
-			model,
-			{
-				proton: _Utils_update(
-					proton_,
-					{dir: newdir})
-			});
-	} else {
-		return model;
-	}
+	return _Utils_update(
+		model,
+		{
+			proton: A2(
+				$elm$core$List$map,
+				$author$project$Update$checkoutsunInside(model),
+				model.proton)
+		});
 };
 var $author$project$Update$protonbounce = function (model) {
 	return $author$project$Update$checkoutspc(
 		$author$project$Update$checkoutsun(model));
 };
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$sin = _Basics_sin;
-var $author$project$Update$move = F3(
-	function (element, direction, velocity) {
-		var point = element.pos;
-		var movePoint = function (oldpoint) {
-			return _Utils_update(
-				oldpoint,
-				{
-					x: oldpoint.x + (velocity * $elm$core$Basics$cos(direction)),
-					y: oldpoint.y + (velocity * $elm$core$Basics$sin(direction))
-				});
-		};
+var $author$project$Update$move = function (element) {
+	var velocity = element.velocity;
+	var point = element.pos;
+	var direction = element.dir;
+	var movePoint = function (oldpoint) {
 		return _Utils_update(
-			element,
+			oldpoint,
 			{
-				pos: movePoint(point)
+				x: oldpoint.x + (velocity * $elm$core$Basics$cos(direction)),
+				y: oldpoint.y + (velocity * $elm$core$Basics$sin(direction))
 			});
-	});
+	};
+	return _Utils_update(
+		element,
+		{
+			pos: movePoint(point)
+		});
+};
 var $author$project$Update$protonmove = function (model) {
 	return _Utils_update(
 		model,
 		{
-			proton: A3($author$project$Update$move, model.proton, model.proton.dir, model.proton.velocity)
+			proton: A2($elm$core$List$map, $author$project$Update$move, model.proton)
 		});
 };
+var $author$project$Model$changeEarthString = function (sta) {
+	switch (sta.$) {
+		case 'Still':
+			return 'still';
+		case 'Move':
+			return 'move';
+		default:
+			return 'not_show';
+	}
+};
 var $elm$json$Json$Encode$float = _Json_wrap;
-var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -6156,27 +6353,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $author$project$Model$encodeEarth = function (earth) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'earthx',
-				$elm$json$Json$Encode$float(earth.pos.x)),
-				_Utils_Tuple2(
-				'earthy',
-				$elm$json$Json$Encode$float(earth.pos.y)),
-				_Utils_Tuple2(
-				'earthv',
-				$elm$json$Json$Encode$float(earth.velocity)),
-				_Utils_Tuple2(
-				'earthr',
-				$elm$json$Json$Encode$float(earth.radius)),
-				_Utils_Tuple2(
-				'earthl',
-				$elm$json$Json$Encode$int(earth.lives))
-			]));
-};
 var $author$project$Model$encodePoint = function (point) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -6189,6 +6365,30 @@ var $author$project$Model$encodePoint = function (point) {
 				$elm$json$Json$Encode$float(point.y))
 			]));
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Model$encodeEarth = function (earth) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'earthp',
+				$author$project$Model$encodePoint(earth.pos)),
+				_Utils_Tuple2(
+				'earthv',
+				$elm$json$Json$Encode$float(earth.velocity)),
+				_Utils_Tuple2(
+				'earthr',
+				$elm$json$Json$Encode$float(earth.radius)),
+				_Utils_Tuple2(
+				'eartha',
+				$elm$json$Json$Encode$float(earth.angle)),
+				_Utils_Tuple2(
+				'earthb',
+				$elm$json$Json$Encode$string(
+					$author$project$Model$changeEarthString(earth.show)))
+			]));
+};
+var $elm$json$Json$Encode$int = _Json_wrap;
 var $author$project$Model$encodeProton = function (proton) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -6253,7 +6453,6 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6326,6 +6525,15 @@ var $author$project$Model$encodeSun = function (sun) {
 				$elm$json$Json$Encode$float(sun.radius))
 			]));
 };
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
 var $author$project$Model$encode = F2(
 	function (indent, model) {
 		return A2(
@@ -6345,7 +6553,7 @@ var $author$project$Model$encode = F2(
 						$author$project$Model$encodeSpc(model.spacecraft)),
 						_Utils_Tuple2(
 						'proton',
-						$author$project$Model$encodeProton(model.proton)),
+						A2($elm$json$Json$Encode$list, $author$project$Model$encodeProton, model.proton)),
 						_Utils_Tuple2(
 						'level',
 						$elm$json$Json$Encode$int(model.level)),
@@ -6487,13 +6695,19 @@ var $author$project$Update$updatespc = F2(
 			case 'Tick':
 				var elapsed = msg.a;
 				return $author$project$Update$saveToStorage(
-					$author$project$Update$checkPass(
-						$author$project$Update$protonmove(
-							$author$project$Update$spcmove(
-								$author$project$Update$protonbounce(
-									_Utils_update(
-										model,
-										{move_timer: model.move_timer + elapsed}))))));
+					A2(
+						$author$project$Update$checkAddProton,
+						model.move_timer,
+						$author$project$Update$checkfailed(
+							$author$project$Update$checkPass(
+								$author$project$Update$protonmove(
+									$author$project$Update$earthmove(
+										$author$project$Update$checkoutearth(
+											$author$project$Update$spcmove(
+												$author$project$Update$protonbounce(
+													_Utils_update(
+														model,
+														{move_timer: model.move_timer + elapsed}))))))))));
 			case 'Start':
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -6527,31 +6741,40 @@ var $author$project$Update$update = F2(
 	});
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$core$String$concat = function (strings) {
-	return A2($elm$core$String$join, '', strings);
-};
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $elm$core$Debug$toString = _Debug_toString;
+var $author$project$View$drawEarth = function (earth) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$svg$Svg$circle,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$cx(
+					$elm$core$Debug$toString(earth.pos.x)),
+					$elm$svg$Svg$Attributes$cy(
+					$elm$core$Debug$toString(earth.pos.y)),
+					$elm$svg$Svg$Attributes$r('30'),
+					$elm$svg$Svg$Attributes$fill('#f2d6')
+				]),
+			_List_Nil)
+		]);
+};
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$String$concat = function (strings) {
+	return A2($elm$core$String$join, '', strings);
+};
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
-var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $elm$core$Debug$toString = _Debug_toString;
 var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
 var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
 var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
@@ -6815,6 +7038,11 @@ var $author$project$View$drawTrack = _List_fromArray(
 		_List_Nil)
 	]);
 var $author$project$View$drawproton = function (proton) {
+	var id = proton.intensity;
+	var l = $elm$core$Debug$toString(50 + (10 * id)) + '%)';
+	var s = $elm$core$Debug$toString(20 * id) + '%, ';
+	var h = $elm$core$Debug$toString(60) + ', ';
+	var color = 'hsl(' + (h + (s + l));
 	return _List_fromArray(
 		[
 			A2(
@@ -6827,10 +7055,22 @@ var $author$project$View$drawproton = function (proton) {
 					$elm$core$Debug$toString(proton.pos.y)),
 					$elm$svg$Svg$Attributes$r(
 					$elm$core$Debug$toString(proton.radius)),
-					$elm$svg$Svg$Attributes$fill('#ffff00')
+					$elm$svg$Svg$Attributes$fill(color)
 				]),
 			_List_Nil)
 		]);
+};
+var $author$project$Model$getHeadProton = function (list) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		A5(
+			$author$project$Star$Proton,
+			A2($author$project$Star$Point, 300, 300),
+			0.6,
+			7.5,
+			2.0,
+			3),
+		$elm$core$List$head(list));
 };
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Messages$Pause = {$: 'Pause'};
@@ -6930,6 +7170,42 @@ var $author$project$View$renderGameButton_2 = function (level) {
 				$elm$html$Html$text('Restart')
 			]));
 };
+var $author$project$View$printp = function (proton) {
+	return $elm$core$Debug$toString(proton.intensity);
+};
+var $author$project$View$renderInfo = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'background', '#34495f'),
+				A2($elm$html$Html$Attributes$style, 'border', '0'),
+				A2($elm$html$Html$Attributes$style, 'bottom', '30px'),
+				A2($elm$html$Html$Attributes$style, 'color', '#fff'),
+				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+				A2($elm$html$Html$Attributes$style, 'display', 'block'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Helvetica, Arial, sans-serif'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '30px'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', '300'),
+				A2($elm$html$Html$Attributes$style, 'height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'left', '500px'),
+				A2($elm$html$Html$Attributes$style, 'line-height', '60px'),
+				A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+				A2($elm$html$Html$Attributes$style, 'padding', '0'),
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2($elm$html$Html$Attributes$style, 'width', '500px')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				'Remain chances: ' + ($elm$core$Debug$toString(model.heart) + ('level' + ($elm$core$Debug$toString(model.level) + ('isi' + ($author$project$View$printp(
+					$author$project$Model$getHeadProton(model.proton)) + ('time' + $elm$core$Debug$toString(
+					A2(
+						$elm$core$Basics$modBy,
+						1000,
+						$elm$core$Basics$round(model.move_timer))))))))))
+			]));
+};
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
@@ -6962,9 +7238,13 @@ var $author$project$View$view = function (model) {
 						$author$project$View$drawSun(model.sun),
 						_Utils_ap(
 							$author$project$View$drawSpacecraft(model.spacecraft),
-							$author$project$View$drawproton(model.proton))))),
+							_Utils_ap(
+								$author$project$View$drawEarth(model.earth),
+								$author$project$View$drawproton(
+									$author$project$Model$getHeadProton(model.proton))))))),
 				$author$project$View$renderGameButton_1(model.state),
-				$author$project$View$renderGameButton_2(model.level)
+				$author$project$View$renderGameButton_2(model.level),
+				$author$project$View$renderInfo(model)
 			]));
 };
 var $elm$core$Result$withDefault = F2(
