@@ -5994,17 +5994,16 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
-var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $elm$core$Basics$round = _Basics_round;
 var $author$project$Update$checkAddProton = F2(
 	function (time, model) {
-		if (model.level >= 0) {
+		if (model.level === 4) {
 			var old_proton = model.proton;
-			return (A2(
+			return (!A2(
 				$elm$core$Basics$modBy,
-				1000,
-				$elm$core$Basics$round(time)) >= 0) ? _Utils_update(
+				10000,
+				$elm$core$Basics$round(time))) ? _Utils_update(
 				model,
 				{
 					proton: A2($elm$core$List$append, old_proton, $author$project$Model$initial.proton)
@@ -6115,6 +6114,7 @@ var $author$project$Update$distance = F2(
 		return $elm$core$Basics$sqrt(
 			A2($elm$core$Basics$pow, ax - bx, 2) + A2($elm$core$Basics$pow, ay - by, 2));
 	});
+var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Star$originX = 500.0;
 var $author$project$Star$originY = 500.0;
 var $author$project$Update$reinitProton = F2(
@@ -6740,6 +6740,9 @@ var $author$project$Update$update = F2(
 			_Utils_Tuple2(model, $elm$core$Platform$Cmd$none));
 	});
 var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
@@ -6764,9 +6767,6 @@ var $author$project$View$drawEarth = function (earth) {
 				]),
 			_List_Nil)
 		]);
-};
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
@@ -7060,18 +7060,6 @@ var $author$project$View$drawproton = function (proton) {
 			_List_Nil)
 		]);
 };
-var $author$project$Model$getHeadProton = function (list) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		A5(
-			$author$project$Star$Proton,
-			A2($author$project$Star$Point, 300, 300),
-			0.6,
-			7.5,
-			2.0,
-			3),
-		$elm$core$List$head(list));
-};
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Messages$Pause = {$: 'Pause'};
 var $author$project$Messages$Resume = {$: 'Resume'};
@@ -7170,6 +7158,18 @@ var $author$project$View$renderGameButton_2 = function (level) {
 				$elm$html$Html$text('Restart')
 			]));
 };
+var $author$project$Model$getHeadProton = function (list) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		A5(
+			$author$project$Star$Proton,
+			A2($author$project$Star$Point, 300, 300),
+			0.6,
+			7.5,
+			2.0,
+			3),
+		$elm$core$List$head(list));
+};
 var $author$project$View$printp = function (proton) {
 	return $elm$core$Debug$toString(proton.intensity);
 };
@@ -7240,8 +7240,8 @@ var $author$project$View$view = function (model) {
 							$author$project$View$drawSpacecraft(model.spacecraft),
 							_Utils_ap(
 								$author$project$View$drawEarth(model.earth),
-								$author$project$View$drawproton(
-									$author$project$Model$getHeadProton(model.proton))))))),
+								$elm$core$List$concat(
+									A2($elm$core$List$map, $author$project$View$drawproton, model.proton))))))),
 				$author$project$View$renderGameButton_1(model.state),
 				$author$project$View$renderGameButton_2(model.level),
 				$author$project$View$renderInfo(model)

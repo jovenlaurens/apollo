@@ -277,7 +277,7 @@ view model =
             , SvgAttr.height "1000"
             , SvgAttr.viewBox "0 0 1000 1000"
             ]
-            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ List.map drawproton model.proton)
+            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ List.concat (List.map drawproton model.proton))
         , renderGameButton_1 model.state
         , renderGameButton_2 model.level
         , renderInfo model

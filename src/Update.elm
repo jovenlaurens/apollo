@@ -64,12 +64,12 @@ updatespc msg ( model, cmd ) =
 
 checkAddProton : Float -> Model -> Model
 checkAddProton time model =
-    if model.level >= 0 then
+    if model.level == 4 then
         let
             old_proton =
                 model.proton
         in
-        if modBy 1000 (round time) == 0 then
+        if modBy 10000 (round time) == 0 then
             { model | proton = List.append old_proton initial.proton }
 
         else
