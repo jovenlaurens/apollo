@@ -7,6 +7,7 @@ import Messages exposing (Keydir(..), Msg(..),Earth_State(..))
 import Star exposing (Earth, Point, Proton, Spacecraft, Sun)
 import Tuple exposing (first, second)
 import Star exposing (sunRadius)
+import Html exposing (text)
 
 
 type alias Model =
@@ -18,7 +19,8 @@ type alias Model =
     , level : Int
     , state : State
     , heart : Int
-    , leave_num : Int
+    , leave_num : Int--可以删掉
+    , text_num : Int --重要！
     }
 
 
@@ -33,6 +35,7 @@ initial =
         Stopped
         2
         1
+        0
 
 
 defaultSpacecraft =
@@ -260,14 +263,16 @@ encode indent model =
             , ( "proton", encodeProton model.proton )
             , ( "level", Encode.int model.level )
             , ( "state", Encode.string (encodeState model.state) )
+            , ( "heart", Encode.int model.heart)
+            , ( "text", Encode.int model.text_num)
             ]
         )
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map6
-        (\earth sun spacecraft proton level state ->
+    Decode.map8
+        (\earth sun spacecraft proton level state heart text->
             { initial
                 | earth = earth
                 , sun = sun
@@ -275,6 +280,8 @@ decode =
                 , proton = proton
                 , level = level
                 , state = state
+                , heart = heart
+                , text_num = text
             }
         )
         (Decode.field "earth" decodeEarth)
@@ -283,3 +290,5 @@ decode =
         (Decode.field "proton" decodeProton)
         (Decode.field "level" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
+        (Decode.field "heart" Decode.int)
+        (Decode.field "text" Decode.int)

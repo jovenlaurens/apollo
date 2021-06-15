@@ -7,6 +7,7 @@ import Star exposing (Point, Proton, Spacecraft, availableScale, originX, origin
 import Svg.Attributes exposing (mode)
 import Html exposing (th)
 import Messages exposing (Earth_State(..))
+import Text exposing (changeIndexToNewOne)
 
 
 port save : String -> Cmd msg
@@ -32,6 +33,9 @@ updatespc msg ( model, cmd ) =
     case msg of
         Reinit level ->
             ( reinitModel level model, Cmd.none )
+
+        ChangeText a b ->
+            ({model | text_num = (changeIndexToNewOne a b)}, Cmd.none)
 
         Tick elapsed ->
             { model | move_timer = model.move_timer + elapsed }
@@ -64,13 +68,22 @@ updatespc msg ( model, cmd ) =
 
 checkPass : Model -> Model
 checkPass model =
-    if model.heart <= 0 then
-        reinitModel (model.level) model
-    else if model.proton.intensity <= 0 then
-        reinitModel (model.level + 1) model
-
-    else
+    if model.heart > 0 && model.proton.intensity > 0 then
         model
+    else
+    let
+        (next_level, bnum) = 
+            if model.heart <= 0 then
+                (model.level, 2)
+            else if model.proton.intensity <= 0 then
+                (model.level + 1, 1) --这里判定进一关的函数要调整
+
+            else
+                (model.level , 0)
+        newmodel = reinitModel next_level model
+        oldtext = model.text_num
+    in
+        {newmodel | text_num = (changeIndexToNewOne oldtext bnum)} 
 
 
 reinitProton : Int -> Proton
