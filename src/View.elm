@@ -239,10 +239,13 @@ renderGameButton_3 state textIndex =
         , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
-        , style "display" (if state == Playing then
-                                "none"
-                            else
-                                "block")
+        , style "display"
+            (if state == Playing then
+                "none"
+
+             else
+                "block"
+            )
         , onClick (ChangeText textIndex 0)
         ]
         [ text "Next" ]
@@ -254,10 +257,13 @@ drawEarth level earth =
         [ SvgAttr.cx (toString earth.pos.x)
         , SvgAttr.cy (toString earth.pos.y)
         , SvgAttr.r "30"
-        , SvgAttr.display (if level <= 1 then
-                                "none"
-                            else
-                                "block")
+        , SvgAttr.display
+            (if level <= 1 then
+                "none"
+
+             else
+                "block"
+            )
         ]
         []
     , Svg.image
@@ -266,10 +272,13 @@ drawEarth level earth =
         , SvgAttr.width "60"
         , SvgAttr.height "60"
         , SvgAttr.xlinkHref "assets/Earth.png"
-        , SvgAttr.display  (if level <= 1 then
-                                "none"
-                            else
-                                "block")
+        , SvgAttr.display
+            (if level <= 1 then
+                "none"
+
+             else
+                "block"
+            )
         ]
         []
     ]
@@ -290,10 +299,13 @@ renderChatBox model =
         , style "left" "5%"
         , style "color" "#fff"
         , style "cursor" "pointer"
-        , style "display"   (if model.submodel.state == Playing then
-                                "none"
-                            else
-                                "block")
+        , style "display"
+            (if model.submodel.state == Playing then
+                "none"
+
+             else
+                "block"
+            )
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "2em"
         , style "height" "45%"
@@ -322,14 +334,15 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "23%"
         ]
-        [ text ("Remain chances: " ++ toString model.submodel.heart )
+        [ text ("Remain chances: " ++ toString model.submodel.heart)
         , br [] []
         , text ("level: " ++ toString model.submodel.level)
         , br [] []
-        , text ("isi: " ++ printp (getHeadProton model.proton)) 
+        , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
-        , text ("time: " ++ toString (modBy 1000 (round model.submodel.move_timer))) 
+        , text ("time: " ++ toString (modBy 100 (round model.submodel.move_timer) == 0))
         ]
+
 
 liveSymbol : Int -> String
 liveSymbol lives =
@@ -345,6 +358,8 @@ liveSymbol lives =
 
         _ ->
             ""
+
+
 renderAudio : String -> Html Msg
 renderAudio url =
     audio
@@ -389,24 +404,29 @@ renderCover model =
         ]
 
 
-
-
-
 view : Model -> Html Msg
 view model =
     let
         ( w, h ) =
             model.size
-        line = Basics.min w h
-        max_ = Basics.max w h
+
+        line =
+            Basics.min w h
+
+        max_ =
+            Basics.max w h
+
         left =
             if w > h then
                 0.5 * (max_ - line)
+
             else
                 0
-        top = 
+
+        top =
             if w > h then
                 0
+
             else
                 0.5 * (max_ - line)
 
@@ -432,7 +452,7 @@ view model =
 
           else
             div
-                [ HtmlAttr.style "width" (String.fromFloat line ++ "px")--how to adjust here?
+                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
                 , HtmlAttr.style "height" (String.fromFloat line ++ "px")
                 , HtmlAttr.style "position" "absolute"
                 , HtmlAttr.style "left" (String.fromFloat left ++ "px")
@@ -444,14 +464,14 @@ view model =
                     , SvgAttr.height "100%"
                     , SvgAttr.viewBox "0 0 1000 1000"
                     ]
-                    (  drawTrack 
-                    ++ drawSun model.sun 
-                    ++ drawSpacecraft model.spacecraft 
-                    ++ drawEarth model.submodel.level model.earth 
-                    ++ List.concat (List.map drawproton model.proton))
-                , 
-                div
-                    [ HtmlAttr.style "width" "100%"--how to adjust here?
+                    (drawTrack
+                        ++ drawSun model.sun
+                        ++ drawSpacecraft model.spacecraft
+                        ++ drawEarth model.submodel.level model.earth
+                        ++ List.concat (List.map drawproton model.proton)
+                    )
+                , div
+                    [ HtmlAttr.style "width" "100%" --how to adjust here?
                     , HtmlAttr.style "height" "100%"
                     , HtmlAttr.style "position" "absolute"
                     , HtmlAttr.style "left" "0"
