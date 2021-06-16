@@ -21,7 +21,11 @@ showText ind =
 changeIndexToNewOne : Int -> Int -> Int
 changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
     case old of
-        0 -> 1
+        0 -> 
+            case trigue of
+                1 -> 11
+                2 -> 6
+                _ -> 1
         1 -> 2
         2 -> 3
         3 -> 4
@@ -30,7 +34,7 @@ changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输�
             case trigue of
                 1 -> 11
                 2 -> 6
-                _ -> 5
+                _ -> 7
         6 -> 
             case trigue of
                 1 -> 11
@@ -93,6 +97,7 @@ changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输�
         37 -> 38
         38 -> 39
         39 -> 40
+        40 -> 40
         _ -> 0
 
 

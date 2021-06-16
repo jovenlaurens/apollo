@@ -17,6 +17,7 @@ type alias Model =
     , level : Int
     , state : State
     , heart : Int
+    , text_num : Int --重要！
     }
 
 
@@ -24,12 +25,13 @@ initial : Model
 initial =
     Model (Sun (Point 500 500) sunRadius)
         (Earth (Point 0 0) 0 0 0 Not_show)
-        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 3))
+        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 8))
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
         0
         1
         Stopped
-        5
+        3
+        0
 
 
 defaultSpacecraft =
@@ -276,14 +278,15 @@ encode indent model =
             , ( "proton", Encode.list encodeProton model.proton )
             , ( "level", Encode.int model.level )
             , ( "state", Encode.string (encodeState model.state) )
+            , ( "text", Encode.int model.text_num)
             ]
         )
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map6
-        (\earth sun spacecraft proton level state ->
+    Decode.map7
+        (\earth sun spacecraft proton level state text->
             { initial
                 | earth = earth
                 , sun = sun
@@ -291,6 +294,7 @@ decode =
                 , proton = proton
                 , level = level
                 , state = state
+                , text_num = text
             }
         )
         (Decode.field "earth" decodeEarth)
@@ -299,3 +303,4 @@ decode =
         (Decode.field "proton" decodeProton)
         (Decode.field "level" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
+        (Decode.field "text" Decode.int)

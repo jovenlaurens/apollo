@@ -1,6 +1,5 @@
 module View exposing (view)
 
-import Axis3d exposing (y)
 import Debug exposing (toString)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
@@ -10,7 +9,12 @@ import Model exposing (..)
 import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
-import Update exposing (dotLineDistance, getLine, xShift, yShift)
+import Text exposing (showText)
+import Update exposing (dotLineDistance, getLine)
+
+
+
+--elm make src/Main.elm src/Messages.elm src/Model.elm src/Star.elm src/Update.elm src/View.elm src/Point.elm src/Text.elm
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -93,6 +97,16 @@ drawSpacecraft_Inside spacecraft =
         ]
         []
     ]
+
+
+xShift : Float -> Float -> Float
+xShift x r =
+    originX + (((tracradius + r) / tracradius) * (x - originX))
+
+
+yShift : Float -> Float -> Float
+yShift y r =
+    originY - (((tracradius + r) / tracradius) * (originY - y))
 
 
 drawSun : Sun -> List (Svg msg)
@@ -217,6 +231,30 @@ renderGameButton_2 level =
         [ text "Restart" ]
 
 
+renderGameButton_3 : Int -> Html Msg
+renderGameButton_3 textIndex =
+    button
+        [ style "background" "#34495f"
+        , style "border" "0"
+        , style "bottom" "30px"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "60px"
+        , style "left" "900px"
+        , style "line-height" "60px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "120px"
+        , onClick (ChangeText textIndex 0)
+        ]
+        [ text "Next" ]
+
+
 drawEarth : Earth -> List (Svg msg)
 drawEarth earth =
     [ Svg.circle
@@ -230,10 +268,55 @@ drawEarth earth =
         , SvgAttr.y (toString (earth.pos.y - 30))
         , SvgAttr.width "60"
         , SvgAttr.height "60"
-        , SvgAttr.xlinkHref "Assets/Earth.png"
+        , SvgAttr.xlinkHref "assets/Earth.png"
         ]
         []
     ]
+
+
+
+--<rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+--style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
+--stroke-opacity:0.9
+
+
+renderChatBox : Model -> Html Msg
+renderChatBox model =
+    div
+        [ style "background" "#34495f"
+        , style "bottom" "120px"
+        , style "color" "#fff"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "30px"
+        , style "font-weight" "300"
+        , style "height" "1000px"
+        , style "left" "900px"
+        , style "line-height" "60px"
+        , style "stroke" "pink"
+        , style "stroke-width" "5"
+        , style "stroke-opacity" "0.9"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "500px"
+        ]
+        [ text (showText model.text_num) ]
+
+
+liveSymbol : Int -> String
+liveSymbol lives =
+    case lives of
+        3 ->
+            "❤❤❤"
+
+        2 ->
+            "❤❤"
+
+        1 ->
+            "❤"
+
+        _ ->
+            ""
 
 
 renderInfo : Model -> Html Msg
@@ -246,7 +329,7 @@ renderInfo model =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "30px"
+        , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "60px"
         , style "left" "500px"
@@ -256,7 +339,17 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "500px"
         ]
-        [ text ("Remain chances: " ++ toString model.heart ++ "level" ++ toString model.level ++ "isi" ++ printp (getHeadProton model.proton) ++ "time" ++ toString (modBy 1000 (round model.move_timer))) ]
+        [ text ("Lives: " ++ liveSymbol model.heart ++ "\nlevel: " ++ toString model.level ++ "\nisi: " ++ printp (getHeadProton model.proton) ++ "\ntime: " ++ toString (modBy 1000 (round model.move_timer))) ]
+
+
+renderAudio : String -> Html Msg
+renderAudio url =
+    audio
+        [ src url
+        , autoplay True
+        , loop True
+        ]
+        [ text "error" ]
 
 
 view : Model -> Html Msg
@@ -267,7 +360,6 @@ view model =
         , HtmlAttr.style "position" "fixed"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
-        , HtmlAttr.style "background-color" "black"
         , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
         ]
         [ Svg.svg
@@ -279,6 +371,9 @@ view model =
         , renderGameButton_1 model.state
         , renderGameButton_2 model.level
         , renderInfo model
+        , renderChatBox model
+        , renderGameButton_3 model.text_num
+        , renderAudio "assets/Bgm.mp3"
         ]
 
 

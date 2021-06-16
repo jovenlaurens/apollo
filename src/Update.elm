@@ -1,11 +1,15 @@
 port module Update exposing (..)
 
-import Html exposing (th)
-import Html.Attributes exposing (list)
+import Debug exposing (toString)
+import Html exposing (..)
+import Html.Attributes as HtmlAttr exposing (..)
+import Html.Events exposing (onClick)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 import Model exposing (..)
-import Star exposing (Point, Proton, Spacecraft, availableScale, originX, originY, spcheight, spcwidth, tracradius)
-import Svg.Attributes exposing (mode)
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, tracradius)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr exposing (mode, y1)
+import Text exposing (changeIndexToNewOne)
 
 
 port save : String -> Cmd msg
@@ -31,6 +35,9 @@ updatespc msg ( model, cmd ) =
     case msg of
         Reinit level ->
             ( reinitModel level model, Cmd.none )
+
+        ChangeText a b ->
+            ( { model | text_num = changeIndexToNewOne a b }, Cmd.none )
 
         Tick elapsed ->
             { model | move_timer = model.move_timer + elapsed }
@@ -86,10 +93,18 @@ checkPass model =
             List.filter (\a -> a.intensity > 0) model.proton
     in
     if model.heart <= 0 then
-        reinitModel model.level model
+        let
+            nmodel =
+                reinitModel model.level model
+        in
+        { nmodel | text_num = changeIndexToNewOne model.text_num 2 }
 
     else if List.length nproton <= 0 then
-        reinitModel (model.level + 1) model
+        let
+            nmodel =
+                reinitModel (model.level + 1) model
+        in
+        { nmodel | text_num = changeIndexToNewOne model.text_num 1 }
 
     else
         model
@@ -158,7 +173,7 @@ reinitModel level model =
 
 addSpacecraft : List Spacecraft -> List Spacecraft
 addSpacecraft spacecraft =
-    spacecraft ++ List.singleton (Spacecraft (Point 900.0 500.0) 0.0 (Key_none 2) 0.01)
+    spacecraft ++ List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 2) 0.01)
 
 
 spcdirchange : Keydir -> Model -> Model
@@ -413,11 +428,23 @@ renewProntonDirInside spacecraft proton =
 
             newangle =
                 pi - 2 * an - di
+
+            _ =
+                collideSound
         in
         { proton | dir = newangle }
 
     else
         proton
+
+
+collideSound : Html Msg
+collideSound =
+    audio
+        [ src "assets/Collide.wav"
+        , autoplay True
+        ]
+        [ text "error" ]
 
 
 
@@ -464,6 +491,16 @@ dotLineDistance point a b c =
     abs (a * x + b * y + c) / sqrt (a ^ 2 + b ^ 2)
 
 
+xShift : Float -> Float -> Float
+xShift x r =
+    originX + (((tracradius + r) / tracradius) * (x - originX))
+
+
+yShift : Float -> Float -> Float
+yShift y r =
+    originY - (((tracradius + r) / tracradius) * (originY - y))
+
+
 earthmove : Model -> Model
 earthmove model =
     let
@@ -499,16 +536,6 @@ earthangle angle velocity =
 checkoutearth : Model -> Model
 checkoutearth model =
     List.foldr checkoutearthInside model model.proton
-
-
-xShift : Float -> Float -> Float
-xShift x r =
-    originX + (((tracradius + r) / tracradius) * (x - originX))
-
-
-yShift : Float -> Float -> Float
-yShift y r =
-    originY - (((tracradius + r) / tracradius) * (originY - y))
 
 
 
