@@ -266,7 +266,7 @@ drawEarth earth =
         , SvgAttr.y (toString (earth.pos.y - 30))
         , SvgAttr.width "60"
         , SvgAttr.height "60"
-        , SvgAttr.xlinkHref "Assets/Earth.png"
+        , SvgAttr.xlinkHref "assets/Earth.png"
         ]
         []
     ]
@@ -305,7 +305,7 @@ renderInfo model =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "30px"
+        , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "60px"
         , style "left" "500px"
@@ -315,8 +315,15 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "500px"
         ]
-        [ text ("Remain chances: " ++ toString model.heart ++ "level" ++ toString model.level ++ "isi" ++ printp (getHeadProton model.proton) ++ "time" ++ toString (modBy 1000 (round model.move_timer))) ]
+        [ text ("Remain chances: " ++ toString model.heart ++ "\nlevel: " ++ toString model.level ++ "\nisi: " ++ printp (getHeadProton model.proton) ++ "\ntime: " ++ toString (modBy 1000 (round model.move_timer))) ]
 
+renderAudio : String -> Html Msg
+renderAudio url =
+    audio
+        [ src url
+        , autoplay True
+        , loop True]
+        [ text "error"]
 
 view : Model -> Html Msg
 view model =
@@ -339,7 +346,9 @@ view model =
         , renderInfo model
         , renderChatBox model
         , renderGameButton_3 model.text_num
+        , renderAudio "assets/Fall of the Solar King - Twin Musicom.mp3"
         ]
+
 
 
 printp : Proton -> String
