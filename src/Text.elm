@@ -20,6 +20,9 @@ showText ind =
     
 changeIndexToNewOne : Int -> Int -> Int
 changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
+    if trigue == -99 then
+        old
+    else
     case old of
         0 -> 
             case trigue of
@@ -102,6 +105,7 @@ changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输�
 
 
 
+
         
             
 
@@ -112,7 +116,7 @@ textBase =
     [ Text 0 "Apollo, by Ocean Cat Studio"
     , Text 1 "In 2077, people have occupied most area of the solar system. A huge interplanetary empire has been established. You, one of the freshmen in the most powerful space fleet of the empire, when something strange happened."
     , Text 2 "A kind of secret particle ejected by the sun, started to attack the world with its high speed and high temperature. Your team is assigned to drive the firmest spacecraft, Apollo, to protect everything in the world."
-    , Text 3 "By pressing the < or > on the keyboard, Apollo will turn anticlockwise or clockwise around the track. It can make the particle bounce back into the inner area, bounce back, again and again. "
+    , Text 3 "By pressing the <- or -> on the keyboard, Apollo will turn anticlockwise or clockwise around the track. It can make the particle bounce back into the inner area, bounce back, again and again. "
     , Text 4 "Every time the particle collides with the sun, its intensity will decrease and become darker. The proton keeps moving until the intensity turns into zero, when your task is partly finished."
     , Text 5 "Any possibility exists, so try your best to protect the solar system, our permanent family! (Press New Game to Start!)"
     , Text 6 "This time you failed, and you will come back to the beginning of this war. (Press Resume to restart this level)"

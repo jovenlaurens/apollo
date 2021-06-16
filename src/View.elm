@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Basics exposing (..)
 import Debug exposing (toString)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
@@ -9,10 +10,14 @@ import Model exposing (..)
 import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
-import Update exposing (dotLineDistance, getLine)
 import Text exposing (showText)
+import Update exposing (dotLineDistance, getLine)
+
+
 
 --elm make src/Main.elm src/Messages.elm src/Model.elm src/Star.elm src/Update.elm src/View.elm src/Point.elm src/Text.elm
+
+
 drawSpacecraft : List Spacecraft -> List (Svg msg)
 drawSpacecraft spacecraft =
     List.map drawSpacecraft_Inside spacecraft |> List.concat
@@ -180,24 +185,22 @@ renderGameButton_1 state =
 
                 Model.Paused ->
                     ( "Resume", Resume )
+
+                BeforePlay ->
+                    ( "New game", Start )
     in
     button
         [ style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "30px"
+        , style "position" "absolute"
+        , style "top" "2%"
+        , style "left" "2%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
-        , style "font-weight" "300"
-        , style "height" "60px"
-        , style "left" "30px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "120px"
+        , style "font-size" "4%"
+        , style "height" "6%"
+        , style "width" "10%"
         , onClick msg
         ]
         [ text txt ]
@@ -207,58 +210,54 @@ renderGameButton_2 : Int -> Html Msg
 renderGameButton_2 level =
     button
         [ style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "30px"
+        , style "position" "absolute"
+        , style "top" "10%"
+        , style "left" "2%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
-        , style "font-weight" "300"
-        , style "height" "60px"
-        , style "left" "180px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "120px"
+        , style "font-size" "4%"
+        , style "height" "6%"
+        , style "width" "10%"
         , onClick (Reinit level)
         ]
         [ text "Restart" ]
 
 
-
-
-renderGameButton_3 : Int -> Html Msg
-renderGameButton_3 textIndex =
+renderGameButton_3 : State -> Int -> Html Msg
+renderGameButton_3 state textIndex =
     button
         [ style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "30px"
+        , style "position" "absolute"
+        , style "top" "89%"
+        , style "left" "5%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
-        , style "font-weight" "300"
-        , style "height" "60px"
-        , style "left" "900px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "120px"
+        , style "font-size" "4%"
+        , style "height" "6%"
+        , style "width" "10%"
+        , style "display" (if state == Playing then
+                                "none"
+                            else
+                                "block")
         , onClick (ChangeText textIndex 0)
         ]
         [ text "Next" ]
 
 
-drawEarth : Earth -> List (Svg msg)
-drawEarth earth =
+drawEarth : Int -> Earth -> List (Svg msg)
+drawEarth level earth =
     [ Svg.circle
         [ SvgAttr.cx (toString earth.pos.x)
         , SvgAttr.cy (toString earth.pos.y)
         , SvgAttr.r "30"
+        , SvgAttr.display (if level <= 1 then
+                                "none"
+                            else
+                                "block")
         ]
         []
     , Svg.image
@@ -267,32 +266,40 @@ drawEarth earth =
         , SvgAttr.width "60"
         , SvgAttr.height "60"
         , SvgAttr.xlinkHref "assets/Earth.png"
+        , SvgAttr.display  (if level <= 1 then
+                                "none"
+                            else
+                                "block")
         ]
         []
     ]
+
+
+
 --<rect x="50" y="20" rx="20" ry="20" width="150" height="150"
-          --style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
-          --stroke-opacity:0.9
+--style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
+--stroke-opacity:0.9
+
+
 renderChatBox : Model -> Html Msg
 renderChatBox model =
     div
-    [    style "background" "#34495f"
-        , style "bottom" "120px"
-        , style "color" "#fff"
-        , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "30px"
-        , style "font-weight" "300"
-        , style "height" "1000px"
-        , style "left" "900px"
-        , style "line-height" "60px"
-        , style "stroke" "pink"
-        , style "stroke-width" "5"
-        , style "stroke-opacity" "0.9"
-        , style "padding" "0"
+        [ style "background" "#34495f"
         , style "position" "absolute"
-        , style "width" "500px"]
-    [text (showText model.text_num)]
+        , style "top" "50%"
+        , style "left" "5%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display"   (if model.submodel.state == Playing then
+                                "none"
+                            else
+                                "block")
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "2em"
+        , style "height" "45%"
+        , style "width" "90%"
+        ]
+        [ text (showText model.submodel.text_num) ]
 
 
 renderInfo : Model -> Html Msg
@@ -300,55 +307,165 @@ renderInfo model =
     div
         [ style "background" "#34495f"
         , style "border" "0"
-        , style "bottom" "30px"
+        , style "top" "2%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "18px"
         , style "font-weight" "300"
-        , style "height" "60px"
-        , style "left" "500px"
-        , style "line-height" "60px"
+        , style "height" "18%"
+        , style "left" "75%"
+        , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "500px"
+        , style "width" "23%"
         ]
-        [ text ("Remain chances: " ++ toString model.heart ++ "\nlevel: " ++ toString model.level ++ "\nisi: " ++ printp (getHeadProton model.proton) ++ "\ntime: " ++ toString (modBy 1000 (round model.move_timer))) ]
+        [ text ("Remain chances: " ++ toString model.submodel.heart )
+        , br [] []
+        , text ("level: " ++ toString model.submodel.level)
+        , br [] []
+        , text ("isi: " ++ printp (getHeadProton model.proton)) 
+        , br [] []
+        , text ("time: " ++ toString (modBy 1000 (round model.submodel.move_timer))) 
+        ]
 
+liveSymbol : Int -> String
+liveSymbol lives =
+    case lives of
+        3 ->
+            "❤❤❤"
+
+        2 ->
+            "❤❤"
+
+        1 ->
+            "❤"
+
+        _ ->
+            ""
 renderAudio : String -> Html Msg
 renderAudio url =
     audio
         [ src url
         , autoplay True
-        , loop True]
-        [ text "error"]
+        , loop True
+        ]
+        [ text "error" ]
 
-view : Model -> Html Msg
-view model =
+
+renderCover : Model -> Html Msg
+renderCover model =
     div
         [ HtmlAttr.style "width" "100%"
         , HtmlAttr.style "height" "100%"
-        , HtmlAttr.style "position" "fixed"
+        , HtmlAttr.style "position" "absolute"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
         , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
         ]
-        [ Svg.svg
-            [ SvgAttr.width "1000"
-            , SvgAttr.height "1000"
-            , SvgAttr.viewBox "0 0 1000 1000"
+        [ text "This is cover."
+        , button
+            [ style "background" "#34495f"
+            , style "border" "0"
+            , style "bottom" "30px"
+            , style "color" "#fff"
+            , style "cursor" "pointer"
+            , style "display" "block"
+            , style "font-family" "Helvetica, Arial, sans-serif"
+            , style "font-size" "18px"
+            , style "font-weight" "300"
+            , style "height" "60px"
+            , style "left" "900px"
+            , style "line-height" "60px"
+            , style "outline" "none"
+            , style "padding" "0"
+            , style "position" "absolute"
+            , style "width" "120px"
+            , onClick EnterGame
             ]
-            (drawTrack ++ drawSun model.sun ++ drawSpacecraft model.spacecraft ++ drawEarth model.earth ++ List.concat (List.map drawproton model.proton))
-        , renderGameButton_1 model.state
-        , renderGameButton_2 model.level
-        , renderInfo model
-        , renderChatBox model
-        , renderGameButton_3 model.text_num
-        , renderAudio "assets/Fall of the Solar King - Twin Musicom.mp3"
+            [ text "Start to play!" ]
         ]
 
+
+
+
+
+view : Model -> Html Msg
+view model =
+    let
+        ( w, h ) =
+            model.size
+        line = Basics.min w h
+        max_ = Basics.max w h
+        left =
+            if w > h then
+                0.5 * (max_ - line)
+            else
+                0
+        top = 
+            if w > h then
+                0
+            else
+                0.5 * (max_ - line)
+
+        --窗口的大小
+        --取到了最小的那个，能显示出全部
+    in
+    div
+        [ style "width" "100%"
+        , style "height" "100%"
+        , style "position" "absolute"
+        , style "left" "0"
+        , style "top" "0"
+        ]
+        [ if model.submodel.state == BeforePlay then
+            div
+                [ style "width" (String.fromFloat w ++ "px")
+                , style "height" (String.fromFloat h ++ "px")
+                , style "position" "absolute"
+                , style "left" (String.fromFloat 0 ++ "px")
+                , style "top" (String.fromFloat 0 ++ "px")
+                ]
+                [ renderCover model ]
+
+          else
+            div
+                [ HtmlAttr.style "width" (String.fromFloat line ++ "px")--how to adjust here?
+                , HtmlAttr.style "height" (String.fromFloat line ++ "px")
+                , HtmlAttr.style "position" "absolute"
+                , HtmlAttr.style "left" (String.fromFloat left ++ "px")
+                , HtmlAttr.style "top" (String.fromFloat top ++ "px")
+                , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
+                ]
+                [ Svg.svg
+                    [ SvgAttr.width "100%"
+                    , SvgAttr.height "100%"
+                    , SvgAttr.viewBox "0 0 1000 1000"
+                    ]
+                    (  drawTrack 
+                    ++ drawSun model.sun 
+                    ++ drawSpacecraft model.spacecraft 
+                    ++ drawEarth model.submodel.level model.earth 
+                    ++ List.concat (List.map drawproton model.proton))
+                , 
+                div
+                    [ HtmlAttr.style "width" "100%"--how to adjust here?
+                    , HtmlAttr.style "height" "100%"
+                    , HtmlAttr.style "position" "absolute"
+                    , HtmlAttr.style "left" "0"
+                    , HtmlAttr.style "top" "0"
+                    ]
+                    [ renderGameButton_1 model.submodel.state
+                    , renderGameButton_2 model.submodel.level
+                    , renderInfo model
+                    , renderChatBox model
+                    , renderGameButton_3 model.submodel.state model.submodel.text_num
+                    ]
+                , renderAudio "assets/Bgm.mp3"
+                ]
+        ]
 
 
 printp : Proton -> String

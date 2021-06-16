@@ -40,7 +40,9 @@ type alias Spacecraft =
     , velocity : Float --delta angle
     }
 
-
+tracearth : Float
+tracearth = 
+    150.0
 tracradius : Float
 tracradius =
     300.0
