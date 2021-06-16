@@ -1,15 +1,11 @@
 port module Update exposing (..)
 
-import Debug exposing (toString)
 import Html exposing (..)
-import Html.Attributes as HtmlAttr exposing (..)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (..)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 import Model exposing (..)
 import Random exposing (..)
 import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, tracradius)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr exposing (mode, y1)
 import Text exposing (changeIndexToNewOne)
 
 
@@ -99,7 +95,7 @@ checkAddProton time model =
             old_proton =
                 model.proton
         in
-        if modBy 10000 (round time) == 0 then
+        if modBy 10000 (round time) >= 0 && time > 5 && modBy 2000 (round time) <= 3 then
             { model | proton = List.append old_proton initial.proton }
 
         else
@@ -216,16 +212,18 @@ reinitModel level model =
             3 ->
                 { prototype
                     | submodel = { prosbm | level = 3, state = Paused }
+                    , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
-                    , earth = { proEarth | pos = Point 500.0 500.0, show = Move, velocity = 0.02, radius = 3.0 } --earth的参数需要修改
+                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 } --earth的参数需要修改
                     , size = prosize
                 }
 
             4 ->
                 { prototype
                     | submodel = { prosbm | level = 4, state = Paused }
+                    , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
-                    , earth = { proEarth | pos = Point 500.0 500.0, show = Move, velocity = 0.02, radius = 3.0 } --earth的参数需要修改
+                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 } --earth的参数需要修改
                     , size = prosize
                 }
 
@@ -499,11 +497,23 @@ renewProntonDirInside spacecraft proton =
 
             newangle =
                 pi - 2 * an - di
+
+            _ =
+                collideSound
         in
         { proton | dir = newangle }
 
     else
         proton
+
+
+collideSound : Html Msg
+collideSound =
+    audio
+        [ src "assets/Collide.wav"
+        , autoplay True
+        ]
+        [ text "error" ]
 
 
 
@@ -562,27 +572,31 @@ yShift y r =
 
 earthmove : Model -> Model
 earthmove model =
-    let
-        newangle =
-            earthangle model.earth.angle model.earth.velocity
+    if model.submodel.level > 2 then
+        let
+            newangle =
+                earthangle model.earth.angle model.earth.velocity
 
-        newPoint =
-            earthpostrans model.earth.pos newangle model.earth.radius
+            newPoint =
+                earthpostrans newangle model.earth.radius
 
-        earth_ =
-            model.earth
-    in
-    { model | earth = { earth_ | angle = newangle, pos = newPoint } }
+            earth_ =
+                model.earth
+        in
+        { model | earth = { earth_ | angle = newangle, pos = newPoint } }
+
+    else
+        model
 
 
-earthpostrans : Point -> Float -> Float -> Point
-earthpostrans center angle radius =
+earthpostrans : Float -> Float -> Point
+earthpostrans angle radius =
     let
         posx =
-            center.x + radius * cos angle
+            500.0 + radius * cos angle
 
         posy =
-            center.y - radius * sin angle
+            500.0 - radius * sin angle
     in
     Point posx posy
 
@@ -614,7 +628,7 @@ checkoutearthInside proton model =
             proton.radius
 
         re =
-            model.earth.radius
+            30.0
     in
     if distance posp pose <= (rp + re) then
         loseheart model

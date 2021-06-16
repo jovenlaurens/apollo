@@ -1,15 +1,20 @@
 module Model exposing (..)
 
-import Html.Attributes exposing (list)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun, sunRadius)
-import Tuple exposing (first, second)
 import Random
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, sunRadius)
+
 
 seed0 : Random.Seed
-seed0 = Random.initialSeed 10--need to be improved
+seed0 =
+    Random.initialSeed 10
+
+
+
+--need to be improved
+
 
 type alias SubModel =
     { move_timer : Float
@@ -17,8 +22,9 @@ type alias SubModel =
     , state : State
     , heart : Int
     , text_num : Int
-    , score : Int--无尽模式下的分数
+    , score : Int --无尽模式下的分数
     }
+
 
 type alias Model =
     { sun : Sun
@@ -34,17 +40,17 @@ type alias Model =
 initial : Model
 initial =
     Model (Sun (Point 500 500) sunRadius)
-        (Earth (Point 0 0) 0 0 0 Not_show)
+        (Earth (Point 0 0) 0 0 (-pi / 2) Not_show)
         (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 8))
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
         (SubModel 0 1 BeforePlay 3 0 0)
         seed0
-        (0, 0)
-
+        ( 0, 0 )
 
 
 defaultSpacecraft =
     Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01
+
 
 getHeadProton : List Proton -> Proton
 getHeadProton list =
@@ -96,6 +102,7 @@ decodeState string =
 
         "Paused" ->
             Paused
+
         "beforeplay" ->
             BeforePlay
 
@@ -108,6 +115,7 @@ encodeState state =
     case state of
         BeforePlay ->
             "beforeplay"
+
         Playing ->
             "playing"
 
@@ -232,64 +240,37 @@ decodeProton =
         )
 
 
-encodeSpc : List Spacecraft -> Encode.Value
-encodeSpc spc =
-    let
-        spc1 =
-            List.head spc |> Maybe.withDefault defaultSpacecraft
-
-        spc2 =
-            List.reverse spc |> List.head |> Maybe.withDefault defaultSpacecraft
-    in
+encodeSpacecraft : Spacecraft -> Encode.Value
+encodeSpacecraft spc =
     Encode.object
-        [ ( "spcp1", encodePoint spc1.pos )
-        , ( "spcv1", Encode.float spc1.velocity )
-        , ( "spca1", Encode.float spc1.angle )
-        , ( "spcd1", Encode.string (encodeKeydir spc1.dir) )
-        , ( "spcp2", encodePoint spc2.pos )
-        , ( "spcv2", Encode.float spc2.velocity )
-        , ( "spca2", Encode.float spc2.angle )
-        , ( "spcd2", Encode.string (encodeKeydir spc2.dir) )
+        [ ( "spcp", encodePoint spc.pos )
+        , ( "spca", Encode.float spc.angle )
+        , ( "spcd", Encode.string (encodeKeydir spc.dir) )
+        , ( "spcv", Encode.float spc.velocity )
         ]
 
 
 decodeSpc : Decode.Decoder (List Spacecraft)
 decodeSpc =
-    Decode.map8 decodeListSpc
-        (Decode.field "spcp1" decodePoint)
-        (Decode.field "spcv1" Decode.float)
-        (Decode.field "spcd1" (Decode.map decodeKeydir Decode.string))
-        (Decode.field "spca1" Decode.float)
-        (Decode.field "spcp2" decodePoint)
-        (Decode.field "spcv2" Decode.float)
-        (Decode.field "spcd2" (Decode.map decodeKeydir Decode.string))
-        (Decode.field "spca2" Decode.float)
-
-
-decodeListSpc a b c d e f g h =
-    let
-        first =
-            Spacecraft a b c d
-
-        second =
-            Spacecraft e f g h
-    in
-    if d == h && b == f then
-        List.singleton first
-
-    else
-        first :: List.singleton second
+    Decode.list
+        (Decode.map4
+            Spacecraft
+            (Decode.field "spcp" decodePoint)
+            (Decode.field "spca" Decode.float)
+            (Decode.field "spcd" (Decode.map decodeKeydir Decode.string))
+            (Decode.field "spcv" Decode.float)
+        )
 
 
 encodesubmodel : SubModel -> Encode.Value
 encodesubmodel submodel =
     Encode.object
-        [ ("move_timer", Encode.float submodel.move_timer)
-        , ("level", Encode.int submodel.level)
-        , ("state", Encode.string (encodeState submodel.state))
-        , ("heart", Encode.int submodel.heart)
-        , ("text", Encode.int submodel.text_num)
-        , ("score", Encode.int submodel.score)
+        [ ( "move_timer", Encode.float submodel.move_timer )
+        , ( "level", Encode.int submodel.level )
+        , ( "state", Encode.string (encodeState submodel.state) )
+        , ( "heart", Encode.int submodel.heart )
+        , ( "text", Encode.int submodel.text_num )
+        , ( "score", Encode.int submodel.score )
         ]
 
 
@@ -304,7 +285,6 @@ decodesubmodel =
         (Decode.field "score" Decode.int)
 
 
-
 encode : Int -> Model -> String
 encode indent model =
     Encode.encode
@@ -312,9 +292,9 @@ encode indent model =
         (Encode.object
             [ ( "earth", encodeEarth model.earth )
             , ( "sun", encodeSun model.sun )
-            , ( "spacecraft", encodeSpc model.spacecraft )
+            , ( "spacecraft", Encode.list encodeSpacecraft model.spacecraft )
             , ( "proton", Encode.list encodeProton model.proton )
-            , ( "submodel", encodesubmodel model.submodel)
+            , ( "submodel", encodesubmodel model.submodel )
             ]
         )
 
@@ -322,7 +302,7 @@ encode indent model =
 decode : Decode.Decoder Model
 decode =
     Decode.map5
-        (\earth sun spacecraft proton submodel->
+        (\earth sun spacecraft proton submodel ->
             { initial
                 | earth = earth
                 , sun = sun
@@ -336,4 +316,3 @@ decode =
         (Decode.field "spacecraft" decodeSpc)
         (Decode.field "proton" decodeProton)
         (Decode.field "submodel" decodesubmodel)
-        

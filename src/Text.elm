@@ -19,7 +19,8 @@ showText ind =
         target.content
     
 changeIndexToNewOne : Int -> Int -> Int
-changeIndexToNewOne old trigue =--trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
+changeIndexToNewOne old trigue =
+--trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
     if trigue == -99 then
         old
     else

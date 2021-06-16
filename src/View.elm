@@ -11,7 +11,7 @@ import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheigh
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
 import Text exposing (showText)
-import Update exposing (dotLineDistance, getLine, xShift, yShift)
+import Update exposing (dotLineDistance, getLine)
 
 
 
@@ -98,6 +98,16 @@ drawSpacecraft_Inside spacecraft =
         ]
         []
     ]
+
+
+xShift : Float -> Float -> Float
+xShift x r =
+    originX + (((tracradius + r) / tracradius) * (x - originX))
+
+
+yShift : Float -> Float -> Float
+yShift y r =
+    originY - (((tracradius + r) / tracradius) * (originY - y))
 
 
 drawSun : Sun -> List (Svg msg)
@@ -396,7 +406,7 @@ renderInfo model =
         , br [] []
         , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
-        , text ("time: " ++ toString (modBy 1000 (round model.submodel.move_timer)))
+        , text ("time: " ++ toString (modBy 100 (round model.submodel.move_timer) == 0))
         ]
 
 
@@ -426,38 +436,70 @@ renderAudio url =
         [ text "error" ]
 
 
+renderGameButton : String -> Html Msg
+renderGameButton txt =
+    button
+        [ style "background" "#34495f"
+        , style "border" "0"
+        , style "bottom" "0"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "60px"
+        , style "line-height" "60px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "width" "120px"
+        , style "position" "relative"
+        , style "left" "440px"
+        , style "top" "200px"
+        , style "margin" "30px 0 0"
+        , onClick EnterGame
+        ]
+        [ text txt ]
+
+
 renderCover : Model -> Html Msg
 renderCover model =
     div
         [ HtmlAttr.style "width" "100%"
         , HtmlAttr.style "height" "100%"
         , HtmlAttr.style "position" "absolute"
+        , HtmlAttr.style "background-color " "#182f3f"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
-        , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
+        , HtmlAttr.style "text-align" "center"
         ]
-        [ text "This is cover."
-        , button
-            [ style "background" "#34495f"
-            , style "border" "0"
-            , style "bottom" "30px"
-            , style "color" "#fff"
-            , style "cursor" "pointer"
-            , style "display" "block"
-            , style "font-family" "Helvetica, Arial, sans-serif"
-            , style "font-size" "18px"
-            , style "font-weight" "300"
-            , style "height" "60px"
-            , style "left" "900px"
-            , style "line-height" "60px"
-            , style "outline" "none"
-            , style "padding" "0"
-            , style "position" "absolute"
-            , style "width" "120px"
-            , onClick EnterGame
-            ]
-            [ text "Start to play!" ]
+        [ renderTitle "Appolos"
+        , renderGameButton "Play"
+        , renderGameButton "Help"
         ]
+
+
+renderTitle : String -> Html Msg
+renderTitle txt =
+    div
+        [ style "color" "white"
+        , style "font-size" "100px"
+        , style "line-height" "60px"
+        , style "margin" "30px 0 0"
+        , style "top" "100px"
+        , style "position" "relative"
+        ]
+        [ text txt ]
+
+
+pixelWidth : Float
+pixelWidth =
+    1000
+
+
+pixelHeight : Float
+pixelHeight =
+    1000
 
 
 view : Model -> Html Msg
@@ -466,25 +508,12 @@ view model =
         ( w, h ) =
             model.size
 
-        line =
-            Basics.min w h
-
-        max_ =
-            Basics.max w h
-
-        left =
-            if w > h then
-                0.5 * (max_ - line)
+        r =
+            if w / h > pixelWidth / pixelHeight then
+                Basics.min 1 (h / pixelHeight)
 
             else
-                0
-
-        top =
-            if w > h then
-                0
-
-            else
-                0.5 * (max_ - line)
+                Basics.min 1 (w / pixelWidth)
 
         --窗口的大小
         --取到了最小的那个，能显示出全部
@@ -495,25 +524,29 @@ view model =
         , style "position" "absolute"
         , style "left" "0"
         , style "top" "0"
+        , style "background-color" "#0e1f2f"
         ]
         [ if model.submodel.state == BeforePlay then
             div
-                [ style "width" (String.fromFloat w ++ "px")
-                , style "height" (String.fromFloat h ++ "px")
+                [ style "width" (String.fromFloat pixelWidth ++ "px")
+                , style "height" (String.fromFloat pixelHeight ++ "px")
                 , style "position" "absolute"
-                , style "left" (String.fromFloat 0 ++ "px")
-                , style "top" (String.fromFloat 0 ++ "px")
+                , style "left" (String.fromFloat ((w - pixelWidth * r) / 2) ++ "px")
+                , style "top" (String.fromFloat ((h - pixelHeight * r) / 2) ++ "px")
+                , style "transform-origin" "0 0"
+                , style "transform" ("scale(" ++ String.fromFloat r ++ ")")
                 ]
                 [ renderCover model ]
 
           else
             div
-                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
-                , HtmlAttr.style "height" (String.fromFloat line ++ "px")
-                , HtmlAttr.style "position" "absolute"
-                , HtmlAttr.style "left" (String.fromFloat left ++ "px")
-                , HtmlAttr.style "top" (String.fromFloat top ++ "px")
-                , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
+                [ style "width" (String.fromFloat pixelWidth ++ "px")
+                , style "height" (String.fromFloat pixelHeight ++ "px")
+                , style "position" "absolute"
+                , style "left" (String.fromFloat ((w - pixelWidth * r) / 2) ++ "px")
+                , style "top" (String.fromFloat ((h - pixelHeight * r) / 2) ++ "px")
+                , style "transform-origin" "0 0"
+                , style "transform" ("scale(" ++ String.fromFloat r ++ ")")
                 ]
                 [ Svg.svg
                     [ SvgAttr.width "100%"
