@@ -1,13 +1,15 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp)
+import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp, onResize)
 import Html.Events exposing (keyCode)
 import Json.Decode as Decode
 import Messages exposing (Keydir(..), Msg(..))
 import Model exposing (Model)
 import Update exposing (update)
 import View exposing (view)
+import Task
+import Browser.Dom exposing (getViewport)
 
 
 main =
@@ -17,7 +19,7 @@ main =
                 ( value
                     |> Decode.decodeValue Model.decode
                     |> Result.withDefault Model.initial
-                , Cmd.none
+                , Task.perform GetViewport getViewport
                 )
         , update = update
         , view = view
@@ -28,19 +30,20 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ if model.state == Model.Playing then
+        [ if model.submodel.state == Model.Playing then
             onAnimationFrameDelta Tick
 
           else
             Sub.none
         , onKeyDown (Decode.map (key model) keyCode)
         , onKeyUp (Decode.map (key_up model) keyCode)
+        , onResize Resize
         ]
 
 
 key : Model -> Int -> Msg
 key model keycode =
-    case model.level of
+    case model.submodel.level of
         1 ->
             case keycode of
                 37 ->
@@ -73,7 +76,7 @@ key model keycode =
 
 key_up : Model -> Int -> Msg
 key_up model keycode =
-    case model.level of
+    case model.submodel.level of
         1 ->
             case keycode of
                 37 ->
