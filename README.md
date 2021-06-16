@@ -1,7 +1,11 @@
-<h1> Team Name </h1>
+# Team Name 
 
-Ocean Cat Studio
+## Ocean Cat Studio
 
-<h2> Logo </h2>
+# Logo 
 
-![](assets/Logo.png)
+## Dark Version
+![](assets/LogoDark.png)
+
+## Light Version
+![](assets/LogoLight.png)
