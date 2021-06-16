@@ -1,21 +1,21 @@
-\# Team Name 
+# Team Name 
 
 
 
-\## Ocean Cat Studio
+## Ocean Cat Studio
 
 
 
-\# Logo 
+# Logo 
 
 
 
-\## Dark Version
+## Dark Version
 
 ![](assets/LogoDark.png)
 
 
 
-\## Light Version
+## Light Version
 
 ![](assets/LogoLight.png)
