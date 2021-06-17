@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 import Model exposing (..)
 import Random exposing (..)
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, tracradius)
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, tracradius, sunRotateSpeed)
 import Text exposing (changeIndexToNewOne)
 
 
@@ -15,6 +15,10 @@ port save : String -> Cmd msg
 saveToStorage : Model -> ( Model, Cmd Msg )
 saveToStorage model =
     ( model, save (Model.encode 2 model) )
+
+
+
+--in the update part, spacescraft is exposed as spc
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -52,16 +56,21 @@ updatespc msg ( model, cmd ) =
             )
 
         Tick elapsed ->
-            { model | submodel = { sbm | move_timer = sbm.move_timer + elapsed } }
-                |> protonbounce
-                |> spcmove
-                |> checkoutearth
-                |> earthmove
-                |> protonmove
-                |> checkPass
-                |> checkfailed
-                |> checkAddProton model.submodel.move_timer
-                |> saveToStorage
+                let 
+                    osun = model.sun
+                in
+                    { model | submodel = { sbm | move_timer = sbm.move_timer + elapsed } 
+                            , sun = {osun | angle = osun.angle + sunRotateSpeed}
+                    }
+                        |> protonbounce
+                        |> spcmove
+                        |> checkoutearth
+                        |> earthmove
+                        |> protonmove
+                        |> checkPass
+                        |> checkfailed
+                        |> checkAddProton model.submodel.move_timer
+                        |> saveToStorage
 
         Start ->
             ( { initial | submodel = { sbm | state = Playing }, size = model.size }, Cmd.none )
@@ -229,7 +238,7 @@ reinitModel level model =
 
 addSpacecraft : List Spacecraft -> List Spacecraft
 addSpacecraft spacecraft =
-    spacecraft ++ List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 2) 0.01)
+    spacecraft ++ List.singleton (Spacecraft (Point 300.0 500.0) pi (Key_none 2) 0.01)
 
 
 spcdirchange : Keydir -> Model -> Model
@@ -589,10 +598,10 @@ earthpostrans : Float -> Float -> Point
 earthpostrans angle radius =
     let
         posx =
-            500.0 + radius * cos angle
+            originX + radius * cos angle
 
         posy =
-            500.0 - radius * sin angle
+            originY - radius * sin angle
     in
     Point posx posy
 
@@ -609,7 +618,6 @@ checkoutearth model =
 
 
 --a little issue
-
 
 checkoutearthInside : Proton -> Model -> Model
 checkoutearthInside proton model =

@@ -21,6 +21,7 @@ type alias Earth =
 type alias Sun =
     { pos : Point
     , radius : Float
+    , angle : Float
     }
 
 
@@ -39,6 +40,9 @@ type alias Spacecraft =
     , dir : Keydir
     , velocity : Float --delta angle
     }
+
+sunRotateSpeed: Float
+sunRotateSpeed = 0.4
 
 tracearth : Float
 tracearth = 

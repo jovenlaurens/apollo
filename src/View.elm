@@ -11,6 +11,11 @@ import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheigh
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
 import Text exposing (showText)
+import Update exposing (dotLineDistance, getLine)
+
+
+
+--elm make src/Main.elm src/Messages.elm src/Model.elm src/Star.elm src/Update.elm src/View.elm src/Point.elm src/Text.elm
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -111,16 +116,57 @@ drawSun sun =
         --<circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red"
         [ SvgAttr.cx (toString sun.pos.x)
         , SvgAttr.cy (toString sun.pos.y)
+        , SvgAttr.r (toString (sun.radius + 30))
+        , SvgAttr.fill "#e0910e"
+        , SvgAttr.fillOpacity "0.3"
+        
+        ]
+        []
+    , Svg.circle
+        --<circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red"
+        [ SvgAttr.cx (toString sun.pos.x)
+        , SvgAttr.cy (toString sun.pos.y)
+        , SvgAttr.r (toString (sun.radius + 15))
+        , SvgAttr.fill "#e0910e"
+        , SvgAttr.fillOpacity "0.5"
+        ]
+        []
+    , Svg.circle
+        --<circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red"
+        [ SvgAttr.cx (toString sun.pos.x)
+        , SvgAttr.cy (toString sun.pos.y)
+        , SvgAttr.r (toString (sun.radius + 5))
+        , SvgAttr.fill "#e0910e"
+        , SvgAttr.fillOpacity "0.7"
+        ]
+        []
+    , Svg.circle
+        --<circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red"
+        [ SvgAttr.cx (toString sun.pos.x)
+        , SvgAttr.cy (toString sun.pos.y)
         , SvgAttr.r (toString sun.radius)
-        , SvgAttr.fill "#f2d647"
+        , SvgAttr.fill "#ffb32b"
+        ]
+        []
+    , Svg.image
+        [ SvgAttr.x (toString (sun.pos.x - sun.radius))
+        , SvgAttr.y (toString (sun.pos.y - sun.radius))
+        , SvgAttr.width (toString (2 * sun.radius))
+        , SvgAttr.height (toString (2 * sun.radius))
+        , SvgAttr.xlinkHref "assets/Sun.png"
+        , SvgAttr.transform (String.concat [ "rotate(", String.fromFloat sun.angle, " ", String.fromFloat 500, " ", String.fromFloat 500, ")" ])
         ]
         []
     ]
 
 
-{-| stroke-dasharray="5,5" d="M5 20 l215 0"
--}
 drawTrack : List (Svg msg)
+
+
+
+--stroke-dasharray="5,5" d="M5 20 l215 0"
+
+
 drawTrack =
     [ Svg.circle
         [ SvgAttr.cx (toString originX)
@@ -247,7 +293,38 @@ drawEarth level earth =
     [ Svg.circle
         [ SvgAttr.cx (toString earth.pos.x)
         , SvgAttr.cy (toString earth.pos.y)
+        , SvgAttr.r "40"
+        , SvgAttr.opacity "0.3"
+        , SvgAttr.fill "#61c5ff"
+        , SvgAttr.display
+            (if level <= 1 then
+                "none"
+
+             else
+                "block"
+            )
+        ]
+        []
+    , Svg.circle
+        [ SvgAttr.cx (toString earth.pos.x)
+        , SvgAttr.cy (toString earth.pos.y)
+        , SvgAttr.r "34"
+        , SvgAttr.opacity "0.3"
+        , SvgAttr.fill "#61c5ff"
+        , SvgAttr.display
+            (if level <= 1 then
+                "none"
+
+             else
+                "block"
+            )
+        ]
+        []
+    , Svg.circle
+        [ SvgAttr.cx (toString earth.pos.x)
+        , SvgAttr.cy (toString earth.pos.y)
         , SvgAttr.r "30"
+        , SvgAttr.fill "#61c5ff"
         , SvgAttr.display
             (if level <= 1 then
                 "none"
@@ -275,10 +352,12 @@ drawEarth level earth =
     ]
 
 
-{-| <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+
+--<rect x="50" y="20" rx="20" ry="20" width="150" height="150"
 --style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
 --stroke-opacity:0.9
--}
+
+
 renderChatBox : Model -> Html Msg
 renderChatBox model =
     div
@@ -329,7 +408,7 @@ renderInfo model =
         , br [] []
         , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
-        , text ("time: " ++ toString model.submodel.move_timer)
+        , text ("time: " ++ toString (modBy 100 (round model.submodel.move_timer) == 0))
         ]
 
 
@@ -359,6 +438,32 @@ renderAudio url =
         [ text "error" ]
 
 
+renderGameButton : String -> Html Msg
+renderGameButton txt =
+    button
+        [ style "background" "#34495f"
+        , style "border" "0"
+        , style "bottom" "0"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "60px"
+        , style "line-height" "60px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "width" "120px"
+        , style "position" "relative"
+        , style "left" "440px"
+        , style "top" "200px"
+        , style "margin" "30px 0 0"
+        , onClick EnterGame
+        ]
+        [ text txt ]
+
+
 renderCover : Model -> Html Msg
 renderCover model =
     div
@@ -367,81 +472,101 @@ renderCover model =
         , HtmlAttr.style "position" "absolute"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
-        , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
+        , HtmlAttr.style "background-image" "url('assets/Cover.png')"
+        , HtmlAttr.style "background-size" "cover"
         ]
-        [ text "This is cover."
-        , button
+        [ button
             [ style "background" "#34495f"
             , style "border" "0"
-            , style "bottom" "30px"
+            , style "bottom" "40%"
             , style "color" "#fff"
             , style "cursor" "pointer"
             , style "display" "block"
             , style "font-family" "Helvetica, Arial, sans-serif"
             , style "font-size" "18px"
             , style "font-weight" "300"
-            , style "height" "60px"
-            , style "left" "900px"
+            , style "height" "12.5%"
+            , style "left" "17%"
             , style "line-height" "60px"
             , style "outline" "none"
             , style "padding" "0"
             , style "position" "absolute"
-            , style "width" "120px"
+            , style "width" "12.7%"
+            , style "background-color" "Transparent"
             , onClick EnterGame
             ]
-            [ text "Start to play!" ]
+            []
         ]
+
+
+renderTitle : String -> Html Msg
+renderTitle txt =
+    div
+        [ style "color" "white"
+        , style "font-size" "100px"
+        , style "line-height" "60px"
+        , style "margin" "30px 0 0"
+        , style "top" "100px"
+        , style "position" "relative"
+        ]
+        [ text txt ]
+
 
 
 view : Model -> Html Msg
 view model =
-    let
-        ( w, h ) =
-            model.size
-
-        line =
-            Basics.min w h
-
-        max_ =
-            Basics.max w h
-
-        left =
-            if w > h then
-                0.5 * (max_ - line)
-
-            else
-                0
-
-        top =
-            if w > h then
-                0
-
-            else
-                0.5 * (max_ - line)
-
-        --窗口的大小
-        --取到了最小的那个，能显示出全部
-    in
     div
         [ style "width" "100%"
         , style "height" "100%"
         , style "position" "absolute"
         , style "left" "0"
         , style "top" "0"
+        , style "background-color" "#0e1f2f"
         ]
         [ if model.submodel.state == BeforePlay then
+            let
+                ( w, h ) =
+                    model.size
+                (wid, het) =    if ( 2 / 3 * w ) >= h then
+                                    ( 1.5 * h, h )
+                                else
+                                    ( w, 2 / 3 * w )
+                (lef, to) = if ( 2 / 3 * w ) >= h then
+                                ( 0.5 * (w - wid), 0 )
+                            else
+                                ( 0, 0.5 * (h - het) )
+            in
             div
-                [ style "width" (String.fromFloat w ++ "px")
-                , style "height" (String.fromFloat h ++ "px")
+                [ style "width" (String.fromFloat wid ++ "px")
+                , style "height" (String.fromFloat het ++ "px")
                 , style "position" "absolute"
-                , style "left" (String.fromFloat 0 ++ "px")
-                , style "top" (String.fromFloat 0 ++ "px")
+                , style "left" (String.fromFloat lef ++ "px")
+                , style "top" (String.fromFloat to ++ "px")
                 ]
                 [ renderCover model ]
 
           else
+            let
+                ( w, h ) =
+                    model.size
+                line = Basics.min w h
+                max_ = Basics.max w h
+                left =
+                    if w > h then
+                        0.5 * (max_ - line)
+                    else
+                        0
+                top = 
+                    if w > h then
+                        0
+                    else
+                        0.5 * (max_ - line)
+
+                --窗口的大小
+                --取到了最小的那个，能显示出全部
+            in
             div
-                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
+                [ HtmlAttr.style "width" (String.fromFloat line ++ "px")--how to adjust here?
                 , HtmlAttr.style "height" (String.fromFloat line ++ "px")
                 , HtmlAttr.style "position" "absolute"
                 , HtmlAttr.style "left" (String.fromFloat left ++ "px")
@@ -453,14 +578,14 @@ view model =
                     , SvgAttr.height "100%"
                     , SvgAttr.viewBox "0 0 1000 1000"
                     ]
-                    (drawTrack
-                        ++ drawSun model.sun
-                        ++ drawSpacecraft model.spacecraft
-                        ++ drawEarth model.submodel.level model.earth
-                        ++ List.concat (List.map drawproton model.proton)
-                    )
-                , div
-                    [ HtmlAttr.style "width" "100%" --how to adjust here?
+                    (  drawTrack 
+                    ++ drawSun model.sun 
+                    ++ drawSpacecraft model.spacecraft 
+                    ++ drawEarth model.submodel.level model.earth 
+                    ++ List.concat (List.map drawproton model.proton))
+                , 
+                div
+                    [ HtmlAttr.style "width" "100%"--how to adjust here?
                     , HtmlAttr.style "height" "100%"
                     , HtmlAttr.style "position" "absolute"
                     , HtmlAttr.style "left" "0"
