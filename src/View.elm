@@ -399,9 +399,7 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "23%"
         ]
-        [ text ("Remain chances: " ++ liveSymbol model.submodel.heart)
-        , br [] []
-        , text ("level: " ++ toString model.submodel.level)
+        [ text ("level: " ++ toString model.submodel.level)
         , br [] []
         , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
@@ -410,7 +408,29 @@ renderInfo model =
         , text ("score" ++ toString model.submodel.score)
         ]
 
-
+renderLife : Model -> Html Msg
+renderLife model =
+    div
+        [ style "background" "#0e1f2f"
+        , style "border" "0"
+        , style "top" "2%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "2%"
+        , style "left" "40%"
+        , style "line-height" "30px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "23%"
+        ]
+        [
+            text ("Remain chances: " ++ liveSymbol model.submodel.heart)
+        ]
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
@@ -663,6 +683,7 @@ view model =
                     [ renderGameButton_1 model.submodel.state
                     , renderGameButton_2 model.submodel.level
                     , renderInfo model
+                    , renderLife model
                     , renderChatBox model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
                     ]
