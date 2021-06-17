@@ -392,12 +392,12 @@ renderInfo model =
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "18%"
-        , style "left" "75%"
+        , style "left" "80%"
         , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "23%"
+        , style "width" "17%"
         ]
         [ text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
@@ -406,11 +406,11 @@ renderInfo model =
         , text ("score" ++ toString model.submodel.score)
         ]
 
-renderLife : Model -> Html Msg
-renderLife model =
+renderLevel : Model -> Html Msg
+renderLevel model =
     div
         [ style "background" "#0e1f2f"
-        , style "border" "0"
+        , style "border-top" "30px"
         , style "top" "2%"
         , style "color" "#fff"
         , style "cursor" "pointer"
@@ -427,11 +427,11 @@ renderLife model =
         , style "width" "40%"
         ]
         [
-            text ("Remain chances: " ++ liveSymbol model.submodel.heart)
+            text ("level: " ++ toString model.submodel.level)
         ]
 
-renderLevel : Model -> Html Msg
-renderLevel model =
+renderLife : Model -> Html Msg
+renderLife model =
     div
         [ style "background" "#0e1f2f"
         , style "border" "0"
@@ -450,7 +450,7 @@ renderLevel model =
         , style "position" "absolute"
         , style "width" "12%"
         ]
-        [text ("level: " ++ toString model.submodel.level)]
+        [text ("Remain chances: " ++ liveSymbol model.submodel.heart]
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
