@@ -392,12 +392,12 @@ renderInfo model =
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "50%"
-        , style "left" "65%"
+        , style "left" "75%"
         , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "33%"
+        , style "width" "23%"
         ]
         [ text ("Remain chances: " ++ liveSymbol model.submodel.heart)
         , br [] []
