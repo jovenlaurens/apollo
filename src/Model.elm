@@ -43,7 +43,7 @@ initial =
         (Earth (Point 0 0) 0 0 (-pi / 2) Not_show)
         (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 8))
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01))
-        (SubModel 0 1 BeforePlay 3 0 0)
+        (SubModel 0 1 Cover 3 0 0)
         seed0
         ( 0, 0 )
 
@@ -59,7 +59,9 @@ getHeadProton list =
 
 
 type State
-    = BeforePlay
+    = Cover
+    | BeforePlay
+    | Interval
     | Playing
     | Paused
     | Stopped --either user pause or dead
@@ -105,7 +107,10 @@ decodeState string =
 
         "beforeplay" ->
             BeforePlay
-
+        "cover" ->
+            Cover
+        "intercal" ->
+            Interval
         _ ->
             Stopped
 
@@ -124,6 +129,10 @@ encodeState state =
 
         Paused ->
             "paused"
+        Cover ->
+            "cover"
+        Interval ->
+            "interval"
 
 
 encodeKeydir : Keydir -> String

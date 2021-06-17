@@ -7,6 +7,7 @@ type Keydir
     | Key_left Int
     | Key_none Int
 
+
 type Earth_State
     = Still
     | Move
@@ -21,5 +22,8 @@ type Msg
     | Reinit Int
     | ChangeText Int Int
     | EnterGame
+    | EnterCover
+    | PlayInterval
     | GetViewport Viewport
     | Resize Int Int
+

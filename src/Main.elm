@@ -51,6 +51,8 @@ key model keycode =
 
                 39 ->
                     Key (Key_right 1)
+                83 ->
+                    EnterGame
 
                 _ ->
                     Key (Key_none 1)

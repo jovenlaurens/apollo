@@ -71,13 +71,17 @@ updatespc msg ( model, cmd ) =
                         |> checkfailed
                         |> checkAddProton model.submodel.move_timer
                         |> saveToStorage
-
+        PlayInterval ->
+            ( { initial | submodel = { sbm | state = Interval }, size = model.size }, Cmd.none )
         Start ->
             ( { initial | submodel = { sbm | state = Playing }, size = model.size }, Cmd.none )
 
+        EnterCover ->
+            ( { initial | submodel = { sbm | state = BeforePlay }, size = model.size }, Cmd.none )
         EnterGame ->
             ( { initial | submodel = { sbm | state = Stopped }, size = model.size }, Cmd.none )
 
+        
         Key keydir ->
             ( model
                 |> spcdirchange keydir

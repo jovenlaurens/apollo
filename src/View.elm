@@ -12,6 +12,7 @@ import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
 import Text exposing (showText)
 import Update exposing (dotLineDistance, getLine)
+import Html.Events exposing (on)
 
 
 
@@ -224,6 +225,8 @@ renderGameButton_1 state =
                     ( "Resume", Resume )
 
                 BeforePlay ->
+                    ( "New game", Start )
+                _ ->
                     ( "New game", Start )
     in
     button
@@ -493,7 +496,7 @@ renderCover model =
             , style "position" "absolute"
             , style "width" "12.7%"
             , style "background-color" "Transparent"
-            , onClick EnterGame
+            , onClick PlayInterval
             ]
             []
         ]
@@ -511,6 +514,52 @@ renderTitle txt =
         ]
         [ text txt ]
 
+renderLogo : List (Html Msg)
+renderLogo =
+    [video
+        [ HtmlAttr.style "width" "100%"
+        , HtmlAttr.style "height" "100%"
+        , HtmlAttr.style "position" "absolute"
+        , HtmlAttr.style "left" "0"
+        , HtmlAttr.style "top" "0"
+        , src "assets/Logo.mp4"
+        , autoplay True
+        , loop False
+        ]
+        [
+        ]
+    , button
+            [ style "bottom" "0%"
+            , style "display" "block"
+            , style "border" "0"
+            , style "height" "100%"
+            , style "left" "0%"
+            , style "padding" "0"
+            , style "position" "absolute"
+            , style "width" "100%"
+            , style "background-color" "Transparent"
+            , onClick EnterCover
+            ]
+            []
+    , renderAudio "assets/Bgm.mp3"
+    ]
+
+renderInterval :List (Html Msg)
+renderInterval =
+    [video
+        [ HtmlAttr.style "width" "100%"
+        , HtmlAttr.style "height" "100%"
+        , HtmlAttr.style "position" "absolute"
+        , HtmlAttr.style "left" "0"
+        , HtmlAttr.style "top" "0"
+        , src "assets/Interval.mp4"
+        , autoplay True
+        , loop False
+        ]
+        []
+    , renderAudio "assets/Bgm.mp3"
+    ]
+
 
 
 view : Model -> Html Msg
@@ -523,7 +572,11 @@ view model =
         , style "top" "0"
         , style "background-color" "#0e1f2f"
         ]
-        [ if model.submodel.state == BeforePlay then
+        [ 
+        let
+            st = model.submodel.state
+        in
+        if st == BeforePlay || st == Cover || st == Interval then
             let
                 ( w, h ) =
                     model.size
@@ -543,7 +596,14 @@ view model =
                 , style "left" (String.fromFloat lef ++ "px")
                 , style "top" (String.fromFloat to ++ "px")
                 ]
-                [ renderCover model ]
+                (if st == BeforePlay then
+                    renderCover model |> List.singleton
+                else if st == Cover then
+                    renderLogo
+                else 
+                    renderInterval
+                )
+                    
 
           else
             let
@@ -597,9 +657,13 @@ view model =
                     , renderChatBox model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
                     ]
-                , renderAudio "assets/Bgm.mp3"
+                ,
+                renderAudio "assets/Bgm.mp3"
                 ]
         ]
+
+
+
 
 
 printp : Proton -> String
