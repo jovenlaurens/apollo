@@ -1,4 +1,5 @@
 module Messages exposing (Keydir(..), Msg(..), Earth_State(..))
+import Browser.Dom exposing (Viewport)
 
 
 type Keydir
@@ -18,3 +19,7 @@ type Msg
     | Tick Float
     | Key Keydir
     | Reinit Int
+    | ChangeText Int Int
+    | EnterGame
+    | GetViewport Viewport
+    | Resize Int Int

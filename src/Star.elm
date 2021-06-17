@@ -1,6 +1,6 @@
-module Star exposing (..)
+module Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, sunRadius, sunRotateSpeed, tracradius)
 
-import Messages exposing (Keydir, Earth_State)
+import Messages exposing (Earth_State, Keydir)
 
 
 type alias Point =
@@ -21,6 +21,7 @@ type alias Earth =
 type alias Sun =
     { pos : Point
     , radius : Float
+    , angle : Float
     }
 
 
@@ -39,6 +40,11 @@ type alias Spacecraft =
     , dir : Keydir
     , velocity : Float --delta angle
     }
+
+
+sunRotateSpeed : Float
+sunRotateSpeed =
+    0.4
 
 
 tracradius : Float
