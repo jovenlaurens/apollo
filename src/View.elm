@@ -391,7 +391,7 @@ renderInfo model =
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "18px"
         , style "font-weight" "300"
-        , style "height" "50%"
+        , style "height" "18%"
         , style "left" "75%"
         , style "line-height" "30px"
         , style "outline" "none"
