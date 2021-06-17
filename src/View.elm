@@ -607,7 +607,10 @@ view model =
         , style "position" "absolute"
         , style "left" "0"
         , style "top" "0"
-        , style "background-color" "#0e1f2f"
+        , style "background-color" (if model.submodel.state == Cover then
+                                        "564d7c"
+                                    else
+                                        "#0e1f2f")
         ]
         [ let
             st =
