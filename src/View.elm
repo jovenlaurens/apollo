@@ -382,7 +382,7 @@ renderChatBox model =
 renderInfo : Model -> Html Msg
 renderInfo model =
     div
-        [ style "background" "#34495f"
+        [ style "background" "#0e1f2f"
         , style "border" "0"
         , style "top" "2%"
         , style "color" "#fff"
@@ -391,13 +391,13 @@ renderInfo model =
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "18px"
         , style "font-weight" "300"
-        , style "height" "18%"
-        , style "left" "75%"
+        , style "height" "50%"
+        , style "left" "65%"
         , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "23%"
+        , style "width" "33%"
         ]
         [ text ("Remain chances: " ++ liveSymbol model.submodel.heart)
         , br [] []
