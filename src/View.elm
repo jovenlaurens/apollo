@@ -541,7 +541,6 @@ renderLogo =
             , onClick EnterCover
             ]
             []
-    , renderAudio "assets/Bgm.mp3"
     ]
 
 renderInterval :List (Html Msg)
@@ -557,7 +556,6 @@ renderInterval =
         , loop False
         ]
         []
-    , renderAudio "assets/Bgm.mp3"
     ]
 
 
