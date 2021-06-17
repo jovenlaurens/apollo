@@ -217,9 +217,6 @@ renderGameButton_1 state =
                 Model.Paused ->
                     ( "Resume", Resume )
 
-                BeforePlay ->
-                    ( "New game", Start )
-
                 _ ->
                     ( "New game", Start )
     in
@@ -563,18 +560,26 @@ renderLogo =
         ]
         []
     , button
-        [ style "bottom" "0%"
-        , style "display" "block"
-        , style "border" "0"
-        , style "height" "100%"
-        , style "left" "0%"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "100%"
-        , style "background-color" "Transparent"
-        , onClick EnterCover
-        ]
-        []
+            [ style "background" "#34495f"
+            , style "border" "0"
+            , style "bottom" "40%"
+            , style "color" "#fff"
+            , style "cursor" "pointer"
+            , style "display" "block"
+            , style "font-family" "Helvetica, Arial, sans-serif"
+            , style "font-size" "18px"
+            , style "font-weight" "300"
+            , style "height" "12.5%"
+            , style "left" "17%"
+            , style "line-height" "60px"
+            , style "outline" "none"
+            , style "padding" "0"
+            , style "position" "absolute"
+            , style "width" "12.7%"
+            , style "background-color" "Transparent"
+            , onClick PlayInterval
+            ]
+            []
     ]
 
 
@@ -608,7 +613,7 @@ view model =
             st =
                 model.submodel.state
           in
-          if st == BeforePlay || st == Cover || st == Interval then
+          if  st == Cover || st == Interval then
             let
                 ( w, h ) =
                     model.size
@@ -634,10 +639,7 @@ view model =
                 , style "left" (String.fromFloat lef ++ "px")
                 , style "top" (String.fromFloat to ++ "px")
                 ]
-                (if st == BeforePlay then
-                    renderCover model |> List.singleton
-
-                 else if st == Cover then
+                (if st == Cover then
                     renderLogo
 
                  else

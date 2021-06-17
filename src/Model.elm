@@ -21,7 +21,7 @@ type alias SubModel =
     , state : State
     , heart : Int
     , text_num : Int
-    , score : Int --无尽模式下的分数
+    , score : Int 
     }
 
 
@@ -40,7 +40,7 @@ initial : Model
 initial =
     Model (Sun (Point originX originY) sunRadius 0)
         (Earth (Point 0 0) 0 0 (-pi / 2) Not_show)
-        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 3))
+        (List.singleton (Proton (Point 300 300) 0.6 7.5 2.0 6))
         (List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.015))
         (SubModel 0 1 Cover 3 0 0)
         seed0
@@ -55,7 +55,6 @@ getHeadProton list =
 
 type State
     = Cover
-    | BeforePlay
     | Interval
     | Playing
     | Paused
@@ -100,9 +99,6 @@ decodeState string =
         "Paused" ->
             Paused
 
-        "beforeplay" ->
-            BeforePlay
-
         "cover" ->
             Cover
 
@@ -116,8 +112,6 @@ decodeState string =
 encodeState : State -> String
 encodeState state =
     case state of
-        BeforePlay ->
-            "beforeplay"
 
         Playing ->
             "playing"

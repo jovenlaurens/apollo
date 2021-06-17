@@ -22,7 +22,6 @@ type Msg
     | Reinit Int
     | ChangeText Int Int
     | EnterGame
-    | EnterCover
     | PlayInterval
     | GetViewport Viewport
     | Resize Int Int

@@ -77,8 +77,6 @@ updatespc msg ( model, cmd ) =
         Start ->
             ( { initial | submodel = { sbm | state = Playing }, size = model.size }, Cmd.none )
 
-        EnterCover ->
-            ( { initial | submodel = { sbm | state = BeforePlay }, size = model.size }, Cmd.none )
 
         EnterGame ->
             ( { initial | submodel = { sbm | state = Stopped }, size = model.size }, Cmd.none )
@@ -90,7 +88,7 @@ updatespc msg ( model, cmd ) =
             )
 
         Pause ->
-            saveToStorage { model | submodel = { sbm | state = Paused } }
+            saveToStorage { model | submodel = { sbm | state = Paused, text_num = changeIndexToNewOne sbm.text_num 0 } }
 
         Resume ->
             ( { model | submodel = { sbm | state = Playing } }
@@ -104,8 +102,9 @@ checkAddProton time model =
         let
             old_proton =
                 model.proton
+            otime = modBy 8000 (round time)
         in
-        if modBy 10000 (round time) >= 0 && modBy 10000 (round time) <= 100 && round (time / 10000) == List.length model.proton && time > 200 then
+        if otime >= 0 && otime <= 100 && round (time / 8000) == List.length model.proton && time > 200 then
             { model | proton = List.append old_proton initial.proton }
 
         else
@@ -126,11 +125,11 @@ checkPass model =
 
         ( add, trigue ) =
             if sbm.heart <= 0 then
-                --这关gg了要重开
+                --this level lost
                 ( 0, 2 )
 
             else if List.length nproton <= 0 then
-                --赢了，下一关
+                --win
                 ( 1, 1 )
 
             else
@@ -169,11 +168,11 @@ reinitModel level model =
         in
         case level of
             1 ->
-                { prototype | size = prosize, submodel = { prosbm | state = Paused } }
+                { prototype | size = prosize, submodel = { prosbm | state = Paused, text_num = 0 } }
 
             2 ->
                 { prototype
-                    | submodel = { prosbm | level = 2, state = Paused }
+                    | submodel = { prosbm | level = 2, state = Paused, text_num = 11 }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
                     , earth = { proEarth | pos = Point 700.0 500.0, show = Still, velocity = 0, radius = 0 }
@@ -182,7 +181,7 @@ reinitModel level model =
 
             3 ->
                 { prototype
-                    | submodel = { prosbm | level = 3, state = Paused }
+                    | submodel = { prosbm | level = 3, state = Paused, text_num = 21 }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
                     , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
@@ -191,7 +190,7 @@ reinitModel level model =
 
             4 ->
                 { prototype
-                    | submodel = { prosbm | level = 4, state = Paused }
+                    | submodel = { prosbm | level = 4, state = Paused,text_num = 31 }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
                     , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
@@ -200,7 +199,7 @@ reinitModel level model =
 
             5 ->
                 { model
-                    | submodel = { prosbm | level = 4, state = Playing, score = oldscore }
+                    | submodel = { prosbm | level = 4, state = Playing, score = oldscore, text_num = 31 }
                     , proton = prototype.proton
                 }
 
@@ -210,7 +209,10 @@ reinitModel level model =
 
 checkfailed : Model -> Model
 checkfailed model =
-    List.foldr checkfailedInside model model.proton
+    if model.submodel.heart <= 0 then
+        model
+    else
+        List.foldr checkfailedInside model model.proton
 
 
 checkfailedInside : Proton -> Model -> Model
@@ -229,9 +231,9 @@ checkfailedInside proton model =
             reinitProton model.seed proton.intensity model.proton
 
         newSubmodel =
-            { osbm | heart = old_heart - 1, state = Paused }
+            { osbm | heart = old_heart - 1, state = Paused, text_num = changeIndexToNewOne osbm.text_num 4 }
     in
-    if dis >= tracradius + 20 then
+    if dis >= tracradius + 40 then
         { model | proton = nproton, seed = nseed, submodel = newSubmodel }
 
     else
@@ -274,12 +276,12 @@ earthangle angle velocity =
     angle + velocity
 
 
-checkoutearth : Model -> Model
+checkoutearth : Model -> Model--check whether proton hit the earth
 checkoutearth model =
     List.foldr checkoutearthInside model model.proton
 
 
-checkoutearthInside : Proton -> Model -> Model
+checkoutearthInside : Proton -> Model -> Model--?
 checkoutearthInside proton model =
     let
         posp =
@@ -306,11 +308,17 @@ loseheart model =
     let
         sbm =
             model.submodel
+        opr = 
+            model.proton |> List.head |> Maybe.withDefault (Proton (Point 300 300) 0.6 7.5 2.0 6)
 
         heart_ =
-            sbm.heart - 1
+            0
+        ( nproton, nseed) = reinitProton model.seed opr.intensity model.proton
     in
-    { model | submodel = { sbm | heart = heart_ } }
+    { model | submodel = { sbm | heart = heart_ , state = Paused, text_num = changeIndexToNewOne sbm.text_num 3} 
+            , proton = nproton 
+            , seed = nseed
+    }
 
 
 protonbounce : Model -> Model
@@ -323,8 +331,7 @@ protonbounce model =
 checkoutsun : Model -> Model
 checkoutsun model =
     let
-        olddir =
-            getdirfromproton model.proton
+        olddir = getdirfromproton model.proton
     in
     { model | proton = List.map (checkoutsunInside model) model.proton }
         |> changescore olddir

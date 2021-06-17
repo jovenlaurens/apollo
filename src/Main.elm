@@ -10,6 +10,7 @@ import Update exposing (update)
 import View exposing (view)
 import Task
 import Browser.Dom exposing (getViewport)
+import Model exposing (State(..))
 
 
 main =
@@ -52,7 +53,10 @@ key model keycode =
                 39 ->
                     Key (Key_right 1)
                 83 ->
-                    EnterGame
+                    if model.submodel.state == Interval then
+                        EnterGame
+                    else
+                        Key (Key_none 1)
 
                 _ ->
                     Key (Key_none 1)
