@@ -11,11 +11,6 @@ import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheigh
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (y1)
 import Text exposing (showText)
-import Update exposing (dotLineDistance, getLine)
-
-
-
---elm make src/Main.elm src/Messages.elm src/Model.elm src/Star.elm src/Update.elm src/View.elm src/Point.elm src/Text.elm
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -123,13 +118,9 @@ drawSun sun =
     ]
 
 
+{-| stroke-dasharray="5,5" d="M5 20 l215 0"
+-}
 drawTrack : List (Svg msg)
-
-
-
---stroke-dasharray="5,5" d="M5 20 l215 0"
-
-
 drawTrack =
     [ Svg.circle
         [ SvgAttr.cx (toString originX)
@@ -284,12 +275,10 @@ drawEarth level earth =
     ]
 
 
-
---<rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+{-| <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
 --style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
 --stroke-opacity:0.9
-
-
+-}
 renderChatBox : Model -> Html Msg
 renderChatBox model =
     div
@@ -340,7 +329,7 @@ renderInfo model =
         , br [] []
         , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
-        , text ("time: " ++ toString (modBy 100 (round model.submodel.move_timer) == 0))
+        , text ("time: " ++ toString model.submodel.move_timer)
         ]
 
 

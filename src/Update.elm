@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 import Model exposing (..)
 import Random exposing (..)
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, tracradius)
+import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, tracradius)
 import Text exposing (changeIndexToNewOne)
 
 
@@ -15,10 +15,6 @@ port save : String -> Cmd msg
 saveToStorage : Model -> ( Model, Cmd Msg )
 saveToStorage model =
     ( model, save (Model.encode 2 model) )
-
-
-
---in the update part, spacescraft is exposed as spc
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -95,7 +91,7 @@ checkAddProton time model =
             old_proton =
                 model.proton
         in
-        if modBy 10000 (round time) >= 0 && time > 5 && modBy 2000 (round time) <= 3 then
+        if modBy 8000 (round time) >= 0 && modBy 8000 (round time) <= 100 && round (time / 8000) == List.length model.proton - 1 then
             { model | proton = List.append old_proton initial.proton }
 
         else
@@ -612,7 +608,7 @@ checkoutearth model =
 
 
 
---可能有问题
+--a little issue
 
 
 checkoutearthInside : Proton -> Model -> Model

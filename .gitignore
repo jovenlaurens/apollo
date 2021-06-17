@@ -3,3 +3,4 @@
 # elm-repl generated files
 repl-temp-*
 .idea/
+*.html

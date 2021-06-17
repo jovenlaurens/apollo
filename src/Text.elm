@@ -1,119 +1,225 @@
 module Text exposing (..)
+
 import Maybe exposing (withDefault)
 
---大致思路：用一个函数完成文本之间的显示转换，输入当前界面和转换值，输出相应的部分
 
 type alias Text =
     { index : Int
-    , content : String 
+    , content : String
     }
+
 
 showText : Int -> String
 showText ind =
     let
-        target = (List.filter (\x -> x.index == ind) textBase) 
-                    |> List.head 
-                    |> withDefault (Text -99 "a")
-        
+        target =
+            List.filter (\x -> x.index == ind) textBase
+                |> List.head
+                |> withDefault (Text -99 "a")
     in
-        target.content
-    
+    target.content
+
+
 changeIndexToNewOne : Int -> Int -> Int
 changeIndexToNewOne old trigue =
---trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
+    --trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
     if trigue == -99 then
         old
+
     else
-    case old of
-        0 -> 
-            case trigue of
-                1 -> 11
-                2 -> 6
-                _ -> 1
-        1 -> 2
-        2 -> 3
-        3 -> 4
-        4 -> 5
-        5 ->
-            case trigue of
-                1 -> 11
-                2 -> 6
-                _ -> 7
-        6 -> 
-            case trigue of
-                1 -> 11
-                2 -> 6
-                _ -> 7
-        7 -> case trigue of
-                1 -> 11
-                2 -> 6
-                _ -> 7
-        11 -> 12
-        12 -> 13
-        13 -> 14
-        14 -> 15
-        15 -> 16
-        16 -> 
-            case trigue of
-                1 -> 21
-                2 -> 17
-                _ -> 18
-        17 -> 
-            case trigue of
-                1 -> 21
-                2 -> 17
-                _ -> 18
-        18 -> 
-            case trigue of
-                1 -> 21
-                2 -> 17
-                _ -> 18
-        21 -> 22
-        22 -> 23
-        23 -> 
-            case trigue of
-                1 -> 31
-                2 -> 24
-                _ -> 25
-        24 -> 
-            case trigue of
-                1 -> 31
-                2 -> 24
-                _ -> 25
-        25 -> 
-            case trigue of
-                1 -> 31
-                2 -> 24
-                _ -> 25
-        31 -> 32
-        32 -> 33
-        33 -> 34
-        34 -> 35
-        35 -> 
-            case trigue of
-                2 -> 36
-                _ -> 41
-        41 -> 
-            case trigue of
-                2 -> 36
-                _ -> 41
-        36 -> 37
-        37 -> 38
-        38 -> 39
-        39 -> 40
-        40 -> 40
-        _ -> 0
+        case old of
+            0 ->
+                case trigue of
+                    1 ->
+                        11
 
+                    2 ->
+                        6
 
+                    _ ->
+                        1
 
+            1 ->
+                2
 
-        
-            
+            2 ->
+                3
 
+            3 ->
+                4
+
+            4 ->
+                5
+
+            5 ->
+                case trigue of
+                    1 ->
+                        11
+
+                    2 ->
+                        6
+
+                    _ ->
+                        7
+
+            6 ->
+                case trigue of
+                    1 ->
+                        11
+
+                    2 ->
+                        6
+
+                    _ ->
+                        7
+
+            7 ->
+                case trigue of
+                    1 ->
+                        11
+
+                    2 ->
+                        6
+
+                    _ ->
+                        7
+
+            11 ->
+                12
+
+            12 ->
+                13
+
+            13 ->
+                14
+
+            14 ->
+                15
+
+            15 ->
+                16
+
+            16 ->
+                case trigue of
+                    1 ->
+                        21
+
+                    2 ->
+                        17
+
+                    _ ->
+                        18
+
+            17 ->
+                case trigue of
+                    1 ->
+                        21
+
+                    2 ->
+                        17
+
+                    _ ->
+                        18
+
+            18 ->
+                case trigue of
+                    1 ->
+                        21
+
+                    2 ->
+                        17
+
+                    _ ->
+                        18
+
+            21 ->
+                22
+
+            22 ->
+                23
+
+            23 ->
+                case trigue of
+                    1 ->
+                        31
+
+                    2 ->
+                        24
+
+                    _ ->
+                        25
+
+            24 ->
+                case trigue of
+                    1 ->
+                        31
+
+                    2 ->
+                        24
+
+                    _ ->
+                        25
+
+            25 ->
+                case trigue of
+                    1 ->
+                        31
+
+                    2 ->
+                        24
+
+                    _ ->
+                        25
+
+            31 ->
+                32
+
+            32 ->
+                33
+
+            33 ->
+                34
+
+            34 ->
+                35
+
+            35 ->
+                case trigue of
+                    2 ->
+                        36
+
+                    _ ->
+                        41
+
+            41 ->
+                case trigue of
+                    2 ->
+                        36
+
+                    _ ->
+                        41
+
+            36 ->
+                37
+
+            37 ->
+                38
+
+            38 ->
+                39
+
+            39 ->
+                40
+
+            40 ->
+                40
+
+            _ ->
+                0
 
 
 textBase : List Text
-textBase = 
+textBase =
     [ Text 0 "Apollo, by Ocean Cat Studio"
     , Text 1 "In 2077, people have occupied most area of the solar system. A huge interplanetary empire has been established. You, one of the freshmen in the most powerful space fleet of the empire, when something strange happened."
     , Text 2 "A kind of secret particle ejected by the sun, started to attack the world with its high speed and high temperature. Your team is assigned to drive the firmest spacecraft, Apollo, to protect everything in the world."
