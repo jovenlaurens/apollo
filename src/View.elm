@@ -399,7 +399,7 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "23%"
         ]
-        [ text ("Remain chances: " ++ toString model.submodel.heart)
+        [ text ("Remain chances: " ++ liveSymbol model.submodel.heart)
         , br [] []
         , text ("level: " ++ toString model.submodel.level)
         , br [] []
