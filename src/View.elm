@@ -395,11 +395,10 @@ renderInfo model =
         , style "padding" "0"
         , style "position" "absolute"
         , style "width" "17%"
- 
         ]
-        [ 
-         text ("Score: " ++ toString model.submodel.score)
+        [ text ("Score: " ++ toString model.submodel.score)
         ]
+
 
 renderLevel : Model -> Html Msg
 renderLevel model =
@@ -421,9 +420,9 @@ renderLevel model =
         , style "position" "absolute"
         , style "width" "15%"
         ]
-        [
-            text ("Level:" ++" " ++ toString model.submodel.level)
+        [ text ("Level:" ++ " " ++ toString model.submodel.level)
         ]
+
 
 renderLife : Model -> Html Msg
 renderLife model =
@@ -445,7 +444,9 @@ renderLife model =
         , style "position" "absolute"
         , style "width" "18%"
         ]
-        [text ("Lifes： " ++ liveSymbol model.submodel.heart)]
+        [ text ("Lifes： " ++ liveSymbol model.submodel.heart) ]
+
+
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
@@ -526,7 +527,7 @@ renderCover model =
             , style "padding" "0"
             , style "position" "absolute"
             , style "width" "12.7%"
-            , style "background-color" "Transparent"
+            , style "background-color" "#564d7c"
             , onClick PlayInterval
             ]
             []
@@ -560,26 +561,26 @@ renderLogo =
         ]
         []
     , button
-            [ style "background" "#34495f"
-            , style "border" "0"
-            , style "bottom" "40%"
-            , style "color" "#fff"
-            , style "cursor" "pointer"
-            , style "display" "block"
-            , style "font-family" "Helvetica, Arial, sans-serif"
-            , style "font-size" "18px"
-            , style "font-weight" "300"
-            , style "height" "12.5%"
-            , style "left" "17%"
-            , style "line-height" "60px"
-            , style "outline" "none"
-            , style "padding" "0"
-            , style "position" "absolute"
-            , style "width" "12.7%"
-            , style "background-color" "Transparent"
-            , onClick PlayInterval
-            ]
-            []
+        [ style "background" "#34495f"
+        , style "border" "0"
+        , style "bottom" "40%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "12.5%"
+        , style "left" "17%"
+        , style "line-height" "60px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "12.7%"
+        , style "background-color" "#564d7c"
+        , onClick PlayInterval
+        ]
+        []
     ]
 
 
@@ -591,6 +592,7 @@ renderInterval =
         , HtmlAttr.style "position" "absolute"
         , HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
+        , HtmlAttr.style "background-color" "black"
         , src "assets/Interval.mp4"
         , autoplay True
         , loop False
@@ -607,16 +609,23 @@ view model =
         , style "position" "absolute"
         , style "left" "0"
         , style "top" "0"
-        , style "background-color" (if model.submodel.state == Cover then
-                                        "564d7c"
-                                    else
-                                        "#0e1f2f")
+        , style "background-color"
+            (case model.submodel.state of
+                Cover ->
+                    "#564d7c"
+
+                Interval ->
+                    "black"
+
+                _ ->
+                    "#0e1f2f"
+            )
         ]
         [ let
             st =
                 model.submodel.state
           in
-          if  st == Cover || st == Interval then
+          if st == Cover || st == Interval then
             let
                 ( w, h ) =
                     model.size
