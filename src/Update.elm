@@ -1,11 +1,12 @@
-port module Update exposing (..)
+port module Update exposing (update)
 
+import Geometry exposing (Point, availableScale, distance, dotLineDistance, getLine, originX, originY, sunRotateSpeed, tracradius, xShift, yShift)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
-import Model exposing (..)
+import Model exposing (Model, State(..), initial)
 import Random exposing (..)
-import Star exposing (Earth, Point, Proton, Spacecraft, Sun, availableScale, originX, originY, spcheight, spcwidth, tracradius, sunRotateSpeed)
+import Star exposing (Earth, Proton, Spacecraft, Sun, defaultSpacecraft)
 import Text exposing (changeIndexToNewOne)
 
 
@@ -14,11 +15,7 @@ port save : String -> Cmd msg
 
 saveToStorage : Model -> ( Model, Cmd Msg )
 saveToStorage model =
-    ( model, save (Model.encode 2 model) )
-
-
-
---in the update part, spacescraft is exposed as spc
+    ( model, save (Model.encode 3 model) )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -56,32 +53,36 @@ updatespc msg ( model, cmd ) =
             )
 
         Tick elapsed ->
-                let 
-                    osun = model.sun
-                in
-                    { model | submodel = { sbm | move_timer = sbm.move_timer + elapsed } 
-                            , sun = {osun | angle = osun.angle + sunRotateSpeed}
-                    }
-                        |> protonbounce
-                        |> spcmove
-                        |> checkoutearth
-                        |> earthmove
-                        |> protonmove
-                        |> checkPass
-                        |> checkfailed
-                        |> checkAddProton model.submodel.move_timer
-                        |> saveToStorage
+            let
+                osun =
+                    model.sun
+            in
+            { model
+                | submodel = { sbm | move_timer = sbm.move_timer + elapsed }
+                , sun = { osun | angle = osun.angle + sunRotateSpeed }
+            }
+                |> protonbounce
+                |> spcmove
+                |> checkoutearth
+                |> earthmove
+                |> protonmove
+                |> checkPass
+                |> checkfailed
+                |> checkAddProton model.submodel.move_timer
+                |> saveToStorage
+
         PlayInterval ->
             ( { initial | submodel = { sbm | state = Interval }, size = model.size }, Cmd.none )
+
         Start ->
             ( { initial | submodel = { sbm | state = Playing }, size = model.size }, Cmd.none )
 
         EnterCover ->
             ( { initial | submodel = { sbm | state = BeforePlay }, size = model.size }, Cmd.none )
+
         EnterGame ->
             ( { initial | submodel = { sbm | state = Stopped }, size = model.size }, Cmd.none )
 
-        
         Key keydir ->
             ( model
                 |> spcdirchange keydir
@@ -104,7 +105,7 @@ checkAddProton time model =
             old_proton =
                 model.proton
         in
-        if modBy 8000 (round time) >= 0 && modBy 8000 (round time) <= 100 && round (time / 8000) == List.length model.proton - 1 then
+        if modBy 10000 (round time) >= 0 && modBy 10000 (round time) <= 100 && round (time / 10000) == List.length model.proton && time > 200 then
             { model | proton = List.append old_proton initial.proton }
 
         else
@@ -144,48 +145,6 @@ checkPass model =
     { nmodel | submodel = { nsbm | text_num = changeIndexToNewOne model.submodel.text_num trigue } }
 
 
-reinitProton : Random.Seed -> Int -> List Proton -> ( List Proton, Random.Seed )
-reinitProton seed inten list =
-    case list of
-        x :: xs ->
-            let
-                ( proton, nseed ) =
-                    generateNewProton seed
-
-                nproton =
-                    { proton | intensity = inten }
-
-                --从proton的库里随机选一个proton，然后继承原本的intensity,回头写
-            in
-            ( nproton :: xs, nseed )
-
-        _ ->
-            ( list, seed )
-
-
-
---这里是proton的库
-
-
-generateNewProton : Random.Seed -> ( Proton, Random.Seed )
-generateNewProton seed =
-    let
-        ( index, nseed ) =
-            Random.step (Random.int 1 4) seed
-
-        protonBox =
-            [ Proton (Point 300 300) 0.2 7.5 2.0 5 --need to be improved
-            , Proton (Point 300 500) -1 10 2.0 8
-            , Proton (Point 400 200) 1.5 8 1.5 5
-            , Proton (Point 600 200) -1 10 2.0 5
-            ]
-
-        nproton =
-            List.take index protonBox |> List.reverse |> List.head |> Maybe.withDefault (Proton (Point 300 500) -1 10 2.0 8)
-    in
-    ( nproton, nseed )
-
-
 reinitModel : Int -> Model -> Model
 reinitModel level model =
     if level < -10 then
@@ -214,7 +173,7 @@ reinitModel level model =
                     | submodel = { prosbm | level = 2, state = Paused }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
-                    , earth = { proEarth | pos = Point 700.0 500.0, show = Still, velocity = 0, radius = 0 } --earth的参数需要修改
+                    , earth = { proEarth | pos = Point 700.0 500.0, show = Still, velocity = 0, radius = 0 }
                     , size = prosize
                 }
 
@@ -223,7 +182,7 @@ reinitModel level model =
                     | submodel = { prosbm | level = 3, state = Paused }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
-                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 } --earth的参数需要修改
+                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
                     , size = prosize
                 }
 
@@ -232,119 +191,12 @@ reinitModel level model =
                     | submodel = { prosbm | level = 4, state = Paused }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
-                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 } --earth的参数需要修改
+                    , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
                     , size = prosize
                 }
 
             _ ->
                 prototype
-
-
-addSpacecraft : List Spacecraft -> List Spacecraft
-addSpacecraft spacecraft =
-    spacecraft ++ List.singleton (Spacecraft (Point 300.0 500.0) pi (Key_none 2) 0.01)
-
-
-spcdirchange : Keydir -> Model -> Model
-spcdirchange keydir model =
-    if model.submodel.level > 1 then
-        if keydir == Key_left 2 || keydir == Key_right 2 || keydir == Key_none 2 then
-            { model | spacecraft = spcdirchange_inside keydir 2 model.spacecraft }
-
-        else
-            { model | spacecraft = spcdirchange_inside keydir 1 model.spacecraft }
-
-    else
-        { model | spacecraft = spcdirchange_inside keydir 1 model.spacecraft }
-
-
-spcdirchange_inside : Keydir -> Int -> List Spacecraft -> List Spacecraft
-spcdirchange_inside keydir index list =
-    if index == 1 then
-        case list of
-            x :: xs ->
-                { x | dir = keydir } :: xs
-
-            _ ->
-                list
-
-    else
-        case list of
-            x :: xs ->
-                let
-                    old =
-                        List.drop 1 list |> List.head |> Maybe.withDefault defaultSpacecraft
-                in
-                x :: ({ old | dir = keydir } |> List.singleton)
-
-            _ ->
-                list
-
-
-spcmove : Model -> Model
-spcmove model =
-    { model | spacecraft = List.map renewSpc model.spacecraft }
-
-
-renewSpc : Spacecraft -> Spacecraft
-renewSpc spacecraft =
-    let
-        newangle =
-            spcangle spacecraft.angle spacecraft.velocity spacecraft.dir
-
-        newPoint =
-            spcpostrans newangle
-    in
-    { spacecraft | pos = newPoint, angle = newangle }
-
-
-spcangle : Float -> Float -> Keydir -> Float
-spcangle angle velocity direction =
-    case direction of
-        Key_right a ->
-            angle - velocity
-
-        Key_left a ->
-            angle + velocity
-
-        Key_none a ->
-            angle
-
-
-spcpostrans : Float -> Point
-spcpostrans angle =
-    let
-        posx =
-            originX + tracradius * cos angle
-
-        posy =
-            originY - tracradius * sin angle
-    in
-    Point posx posy
-
-
-protonmove : Model -> Model
-protonmove model =
-    { model | proton = List.map move model.proton }
-
-
-move : Proton -> Proton
-move element =
-    let
-        direction =
-            element.dir
-
-        velocity =
-            element.velocity
-
-        point =
-            element.pos
-
-        movePoint : Point -> Point
-        movePoint oldpoint =
-            { oldpoint | x = oldpoint.x + velocity * cos direction, y = oldpoint.y + velocity * sin direction }
-    in
-    { element | pos = movePoint point }
 
 
 checkfailed : Model -> Model
@@ -377,29 +229,86 @@ checkfailedInside proton model =
         model
 
 
+earthmove : Model -> Model
+earthmove model =
+    if model.submodel.level > 2 then
+        let
+            newangle =
+                earthangle model.earth.angle model.earth.velocity
+
+            newPoint =
+                earthpostrans newangle model.earth.radius
+
+            earth_ =
+                model.earth
+        in
+        { model | earth = { earth_ | angle = newangle, pos = newPoint } }
+
+    else
+        model
+
+
+earthpostrans : Float -> Float -> Point
+earthpostrans angle radius =
+    let
+        posx =
+            originX + radius * cos angle
+
+        posy =
+            originY - radius * sin angle
+    in
+    Point posx posy
+
+
+earthangle : Float -> Float -> Float
+earthangle angle velocity =
+    angle + velocity
+
+
+checkoutearth : Model -> Model
+checkoutearth model =
+    List.foldr checkoutearthInside model model.proton
+
+
+checkoutearthInside : Proton -> Model -> Model
+checkoutearthInside proton model =
+    let
+        posp =
+            proton.pos
+
+        pose =
+            model.earth.pos
+
+        rp =
+            proton.radius
+
+        re =
+            30.0
+    in
+    if distance posp pose <= (rp + re) then
+        loseheart model
+
+    else
+        model
+
+
+loseheart : Model -> Model
+loseheart model =
+    let
+        sbm =
+            model.submodel
+
+        heart_ =
+            sbm.heart - 1
+    in
+    { model | submodel = { sbm | heart = heart_ } }
+
+
 protonbounce : Model -> Model
 protonbounce model =
     model
         |> checkoutsun
         |> checkoutspc
-
-
-distance : Point -> Point -> Float
-distance pa pb =
-    let
-        ax =
-            pa.x
-
-        ay =
-            pa.y
-
-        bx =
-            pb.x
-
-        by =
-            pb.y
-    in
-    sqrt ((ax - bx) ^ 2 + (ay - by) ^ 2)
 
 
 checkoutsun : Model -> Model
@@ -440,11 +349,6 @@ checkoutsunInside model proton =
 
     else
         proton
-
-
-anglebtwpoint : Point -> Point -> Float
-anglebtwpoint pa pb =
-    atan2 (pb.y - pa.y) (pa.x - pb.x)
 
 
 checkoutspc : Model -> Model
@@ -525,133 +429,154 @@ collideSound =
         [ text "error" ]
 
 
-
---slope 斜率
-
-
-getLine : Point -> Float -> ( Float, Float, Float )
-getLine pos angle =
-    if angle == 0 || angle == pi then
-        ( 1, 0, -pos.x )
-
-    else if angle == (pi * 1 / 2) || angle == (pi * 3 / 2) then
-        ( 0, 1, -pos.y )
-
-    else
-        let
-            x =
-                pos.x
-
-            y =
-                pos.y
-
-            a =
-                -(x - originX) / (y - originY)
-
-            b =
-                -1
-
-            c =
-                y - a * x
-        in
-        ( a, b, c )
+spcmove : Model -> Model
+spcmove model =
+    { model | spacecraft = List.map renewSpc model.spacecraft }
 
 
-dotLineDistance : Point -> Float -> Float -> Float -> Float
-dotLineDistance point a b c =
+renewSpc : Spacecraft -> Spacecraft
+renewSpc spacecraft =
     let
-        x =
-            point.x
+        newangle =
+            spcangle spacecraft.angle spacecraft.velocity spacecraft.dir
 
-        y =
-            point.y
+        newPoint =
+            spcpostrans newangle
     in
-    abs (a * x + b * y + c) / sqrt (a ^ 2 + b ^ 2)
+    { spacecraft | pos = newPoint, angle = newangle }
 
 
-xShift : Float -> Float -> Float
-xShift x r =
-    originX + (((tracradius + r) / tracradius) * (x - originX))
+spcangle : Float -> Float -> Keydir -> Float
+spcangle angle velocity direction =
+    case direction of
+        Key_right a ->
+            angle - velocity
+
+        Key_left a ->
+            angle + velocity
+
+        Key_none a ->
+            angle
 
 
-yShift : Float -> Float -> Float
-yShift y r =
-    originY - (((tracradius + r) / tracradius) * (originY - y))
-
-
-earthmove : Model -> Model
-earthmove model =
-    if model.submodel.level > 2 then
-        let
-            newangle =
-                earthangle model.earth.angle model.earth.velocity
-
-            newPoint =
-                earthpostrans newangle model.earth.radius
-
-            earth_ =
-                model.earth
-        in
-        { model | earth = { earth_ | angle = newangle, pos = newPoint } }
-
-    else
-        model
-
-
-earthpostrans : Float -> Float -> Point
-earthpostrans angle radius =
+spcpostrans : Float -> Point
+spcpostrans angle =
     let
         posx =
-            originX + radius * cos angle
+            originX + tracradius * cos angle
 
         posy =
-            originY - radius * sin angle
+            originY - tracradius * sin angle
     in
     Point posx posy
 
 
-earthangle : Float -> Float -> Float
-earthangle angle velocity =
-    angle + velocity
+protonmove : Model -> Model
+protonmove model =
+    { model | proton = List.map move model.proton }
 
 
-checkoutearth : Model -> Model
-checkoutearth model =
-    List.foldr checkoutearthInside model model.proton
-
-
-
---a little issue
-
-checkoutearthInside : Proton -> Model -> Model
-checkoutearthInside proton model =
+move : Proton -> Proton
+move element =
     let
-        posp =
-            proton.pos
+        direction =
+            element.dir
 
-        pose =
-            model.earth.pos
+        velocity =
+            element.velocity
 
-        rp =
-            proton.radius
+        point =
+            element.pos
 
-        re =
-            30.0
+        movePoint : Point -> Point
+        movePoint oldpoint =
+            { oldpoint | x = oldpoint.x + velocity * cos direction, y = oldpoint.y + velocity * sin direction }
     in
-    if distance posp pose <= (rp + re) then
-        loseheart model
+    { element | pos = movePoint point }
+
+
+spcdirchange : Keydir -> Model -> Model
+spcdirchange keydir model =
+    if model.submodel.level > 1 then
+        if keydir == Key_left 2 || keydir == Key_right 2 || keydir == Key_none 2 then
+            { model | spacecraft = spcdirchange_inside keydir 2 model.spacecraft }
+
+        else
+            { model | spacecraft = spcdirchange_inside keydir 1 model.spacecraft }
 
     else
-        model
+        { model | spacecraft = spcdirchange_inside keydir 1 model.spacecraft }
 
 
-loseheart : Model -> Model
-loseheart model =
+spcdirchange_inside : Keydir -> Int -> List Spacecraft -> List Spacecraft
+spcdirchange_inside keydir index list =
+    if index == 1 then
+        case list of
+            x :: xs ->
+                { x | dir = keydir } :: xs
+
+            _ ->
+                list
+
+    else
+        case list of
+            x :: xs ->
+                let
+                    old =
+                        List.drop 1 list |> List.head |> Maybe.withDefault defaultSpacecraft
+                in
+                x :: ({ old | dir = keydir } |> List.singleton)
+
+            _ ->
+                list
+
+
+reinitProton : Random.Seed -> Int -> List Proton -> ( List Proton, Random.Seed )
+reinitProton seed inten list =
+    case list of
+        x :: xs ->
+            let
+                ( proton, nseed ) =
+                    generateNewProton seed
+
+                nproton =
+                    { proton | intensity = inten }
+
+                --从proton的库里随机选一个proton，然后继承原本的intensity,回头写
+            in
+            ( nproton :: xs, nseed )
+
+        _ ->
+            ( list, seed )
+
+
+
+--这里是proton的库
+
+
+generateNewProton : Random.Seed -> ( Proton, Random.Seed )
+generateNewProton seed =
     let
-        sbm =
-            model.submodel
+        ( index, nseed ) =
+            Random.step (Random.int 1 4) seed
 
-        heart_ =
-            sbm.heart - 1
+        protonBox =
+            [ Proton (Point 300 300) 0.2 7.5 2.0 5 --need to be improved
+            , Proton (Point 300 500) -1 10 2.0 8
+            , Proton (Point 400 200) 1.5 8 1.5 5
+            , Proton (Point 600 200) -1 10 2.0 5
+            ]
+
+        nproton =
+            List.take index protonBox |> List.reverse |> List.head |> Maybe.withDefault (Proton (Point 300 500) -1 10 2.0 8)
     in
-    { model | submodel = { sbm | heart = heart_ } }
+    ( nproton, nseed )
+
+
+addSpacecraft : List Spacecraft -> List Spacecraft
+addSpacecraft spacecraft =
+    if List.length spacecraft == 1 then
+        spacecraft ++ List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 2) 0.01)
+
+    else
+        spacecraft

@@ -1,4 +1,5 @@
-module Text exposing (..)
+module Text exposing (changeIndexToNewOne, showText, textBase)
+
 import Maybe exposing (withDefault)
 
 --大致思路：用一个函数完成文本之间的显示转换，输入当前界面和转换值，输出相应的部分

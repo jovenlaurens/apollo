@@ -1,12 +1,7 @@
-module Star exposing (..)
+module Star exposing (Earth, Proton, Spacecraft, Sun, defaultSpacecraft)
 
-import Messages exposing (Keydir, Earth_State)
-
-
-type alias Point =
-    { x : Float
-    , y : Float
-    }
+import Geometry exposing (Point)
+import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 
 
 type alias Earth =
@@ -41,38 +36,6 @@ type alias Spacecraft =
     , velocity : Float --delta angle
     }
 
-sunRotateSpeed: Float
-sunRotateSpeed = 0.4
 
-tracearth : Float
-tracearth = 
-    150.0
-tracradius : Float
-tracradius =
-    300.0
-
-
-spcwidth : Float
-spcwidth =
-    60.0
-
-
-spcheight : Float
-spcheight =
-    20.0
-
-
-originX =
-    500.0
-
-
-originY =
-    500.0
-
-
-sunRadius =
-    80.0
-
-
-availableScale =
-    atan ((0.5 * spcwidth) / tracradius)
+defaultSpacecraft =
+    Spacecraft (Point 800.0 500.0) 0.0 (Key_none 1) 0.01

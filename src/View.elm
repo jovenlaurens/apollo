@@ -1,22 +1,16 @@
 module View exposing (view)
 
-import Basics exposing (..)
 import Debug exposing (toString)
+import Geometry exposing (originX, originY, spcheight, spcwidth, tracradius)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (onClick)
 import Messages exposing (Msg(..))
 import Model exposing (..)
-import Star exposing (Earth, Proton, Spacecraft, Sun, originX, originY, spcheight, spcwidth, tracradius)
+import Star exposing (Earth, Proton, Spacecraft, Sun)
 import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr exposing (y1)
+import Svg.Attributes as SvgAttr
 import Text exposing (showText)
-import Update exposing (dotLineDistance, getLine)
-import Html.Events exposing (on)
-
-
-
---elm make src/Main.elm src/Messages.elm src/Model.elm src/Star.elm src/Update.elm src/View.elm src/Point.elm src/Text.elm
 
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
@@ -120,7 +114,6 @@ drawSun sun =
         , SvgAttr.r (toString (sun.radius + 30))
         , SvgAttr.fill "#e0910e"
         , SvgAttr.fillOpacity "0.3"
-        
         ]
         []
     , Svg.circle
@@ -226,6 +219,7 @@ renderGameButton_1 state =
 
                 BeforePlay ->
                     ( "New game", Start )
+
                 _ ->
                     ( "New game", Start )
     in
@@ -411,7 +405,7 @@ renderInfo model =
         , br [] []
         , text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
-        , text ("time: " ++ toString (modBy 100 (round model.submodel.move_timer) == 0))
+        , text ("num" ++ toString (List.length model.spacecraft))
         ]
 
 
@@ -514,9 +508,10 @@ renderTitle txt =
         ]
         [ text txt ]
 
+
 renderLogo : List (Html Msg)
 renderLogo =
-    [video
+    [ video
         [ HtmlAttr.style "width" "100%"
         , HtmlAttr.style "height" "100%"
         , HtmlAttr.style "position" "absolute"
@@ -526,26 +521,26 @@ renderLogo =
         , autoplay True
         , loop False
         ]
-        [
-        ]
+        []
     , button
-            [ style "bottom" "0%"
-            , style "display" "block"
-            , style "border" "0"
-            , style "height" "100%"
-            , style "left" "0%"
-            , style "padding" "0"
-            , style "position" "absolute"
-            , style "width" "100%"
-            , style "background-color" "Transparent"
-            , onClick EnterCover
-            ]
-            []
+        [ style "bottom" "0%"
+        , style "display" "block"
+        , style "border" "0"
+        , style "height" "100%"
+        , style "left" "0%"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "100%"
+        , style "background-color" "Transparent"
+        , onClick EnterCover
+        ]
+        []
     ]
 
-renderInterval :List (Html Msg)
+
+renderInterval : List (Html Msg)
 renderInterval =
-    [video
+    [ video
         [ HtmlAttr.style "width" "100%"
         , HtmlAttr.style "height" "100%"
         , HtmlAttr.style "position" "absolute"
@@ -559,7 +554,6 @@ renderInterval =
     ]
 
 
-
 view : Model -> Html Msg
 view model =
     div
@@ -570,22 +564,28 @@ view model =
         , style "top" "0"
         , style "background-color" "#0e1f2f"
         ]
-        [ 
-        let
-            st = model.submodel.state
-        in
-        if st == BeforePlay || st == Cover || st == Interval then
+        [ let
+            st =
+                model.submodel.state
+          in
+          if st == BeforePlay || st == Cover || st == Interval then
             let
                 ( w, h ) =
                     model.size
-                (wid, het) =    if ( 2 / 3 * w ) >= h then
-                                    ( 1.5 * h, h )
-                                else
-                                    ( w, 2 / 3 * w )
-                (lef, to) = if ( 2 / 3 * w ) >= h then
-                                ( 0.5 * (w - wid), 0 )
-                            else
-                                ( 0, 0.5 * (h - het) )
+
+                ( wid, het ) =
+                    if (2 / 3 * w) >= h then
+                        ( 1.5 * h, h )
+
+                    else
+                        ( w, 2 / 3 * w )
+
+                ( lef, to ) =
+                    if (2 / 3 * w) >= h then
+                        ( 0.5 * (w - wid), 0 )
+
+                    else
+                        ( 0, 0.5 * (h - het) )
             in
             div
                 [ style "width" (String.fromFloat wid ++ "px")
@@ -596,27 +596,36 @@ view model =
                 ]
                 (if st == BeforePlay then
                     renderCover model |> List.singleton
-                else if st == Cover then
+
+                 else if st == Cover then
                     renderLogo
-                else 
+
+                 else
                     renderInterval
                 )
-                    
 
           else
             let
                 ( w, h ) =
                     model.size
-                line = Basics.min w h
-                max_ = Basics.max w h
+
+                line =
+                    Basics.min w h
+
+                max_ =
+                    Basics.max w h
+
                 left =
                     if w > h then
                         0.5 * (max_ - line)
+
                     else
                         0
-                top = 
+
+                top =
                     if w > h then
                         0
+
                     else
                         0.5 * (max_ - line)
 
@@ -624,7 +633,7 @@ view model =
                 --取到了最小的那个，能显示出全部
             in
             div
-                [ HtmlAttr.style "width" (String.fromFloat line ++ "px")--how to adjust here?
+                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
                 , HtmlAttr.style "height" (String.fromFloat line ++ "px")
                 , HtmlAttr.style "position" "absolute"
                 , HtmlAttr.style "left" (String.fromFloat left ++ "px")
@@ -636,14 +645,14 @@ view model =
                     , SvgAttr.height "100%"
                     , SvgAttr.viewBox "0 0 1000 1000"
                     ]
-                    (  drawTrack 
-                    ++ drawSun model.sun 
-                    ++ drawSpacecraft model.spacecraft 
-                    ++ drawEarth model.submodel.level model.earth 
-                    ++ List.concat (List.map drawproton model.proton))
-                , 
-                div
-                    [ HtmlAttr.style "width" "100%"--how to adjust here?
+                    (drawTrack
+                        ++ drawSun model.sun
+                        ++ drawSpacecraft model.spacecraft
+                        ++ drawEarth model.submodel.level model.earth
+                        ++ List.concat (List.map drawproton model.proton)
+                    )
+                , div
+                    [ HtmlAttr.style "width" "100%" --how to adjust here?
                     , HtmlAttr.style "height" "100%"
                     , HtmlAttr.style "position" "absolute"
                     , HtmlAttr.style "left" "0"
@@ -655,13 +664,9 @@ view model =
                     , renderChatBox model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
                     ]
-                ,
-                renderAudio "assets/Bgm.mp3"
+                , renderAudio "assets/Bgm.mp3"
                 ]
         ]
-
-
-
 
 
 printp : Proton -> String
