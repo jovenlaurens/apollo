@@ -231,7 +231,7 @@ renderGameButton_1 state =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-family" "Baskerville"
         , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
@@ -250,7 +250,7 @@ renderGameButton_2 level =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-family" "Baskerville"
         , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
@@ -269,7 +269,7 @@ renderGameButton_3 state textIndex =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-family" "Baskervillef"
         , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
@@ -371,7 +371,7 @@ renderChatBox model =
              else
                 "block"
             )
-        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-family" "Baskerville"
         , style "font-size" "2em"
         , style "height" "45%"
         , style "width" "90%"
@@ -388,46 +388,44 @@ renderInfo model =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
+        , style "font-family" "华文行楷"
+        , style "font-size" "35px"
         , style "font-weight" "300"
         , style "height" "18%"
-        , style "left" "80%"
-        , style "line-height" "30px"
+        , style "left" "75%"
+        , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
         , style "width" "17%"
+ 
         ]
-        [ text ("isi: " ++ printp (getHeadProton model.proton))
-        , br [] []
-        , text ("num" ++ toString (List.length model.spacecraft))
-        , br [] []
-        , text ("score" ++ toString model.submodel.score)
+        [ 
+         text ("Score: " ++ toString model.submodel.score)
         ]
 
 renderLevel : Model -> Html Msg
 renderLevel model =
     div
-        [ style "background" "#0e1f2f"
-        , style "border-top" "30px"
-        , style "top" "2%"
+        [ style "background" "0e1f2f"
+        , style "border" "0"
+        , style "top" "8%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
+        , style "font-family" "华文行楷"
+        , style "font-size" "35px"
         , style "font-weight" "300"
-        , style "height" "2%"
-        , style "left" "34%"
-        , style "line-height" "30px"
+        , style "height" "18%"
+        , style "left" "45%"
+        , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "40%"
+        , style "width" "15%"
         ]
         [
-            text ("level: " ++ toString model.submodel.level)
+            text ("Level:" ++" " ++ toString model.submodel.level)
         ]
 
 renderLife : Model -> Html Msg
@@ -435,22 +433,22 @@ renderLife model =
     div
         [ style "background" "#0e1f2f"
         , style "border" "0"
-        , style "top" "95%"
+        , style "top" "7%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "18px"
+        , style "font-family" "华文行楷"
+        , style "font-size" "35px"
         , style "font-weight" "300"
         , style "height" "2%"
-        , style "left" "85%"
-        , style "line-height" "30px"
+        , style "left" "75%"
+        , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "12%"
+        , style "width" "18%"
         ]
-        [text ("Remain chances: " ++ liveSymbol model.submodel.heart)]
+        [text ("Lifes： " ++ liveSymbol model.submodel.heart)]
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
@@ -486,7 +484,7 @@ renderGameButton txt =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-family" "Baskerville"
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "60px"
@@ -521,7 +519,7 @@ renderCover model =
             , style "color" "#fff"
             , style "cursor" "pointer"
             , style "display" "block"
-            , style "font-family" "Helvetica, Arial, sans-serif"
+            , style "font-family" "Baskerville"
             , style "font-size" "18px"
             , style "font-weight" "300"
             , style "height" "12.5%"
