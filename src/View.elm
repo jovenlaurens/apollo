@@ -419,7 +419,7 @@ renderLife model =
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "2%"
-        , style "left" "30%"
+        , style "left" "34%"
         , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
@@ -435,7 +435,7 @@ renderLevel model =
     div
         [ style "background" "#0e1f2f"
         , style "border" "0"
-        , style "top" "2%"
+        , style "top" "98%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
