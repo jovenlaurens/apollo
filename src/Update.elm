@@ -163,6 +163,9 @@ reinitModel level model =
 
             prosbm =
                 initial.submodel
+
+            oldscore =
+                model.submodel.score
         in
         case level of
             1 ->
@@ -193,6 +196,12 @@ reinitModel level model =
                     , proton = prototype.proton
                     , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
                     , size = prosize
+                }
+
+            5 ->
+                { model
+                    | submodel = { prosbm | level = 4, state = Playing, score = oldscore }
+                    , proton = prototype.proton
                 }
 
             _ ->
@@ -314,35 +323,42 @@ protonbounce model =
 checkoutsun : Model -> Model
 checkoutsun model =
     let
-        olddir = getdirfromproton model.proton
+        olddir =
+            getdirfromproton model.proton
     in
-    { model | proton = List.map (checkoutsunInside model) model.proton}
+    { model | proton = List.map (checkoutsunInside model) model.proton }
         |> changescore olddir
 
-changescore : List Float -> Model  -> Model
+
+changescore : List Float -> Model -> Model
 changescore list model =
     let
-        submodel_ = model.submodel
-        deltascore = checkoutbounce list (getdirfromproton model.proton)
-    in
-        {model | submodel = { submodel_ | score = model.submodel.score + 10 * deltascore}}
-    
+        submodel_ =
+            model.submodel
 
-checkoutbounce : List Float ->List Float -> Int
-checkoutbounce olddir newdir =
-    let 
-        newlist = List.map2 (-) olddir newdir
+        deltascore =
+            checkoutbounce list (getdirfromproton model.proton)
     in
-        (List.filter (\x -> x /= 0) newlist) |> List.length 
+    { model | submodel = { submodel_ | score = model.submodel.score + 10 * deltascore } }
+
+
+checkoutbounce : List Float -> List Float -> Int
+checkoutbounce olddir newdir =
+    let
+        newlist =
+            List.map2 (-) olddir newdir
+    in
+    List.filter (\x -> x /= 0) newlist |> List.length
+
 
 getdirfromproton : List Proton -> List Float
 getdirfromproton list =
-    List.map (getdir) list
+    List.map getdir list
+
 
 getdir : Proton -> Float
 getdir proton =
     proton.dir
-
 
 
 checkoutsunInside : Model -> Proton -> Proton
@@ -598,7 +614,6 @@ generateNewProton seed =
             , Proton (Point 700 700) 2.0 8.5 1.5 5
             , Proton (Point 400 300) 1.3 10 2.0 5
             , Proton (Point 500 600) 1.0 10 2.0 5
-
             ]
 
         nproton =
