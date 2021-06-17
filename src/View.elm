@@ -450,7 +450,7 @@ renderLife model =
         , style "position" "absolute"
         , style "width" "12%"
         ]
-        [text ("Remain chances: " ++ liveSymbol model.submodel.heart]
+        [text ("Remain chances: " ++ liveSymbol model.submodel.heart)]
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
