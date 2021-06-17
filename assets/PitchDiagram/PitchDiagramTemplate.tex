@@ -1,0 +1,269 @@
+\documentclass{standalone}
+
+\usepackage{mathtools}
+\usepackage{array,float,longtable}
+\usepackage{datenumber,calc,forloop,xstring}
+\usepackage{readarray}[2016-11-07]
+\usepackage{newtxtext}
+\ifxetex
+\usepackage{fontspec}
+\setmainfont{HelveticaBold.ttf}
+\fi
+\usepackage{adjustbox}
+\newcommand{\twodigits}[1]{\ifnum#1<10 0\fi#1}
+% contract
+\def\nb{tenth}
+\newcommand{\JI}{\underline{Managing Institution}}
+\newcommand{\Tech}{\underline{Technical Side}}
+\newcommand{\TechCom}{\underline{Technical Communication Side}}
+\newcommand{\Week}{\underline{Contract Week} }
+\newcommand{\blank}[1][250]{\line(1,0){#1}\ }
+\newcommand{\blankh}[2][]{$\underbracket[0.3pt][0pt]{\hspace{#1 pt}}_{#2}$}
+
+% timeline
+\usepackage{pdflscape}
+\usepackage{tikz}
+\usetikzlibrary{shadings,calc,positioning}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,  decorations.pathreplacing,decorations.pathmorphing,shapes,  matrix,shapes.symbols}
+
+
+\definecolor{NameBlockFillColor}{HTML}{FFFFFF}
+\definecolor{NameBlockBorderColor}{HTML}{000000}
+\definecolor{NameBlockFontColor}{HTML}{000000}
+
+\definecolor{RootBlocksFillColor}{HTML}{FFFFFF}
+\definecolor{RootBlocksBorderColor}{HTML}{000000}
+\definecolor{RootBlocksFontColor}{HTML}{000000}
+
+\definecolor{BarkBlocksFillColor}{HTML}{FFFFFF}
+\definecolor{BarkBlocksBorderColor}{HTML}{000000}
+\definecolor{BarkBlocksFontColor}{HTML}{000000}
+
+\definecolor{LeafBlocksFillColor}{HTML}{FFFFFF}
+\definecolor{LeafBlocksBorderColor}{HTML}{000000}
+\definecolor{LeafBlocksFontColor}{HTML}{000000}
+
+\tikzset{>=latex}
+\begin{document}
+	\thispagestyle{empty}
+	\tikzstyle{block} = [rectangle, draw, text width=10em, text centered, rounded      corners, minimum height=3em]
+	
+		\tikzstyle{block} = [rectangle, draw, text centered, rounded      corners]
+		%/pgf/arrow keys/length=2mm
+			\trimbox{-2cm -2cm -2cm -2cm}{ 
+			\begin{tikzpicture}
+				
+				
+				\fontsize{25pt}{28pt}\selectfont
+				%\fontsize{<size>}{<line space>}\selectfont
+				
+				\node (gamename) at (745pt,-40pt) [,draw = NameBlockBorderColor, fill = NameBlockFillColor,text=NameBlockFontColor, minimum width=380pt,minimum height=100pt,line width=3pt] {\textbf{$A\pi o \lambda\lambda\omega\upsilon$}};
+				
+				\tikzstyle{RootBlocksStyle}=[draw = RootBlocksBorderColor ,fill = RootBlocksFillColor,text=RootBlocksFontColor, minimum width=150pt,minimum height=75pt,line width=3pt]
+				\fontsize{17pt}{20pt}\selectfont
+				%\fontsize{<size>}{<line space>}\selectfont
+				
+				\node (highconcept) at (625pt,-185pt) [RootBlocksStyle] {\textbf{High Concept}};
+				\node (experience) at (845pt,-185pt) [RootBlocksStyle] {\textbf{Experience}};
+				\node (gameplay) at (845pt,-320pt) [RootBlocksStyle] {\textbf{Game Play}};
+				\node (story) at (740pt,-590pt) [RootBlocksStyle] {\textbf{Story}};
+				\node (technicalaspects) at (950pt,-590pt) [RootBlocksStyle] {\textbf{Technical Aspects}};
+				\node (marketing) at (845pt,-740pt) [RootBlocksStyle] {\textbf{Marketing}};
+				\node (assets) at (550pt,-410pt) [RootBlocksStyle] {\textbf{Assets}};
+				
+				\draw [-stealth, line width=3pt] (experience.south) -- (gameplay.north);
+				\draw [-stealth, line width=3pt] (gameplay.south) -- (marketing.north);
+				\draw [-stealth, line width=3pt] (gameplay.south) ++(-30pt,0pt) -| ++(-0pt,-85pt) -| (story.north);
+				\draw [-stealth, line width=3pt] (gameplay.south) ++(30pt,0pt) -| ++(0pt,-85pt) -| (technicalaspects.north);
+				\draw [-stealth, line width=3pt] (story.south)  |- (marketing.west);
+				\draw [-stealth, line width=3pt] (technicalaspects.south)  |- (marketing.east);
+				\draw [stealth-, line width=3pt] (highconcept.south)++(-10pt,0pt)-- ++(0pt,-60pt) -|(assets.north);
+				\draw [stealth-, line width=3pt] (highconcept.south)++(10pt,0pt)-- ++(0pt,-60pt) -|($(story.north west)!0.25!(story.north east)$);
+				\draw [-stealth, line width=3pt] (gameplay.west) -- ++(-30pt,0pt) |- (assets.east);
+				
+				
+				\tikzstyle{ChildrenBlocksStyle}=[block,line width=2pt,draw = BarkBlocksBorderColor, fill = BarkBlocksFillColor,text=BarkBlocksFontColor]
+				\fontsize{14pt}{17pt}\selectfont
+				%\fontsize{<size>}{<line space>}\selectfont
+				
+				%Gameplay - children
+				\node (gameplaybase) at (1100pt,-195pt) [ChildrenBlocksStyle,minimum width=80pt,minimum height=40pt] {\textbf{Base}};
+				\node (gameplayhighlight) at (1100pt,-270pt) [ChildrenBlocksStyle,minimum width=80pt,minimum height=40pt] {\textbf{Highlight}};
+				\node (gameplaytrend) at (1100pt,-345pt) [ChildrenBlocksStyle,minimum width=80pt,minimum height=40pt] {\textbf{Trend}};
+				\node (gameplayreward) at (1100pt,-420pt) [ChildrenBlocksStyle,minimum width=80pt,minimum height=40pt] {\textbf{Reward}};
+				%Technical Aspects - children
+				\node (taspaceaction) at (1170pt,-490pt) [ChildrenBlocksStyle,minimum width=160pt,minimum height=40pt] {\textbf{Space of Action}};
+				\node (taspaceposition) at (1170pt,-540pt) [ChildrenBlocksStyle,minimum width=160pt,minimum height=40pt] {\textbf{Space of Position}};
+				\node (taactionframe) at (1170pt,-590pt) [ChildrenBlocksStyle,minimum width=160pt,minimum height=40pt] {\textbf{Action/Frame}};
+				\node (tasupportedinput) at (1170pt,-660pt) [ChildrenBlocksStyle,minimum width=160pt,minimum height=70pt] {\textbf{Supported Input}};
+				%Story - children
+				\node (storyconflict) at (490pt,-500pt) [ChildrenBlocksStyle,minimum width=135pt,minimum height=75pt] {\textbf{Conflict Type}};
+				\node (storyplayerpos) at (490pt,-590pt) [ChildrenBlocksStyle,minimum width=135pt,minimum height=75pt] {\textbf{Player Position}};
+				\node (storynarrative) at (490pt,-680pt) [ChildrenBlocksStyle,minimum width=135pt,minimum height=75pt] {\textbf{Narrative}};
+				\node (storyimplications) at (490pt,-770pt) [ChildrenBlocksStyle,minimum width=135pt,minimum height=75pt] {\textbf{Implications}};
+				%Assets - children
+				\node (assetsaesthetic) at (385pt,-175pt) [ChildrenBlocksStyle,minimum width=150pt,minimum height=50pt] {\textbf{Aesthetic}};
+				\node (assetsgraphic) at (385pt,-260pt) [ChildrenBlocksStyle,minimum width=150pt,minimum height=50pt] {\textbf{Graphic Assets}};
+				\node (assetsother) at (385pt,-355pt) [ChildrenBlocksStyle,minimum width=150pt,minimum height=55pt, text width=140pt] {\textbf{Other Assets (music, fonts...)}};
+				%Marketing - children
+				\node (marketingselingpts) at (625pt,-865pt) [ChildrenBlocksStyle,minimum width=210pt,minimum height=40pt] {\textbf{Selling Points}};
+				\node (marketingcompetitors) at (845pt,-950pt) [ChildrenBlocksStyle,minimum width=210pt,minimum height=40pt] {\textbf{Competitors}};
+				\node (marketingtargetaudience) at (1000pt,-830pt) [ChildrenBlocksStyle,minimum width=210pt,minimum height=40pt] {\textbf{Target Audience}};
+				\node (marketingmainappeal) at (1000pt,-900pt) [ChildrenBlocksStyle,minimum width=210pt,minimum height=40pt] {\textbf{Main Appeal}};
+				
+				
+				%Arrows Marketing
+				\draw [-stealth, line width=2pt] (marketing.south) -- (marketingcompetitors.north);
+				\draw [-stealth, line width=2pt] (marketing.south) |- (marketingmainappeal.west);
+				\draw [-stealth, line width=2pt] (marketing.south) |- (marketingtargetaudience.west);
+				\draw [-stealth, line width=2pt] (marketing.south) |- (marketingselingpts.east);
+				
+				%Arrows Technical Aspects
+				\draw [-stealth, line width=2pt] (technicalaspects.east) -- ++(20pt,0pt) |- (taspaceaction.west);
+				\draw [-stealth, line width=2pt] (technicalaspects.east)  -- ++(20pt,0pt) |- (taspaceposition.west);
+				\draw [-stealth, line width=2pt] (technicalaspects.east)  -- ++(20pt,0pt) |- (taactionframe.west);
+				\draw [-stealth, line width=2pt] (technicalaspects.east) -- ++(20pt,0pt) |- (tasupportedinput.west);
+				
+				%Arrows Gameplay
+				\draw [-stealth, line width=2pt] (gameplay.east) -- ++(60pt,0pt) |- (gameplaybase.west);
+				\draw [-stealth, line width=2pt] (gameplay.east)  -- ++(60pt,0pt) |- (gameplayhighlight.west);
+				\draw [-stealth, line width=2pt] (gameplay.east)  -- ++(60pt,0pt) |- (gameplaytrend.west);
+				\draw [-stealth, line width=2pt] (gameplay.east) -- ++(60pt,0pt) |- (gameplayreward.west);
+				
+				%Arrows Story
+				\draw [-stealth, line width=2pt] (story.west) -- ++(-20pt,0pt) |- (storyconflict.east);
+				\draw [-stealth, line width=2pt] (story.west)  -- ++(-20pt,0pt) |- (storyplayerpos.east);
+				\draw [-stealth, line width=2pt] (story.west)  -- ++(-20pt,0pt) |- (storynarrative.east);
+				\draw [-stealth, line width=2pt] (story.west)  -- ++(-20pt,0pt) |- (storyimplications.east);
+				
+				%Arrows Assets
+				\draw [-stealth, line width=2pt] (assets.north)++(-20pt,0pt) |- (assetsaesthetic.east);
+				\draw [-stealth, line width=2pt] (assets.north)++(-20pt,0pt) |- (assetsgraphic.east);
+				\draw [-stealth, line width=2pt] (assets.north)++(-20pt,0pt) |- (assetsother.east);
+				
+				\tikzstyle{GCBlocksStyle}=[draw = LeafBlocksBorderColor ,fill = LeafBlocksFillColor,block,line width=1pt, align=center, text=LeafBlocksFontColor]
+				\fontsize{12pt}{15pt}\selectfont
+				
+				%Gameplay Chindren->Grandchildren arrows
+				\draw [-stealth, line width=2pt] (gameplaybase.east)-- ++(50pt,0pt)
+				node[right, GCBlocksStyle,minimum height = 60pt, minimum width = 300pt, text width = 290pt] 
+				{
+					Moving spacecrafts in its orbit. Bounce and elminate the protons.};
+				\draw [-stealth, line width=2pt] (gameplayhighlight.east)-- ++(50pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 60pt, minimum width = 300pt, text width = 290pt] 
+				{
+					Move spacecrafts. Avoid the proton from either escaping or colliding with earth. };
+				\draw [-stealth, line width=2pt] (gameplaytrend.east)-- ++(50pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 60pt, minimum width = 300pt, text width = 290pt] 
+				{
+					More proton will occur. Meanwhile, earth will be more difficult to protect.};
+				\draw [-stealth, line width=2pt] (gameplayreward.east)-- ++(50pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 60pt, minimum width = 300pt, text width = 290pt] 
+				{
+					Sense of honor because of protecting the galaxy. More spacecrafts available.};
+				
+				
+				%Techncail Aspects Chindren->Grandchildren arrows
+				\draw [-stealth, line width=2pt] (taspaceaction.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 200pt, text width = 190pt] 
+				{
+					2D};
+				\draw [-stealth, line width=2pt] (taspaceposition.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 200pt, text width = 190pt] 
+				{
+				0D};
+				\draw [-stealth, line width=2pt] (taactionframe.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 200pt, text width = 190pt]  
+				{
+					4};
+				\draw [-stealth, line width=2pt] (tasupportedinput.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 75pt, minimum width = 200pt, text width = 190pt] 
+				{
+					KeyBoard+Mouse};
+				
+				
+				%Marketing Chindren->Grandchildren arrows
+				\draw [-stealth, line width=2pt] (marketingtargetaudience.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 250pt, text width = 240pt] 
+				{
+					From Teens to Adults.};
+				\draw [-stealth, line width=2pt] (marketingmainappeal.east)-- ++(40pt,0pt) 
+				node[right, GCBlocksStyle,minimum height = 75pt, minimum width = 250pt, text width = 240pt] 
+				{
+					Attractive cosmic scene. Protect our hometown by driving spacecrafts};
+				\draw [-stealth, line width=2pt] (marketingcompetitors.south)|- ++(20pt,-30pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 250pt, text width = 240pt] 
+				{
+					3D Pinball};
+				\draw [-stealth, line width=2pt] (marketingcompetitors.south)|- ++(20pt,-80pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 250pt, text width = 240pt] 
+				{
+				    Missile Command};
+				\draw [-stealth, line width=2pt] (marketingcompetitors.south)|- ++(20pt,-130pt) 
+				node[right, GCBlocksStyle,minimum height = 40pt, minimum width = 250pt, text width = 240pt] 
+				{
+				    Breakout};
+				\draw [-stealth, line width=2pt] (marketingselingpts.south)-- ++(0pt,-50pt) 
+				node[below, GCBlocksStyle,minimum height = 185pt, minimum width = 210pt, text width = 200pt] 
+				{
+					\begin{itemize}
+                        \item 1 or 2 players supported.
+                        \item Fiercer war with level up.
+                        \item Experiencing an epic story.
+                        \item Innovative bouncing ball in a circular track.
+                    \end{itemize}
+				};
+				
+				
+				%Story Chindren->Grandchildren arrows
+				\draw [-stealth, line width=2pt] (storyconflict.west)-- ++(-50pt,0pt)
+				node[left, GCBlocksStyle,minimum height = 75pt, minimum width = 370pt, text width = 360pt] 
+				{
+					Man vs Nature};
+				\draw [-stealth, line width=2pt] (storyplayerpos.west)-- ++(-50pt,0pt) 
+				node[left, GCBlocksStyle,minimum height = 75pt, minimum width = 370pt, text width = 360pt] 
+				{
+					A soldier protecting all of the human beings.};
+				\draw [-stealth, line width=2pt] (storynarrative.west) -- ++(-20pt,0pt) |- ++(-30pt,-40pt) 
+				node[left, GCBlocksStyle,minimum height = 150pt, minimum width = 370pt, text width = 360pt] 
+				{
+					In 2077, the solar activity becomes more and more fierce. A kind of secret solar proton with extremely high temperature and speed is detected. In order to protect the solar system, people founded a  space fleet called Apollo. The player is one of the  team members, whose responsibility is to drive the spacecraft and prevent the proton from escaping from the defender area and hurting the galaxy besides the solor system.};
+				\draw [-stealth, line width=2pt] (storyimplications.west)-- ++(-20pt,0pt) |- ++(-30pt,-120pt) 
+				node[left, GCBlocksStyle,minimum height = 150pt, minimum width = 370pt, text width = 360pt] 
+				{
+					Tragically, player will not succeed but only seize higher score in the endless model. However, their courage and wisdom remain in history--that's the dignity of humankind.};
+				
+				
+				%Assets Chindren->Grandchildren arrows
+				\draw [-stealth, line width=2pt] (assetsaesthetic.west)-- ++(-50pt,0pt)
+				node[left, GCBlocksStyle,minimum height = 75pt, minimum width = 260pt, text width = 250pt] 
+				{
+					Simplistic and cartoon design};
+				\draw [-stealth, line width=2pt] (assetsgraphic.west)-- ++(-50pt,0pt) 
+				node[left, GCBlocksStyle,minimum height = 75pt, minimum width = 260pt, text width = 250pt]  
+				{
+					Designed by Ocean Cat Studio};
+				\draw [-stealth, line width=2pt] (assetsother.west)-- ++(-50pt,0pt)
+				node[left, GCBlocksStyle,minimum height = 75pt, minimum width = 260pt, text width = 250pt] 
+				{
+					Music: Free Space by Instupendo \\
+					Font: Traganus Roman by Goger White\\
+					Booklet: Ocean Cat Studio 
+				};
+				
+				
+				
+				%High Concept and Experience arrows
+				\draw [-stealth, line width=2pt] (highconcept.north)-- ++(0pt,25pt)-| ++(-370pt,35pt)
+				node[above, GCBlocksStyle,minimum height = 90pt, minimum width = 520pt, text width = 510pt] 
+				{
+					You are a young and brave soldier who takes the responsibility of protecting human's home--solar system. The the spacecraft is your best weapon to fight against a kind of secret but dangerous solar proton. In order to wipe them out, you need to operate the spacecraft to bounce the proton until its energy is completely assimilated by the sun.};
+				\draw [-stealth, line width=2pt] (experience.north)-- ++(0pt,25pt)  -| ++(390pt,35pt)
+				node[above, GCBlocksStyle,minimum height = 90pt, minimum width = 520pt, text width = 510pt] 
+				{
+					Being a cosmic solider to operate spacecrafts to prevent the solar protons from escaping into the galaxy and protect the solar system and the Earth. Free to bounce or carry the proton.};
+				
+		\end{tikzpicture}
+}
+
+\end{document}
