@@ -399,9 +399,7 @@ renderInfo model =
         , style "position" "absolute"
         , style "width" "23%"
         ]
-        [ text ("level: " ++ toString model.submodel.level)
-        , br [] []
-        , text ("isi: " ++ printp (getHeadProton model.proton))
+        [ text ("isi: " ++ printp (getHeadProton model.proton))
         , br [] []
         , text ("num" ++ toString (List.length model.spacecraft))
         , br [] []
@@ -421,16 +419,38 @@ renderLife model =
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "2%"
-        , style "left" "40%"
+        , style "left" "30%"
         , style "line-height" "30px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "23%"
+        , style "width" "40%"
         ]
         [
             text ("Remain chances: " ++ liveSymbol model.submodel.heart)
         ]
+
+renderLevel : Model -> Html Msg
+renderLevel model =
+    div
+        [ style "background" "#0e1f2f"
+        , style "border" "0"
+        , style "top" "2%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
+        , style "font-family" "Helvetica, Arial, sans-serif"
+        , style "font-size" "18px"
+        , style "font-weight" "300"
+        , style "height" "95%"
+        , style "left" "85%"
+        , style "line-height" "30px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "12%"
+        ]
+        [text ("level: " ++ toString model.submodel.level)]
 liveSymbol : Int -> String
 liveSymbol lives =
     case lives of
@@ -684,6 +704,7 @@ view model =
                     , renderGameButton_2 model.submodel.level
                     , renderInfo model
                     , renderLife model
+                    , renderLevel model
                     , renderChatBox model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
                     ]
