@@ -596,17 +596,37 @@ reinitProton seed inten list =
         _ :: xs ->
             let
                 ( proton, nseed ) =
-                    generateNewProton seed
+                    generateListOfProton seed (List.length list)
 
-                nproton =
-                    { proton | intensity = inten }
+                nproton = List.map (\x -> {x | intensity = inten}) proton
             in
-            ( nproton :: xs, nseed )
+            ( nproton, nseed )
 
         _ ->
             ( list, seed )
 
-
+generateListOfProton : Random.Seed -> Int -> ( List Proton, Random.Seed )
+generateListOfProton seed num =
+    let
+        (p1,s1) = generateNewProton seed
+        (p2,s2) = generateNewProton s1
+        (p3,s3) = generateNewProton s2
+        (p4,s4) = generateNewProton s3
+        (p5,s5) = generateNewProton s4
+    in
+        case num of
+            1 ->
+                ([p1], s1)
+            2 ->
+                ([p1, p2], s2)
+            3 ->
+                ([p1, p2, p3], s3)
+            4 ->
+                ([p1, p2, p3, p4], s4)
+            5 ->
+                ([p1, p2, p3, p4, p5], s5)
+            _ ->
+                ([p1], s5)
 
 
 generateNewProton : Random.Seed -> ( Proton, Random.Seed )
