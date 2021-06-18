@@ -77,7 +77,6 @@ updatespc msg ( model, cmd ) =
         Start ->
             ( { initial | submodel = { sbm | state = Playing }, size = model.size }, Cmd.none )
 
-
         EnterGame ->
             ( { initial | submodel = { sbm | state = Stopped }, size = model.size }, Cmd.none )
 
@@ -102,7 +101,9 @@ checkAddProton time model =
         let
             old_proton =
                 model.proton
-            otime = modBy 8000 (round time)
+
+            otime =
+                modBy 8000 (round time)
         in
         if otime >= 0 && otime <= 100 && round (time / 8000) == List.length model.proton && time > 200 then
             { model | proton = List.append old_proton initial.proton }
@@ -190,7 +191,7 @@ reinitModel level model =
 
             4 ->
                 { prototype
-                    | submodel = { prosbm | level = 4, state = Paused,text_num = 31 }
+                    | submodel = { prosbm | level = 4, state = Paused, text_num = 31 }
                     , spacecraft = addSpacecraft model.spacecraft
                     , proton = prototype.proton
                     , earth = { proEarth | pos = Point 700.0 700.0, show = Move, velocity = 0.01, radius = 200.0 }
@@ -211,6 +212,7 @@ checkfailed : Model -> Model
 checkfailed model =
     if model.submodel.heart <= 0 then
         model
+
     else
         List.foldr checkfailedInside model model.proton
 
@@ -276,12 +278,17 @@ earthangle angle velocity =
     angle + velocity
 
 
-checkoutearth : Model -> Model--check whether proton hit the earth
+checkoutearth :
+    Model
+    -> Model
 checkoutearth model =
     List.foldr checkoutearthInside model model.proton
 
 
-checkoutearthInside : Proton -> Model -> Model--?
+checkoutearthInside :
+    Proton
+    -> Model
+    -> Model --?
 checkoutearthInside proton model =
     let
         posp =
@@ -308,16 +315,22 @@ loseheart model =
     let
         sbm =
             model.submodel
-        opr = 
+
+        opr =
             model.proton |> List.head |> Maybe.withDefault (Proton (Point 300 300) 0.6 7.5 2.0 6)
 
-        heart_ = sbm.heart - 1
-        ( nproton, nseed) = reinitProton model.seed opr.intensity model.proton
+        heart_ =
+            sbm.heart - 1
+
+        ( nproton, nseed ) =
+            reinitProton model.seed opr.intensity model.proton
     in
-    { model | submodel = { sbm | heart = heart_ , state = Paused, text_num = changeIndexToNewOne sbm.text_num 3} 
-            , proton = nproton 
-            , seed = nseed
+    { model
+        | submodel = { sbm | heart = heart_, state = Paused, text_num = changeIndexToNewOne sbm.text_num 3 }
+        , proton = nproton
+        , seed = nseed
     }
+
 
 protonbounce : Model -> Model
 protonbounce model =
@@ -329,7 +342,8 @@ protonbounce model =
 checkoutsun : Model -> Model
 checkoutsun model =
     let
-        olddir = getdirfromproton model.proton
+        olddir =
+            getdirfromproton model.proton
     in
     { model | proton = List.map (checkoutsunInside model) model.proton }
         |> changescore olddir
@@ -424,7 +438,6 @@ renewProntonDirInside spacecraft proton =
         field =
             tan -an |> atan
 
-        --spacecraft的范围,确保在-pi到pi之间
         special =
             atan ((proton.pos.y - originY) / (proton.pos.x - originX))
 
@@ -443,15 +456,11 @@ renewProntonDirInside spacecraft proton =
         ( a2, b2, c2 ) =
             getLine rightwing spacecraft.angle
 
-        --得到spacecraft所在重心的那条切线，以ax+by+c=0的形式，记为l1
         d1 =
             dotLineDistance proton.pos a1 b1 c1
 
         d2 =
             dotLineDistance proton.pos a2 b2 c2
-
-        --proton圆心到l1的距离
-        --极限距离：proton半径+半个spacecraft厚度
     in
     if special <= field + availableScale + 0.05 && special >= field - availableScale - 0.05 && (d1 <= proton.radius || d2 <= proton.radius) then
         let
@@ -591,7 +600,6 @@ reinitProton seed inten list =
 
                 nproton =
                     { proton | intensity = inten }
-
             in
             ( nproton :: xs, nseed )
 
@@ -600,8 +608,6 @@ reinitProton seed inten list =
 
 
 
---这里是proton的库
-
 
 generateNewProton : Random.Seed -> ( Proton, Random.Seed )
 generateNewProton seed =
@@ -609,8 +615,8 @@ generateNewProton seed =
         ( index, nseed ) =
             Random.step (Random.int 1 7) seed
 
-        protonBox = 
-            [ Proton (Point 300 300) 0.2 7.5 2.0 5 --need to be improved
+        protonBox =
+            [ Proton (Point 300 300) 0.2 7.5 2.0 5
             , Proton (Point 300 500) -1 10 2.0 8
             , Proton (Point 400 200) 1.5 8 1.5 5
             , Proton (Point 700 700) -1.9 8.5 1.5 5

@@ -283,7 +283,7 @@ renderGameButton_3 state textIndex =
         , style "background-color" "Transparent"
         , onClick (ChangeText textIndex 0)
         ]
-        [ ]
+        []
 
 
 drawEarth : Int -> Earth -> List (Svg msg)
@@ -350,8 +350,6 @@ drawEarth level earth =
     ]
 
 
-
-
 renderChatBox : Model -> Html Msg
 renderChatBox model =
     div
@@ -393,6 +391,7 @@ renderChatBox model =
             ]
         ]
 
+
 renderChat : Model -> Html Msg
 renderChat model =
     div
@@ -414,7 +413,8 @@ renderChat model =
         , style "color" "White"
         , style "margin" "4% 5% 4% 5%"
         ]
-        [text (showText model.submodel.text_num)]
+        [ text (showText model.submodel.text_num) ]
+
 
 renderInfo : Model -> Html Msg
 renderInfo model =
@@ -511,10 +511,6 @@ renderAudio url =
         , loop True
         ]
         [ text "error" ]
-
-
-
-
 
 
 renderLogo : List (Html Msg)
@@ -676,7 +672,7 @@ view model =
                         ++ List.concat (List.map drawproton model.proton)
                     )
                 , div
-                    [ HtmlAttr.style "width" "100%" 
+                    [ HtmlAttr.style "width" "100%"
                     , HtmlAttr.style "height" "100%"
                     , HtmlAttr.style "position" "absolute"
                     , HtmlAttr.style "left" "0"

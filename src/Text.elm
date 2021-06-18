@@ -2,102 +2,189 @@ module Text exposing (changeIndexToNewOne, showText, textBase)
 
 import Maybe exposing (withDefault)
 
---大致思路：用一个函数完成文本之间的显示转换，输入当前界面和转换值，输出相应的部分
 
 type alias Text =
     { index : Int
-    , content : String 
+    , content : String
     }
+
 
 showText : Int -> String
 showText ind =
     let
-        target = (List.filter (\x -> x.index == ind) textBase) 
-                    |> List.head 
-                    |> withDefault (Text -99 "a")
-        
+        target =
+            List.filter (\x -> x.index == ind) textBase
+                |> List.head
+                |> withDefault (Text -99 "a")
     in
-        target.content
+    target.content
+
 
 trigue4 : Int -> Int -> Int -> Int -> Int -> Int
-trigue4 trigue a b c d=
+trigue4 trigue a b c d =
     case trigue of
-        1 -> a
-        2 -> b
-        4 -> d
-        _ -> c
+        1 ->
+            a
 
-trigue5 : Int -> Int ->Int -> Int -> Int -> Int -> Int
-trigue5 trigue a b c d e=
+        2 ->
+            b
+
+        4 ->
+            d
+
+        _ ->
+            c
+
+
+trigue5 : Int -> Int -> Int -> Int -> Int -> Int -> Int
+trigue5 trigue a b c d e =
     case trigue of
-        1 -> a
-        2 -> b
-        3 -> c
-        4 -> e
-        _ -> d
+        1 ->
+            a
+
+        2 ->
+            b
+
+        3 ->
+            c
+
+        4 ->
+            e
+
+        _ ->
+            d
 
 
 changeIndexToNewOne : Int -> Int -> Int
 changeIndexToNewOne old trigue =
---trigue 的话，摁button时候就是0，输了时候调用就是2，赢了是1
     if trigue == -99 then
         old
+
     else
-    case old of
-        0 -> 
-            trigue4 trigue 11 6 1 8
-        1 -> trigue4 trigue 11 6 2 8
-        2 -> trigue4 trigue 11 6 3 8
-        3 -> trigue4 trigue 11 6 4 8
-        4 -> trigue4 trigue 11 6 5 8
-        5 ->
-            trigue4 trigue 11 6 7 8
-        6 -> 
-            trigue4 trigue 11 6 7 8
-        7 -> trigue4 trigue 11 6 7 8
-        8 -> trigue4 trigue 11 6 7 8
-        11 -> trigue5 trigue 21 17 19 12 20
-        12 -> trigue5 trigue 21 17 19 13 20
-        13 -> trigue5 trigue 21 17 19 14 20
-        14 -> trigue5 trigue 21 17 19 15 20
-        15 -> trigue5 trigue 21 17 19 16 20
-        16 -> trigue5 trigue 21 17 19 18 20
-        17 -> trigue5 trigue 21 17 19 18 20
-        18 -> trigue5 trigue 21 17 19 18 20
-        19 -> trigue5 trigue 21 17 19 18 20
-        20 -> trigue5 trigue 21 17 19 18 20
-        21 -> trigue5 trigue 31 24 26 22 28
-        22 -> trigue5 trigue 31 24 26 23 28
-        23 -> trigue5 trigue 31 24 26 25 28
-        24 -> trigue5 trigue 31 24 26 25 28
-        25 -> trigue5 trigue 31 24 26 25 28
-        26 -> trigue5 trigue 31 24 26 25 28
-        28 -> trigue5 trigue 31 24 26 25 28
-        27 -> trigue5 trigue 40 36 27 41 28
-        31 -> trigue5 trigue 40 36 27 32 42
-        32 -> trigue5 trigue 40 36 27 33 42
-        33 -> trigue5 trigue 40 36 27 34 42
-        34 -> trigue5 trigue 40 36 27 35 42
-        35 -> trigue5 trigue 40 36 27 41 42
-        41 -> trigue5 trigue 40 36 27 41 42
-        42 -> trigue5 trigue 40 36 27 41 42
-        36 -> 37
-        37 -> 38
-        38 -> 39
-        39 -> 40
-        40 -> 40
-        _ -> 0
+        case old of
+            0 ->
+                trigue4 trigue 11 6 1 8
 
+            1 ->
+                trigue4 trigue 11 6 2 8
 
+            2 ->
+                trigue4 trigue 11 6 3 8
 
+            3 ->
+                trigue4 trigue 11 6 4 8
 
-        
-            
+            4 ->
+                trigue4 trigue 11 6 5 8
 
+            5 ->
+                trigue4 trigue 11 6 7 8
+
+            6 ->
+                trigue4 trigue 11 6 7 8
+
+            7 ->
+                trigue4 trigue 11 6 7 8
+
+            8 ->
+                trigue4 trigue 11 6 7 8
+
+            11 ->
+                trigue5 trigue 21 17 19 12 20
+
+            12 ->
+                trigue5 trigue 21 17 19 13 20
+
+            13 ->
+                trigue5 trigue 21 17 19 14 20
+
+            14 ->
+                trigue5 trigue 21 17 19 15 20
+
+            15 ->
+                trigue5 trigue 21 17 19 16 20
+
+            16 ->
+                trigue5 trigue 21 17 19 18 20
+
+            17 ->
+                trigue5 trigue 21 17 19 18 20
+
+            18 ->
+                trigue5 trigue 21 17 19 18 20
+
+            19 ->
+                trigue5 trigue 21 17 19 18 20
+
+            20 ->
+                trigue5 trigue 21 17 19 18 20
+
+            21 ->
+                trigue5 trigue 31 24 26 22 28
+
+            22 ->
+                trigue5 trigue 31 24 26 23 28
+
+            23 ->
+                trigue5 trigue 31 24 26 25 28
+
+            24 ->
+                trigue5 trigue 31 24 26 25 28
+
+            25 ->
+                trigue5 trigue 31 24 26 25 28
+
+            26 ->
+                trigue5 trigue 31 24 26 25 28
+
+            28 ->
+                trigue5 trigue 31 24 26 25 28
+
+            27 ->
+                trigue5 trigue 40 36 27 41 28
+
+            31 ->
+                trigue5 trigue 40 36 27 32 42
+
+            32 ->
+                trigue5 trigue 40 36 27 33 42
+
+            33 ->
+                trigue5 trigue 40 36 27 34 42
+
+            34 ->
+                trigue5 trigue 40 36 27 35 42
+
+            35 ->
+                trigue5 trigue 40 36 27 41 42
+
+            41 ->
+                trigue5 trigue 40 36 27 41 42
+
+            42 ->
+                trigue5 trigue 40 36 27 41 42
+
+            36 ->
+                37
+
+            37 ->
+                38
+
+            38 ->
+                39
+
+            39 ->
+                40
+
+            40 ->
+                40
+
+            _ ->
+                0
 
 
 textBase : List Text
-textBase = 
+textBase =
     [ Text 0 "Apollo, by Ocean Cat Studio-Default"
     , Text 1 "In 2077, people have occupied most area of the solar system. A huge interplanetary empire has been established. You, one of the freshmen in the most powerful space fleet of the empire, when something strange happened."
     , Text 2 "A kind of secret particle ejected by the sun, started to attack the world with its high speed and high temperature. Your team is assigned to drive the firmest spacecraft, Apollo, to protect everything in the world."
@@ -122,8 +209,8 @@ textBase =
     , Text 23 "Another bad news is that, the latest Apollo seems to have some fault: the function of geostationary orbit broke out, and the Earth start to rotate. So, good luck, my child!"
     , Text 24 "This time you failed, and you will come back to the beginning of this war. (Press Resume to restart this level)"
     , Text 25 "Apollo, by Ocean Cat Studio\n--Level 3"
-    , Text 26 "Bad news! The proton hit the earth, and everything will remake. (Press Resume to restart this level)"--level 3
-    , Text 27 "Bad news! The proton hit the earth, and everything will remake. (Press Resume to restart this level)"--4
+    , Text 26 "Bad news! The proton hit the earth, and everything will remake. (Press Resume to restart this level)" --level 3
+    , Text 27 "Bad news! The proton hit the earth, and everything will remake. (Press Resume to restart this level)" --4
     , Text 28 "Oh no, the spacecraft escaped successfully! You lose one chance! (Press Resume to continue)"
     , Text 31 "Dear son: \nIt’s my last message."
     , Text 32 "You may not hear that, our empire has decided to escape from the sun, from our home to somewhere very remote."
