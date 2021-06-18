@@ -594,7 +594,6 @@ reinitProton seed inten list =
                 nproton =
                     { proton | intensity = inten }
 
-                --从proton的库里随机选一个proton，然后继承原本的intensity,回头写
             in
             ( nproton :: xs, nseed )
 
@@ -610,13 +609,12 @@ generateNewProton : Random.Seed -> ( Proton, Random.Seed )
 generateNewProton seed =
     let
         ( index, nseed ) =
-            Random.step (Random.int 1 4) seed
+            Random.step (Random.int 1 7) seed
 
         protonBox =
             [ Proton (Point 300 300) 0.2 7.5 2.0 5 --need to be improved
             , Proton (Point 300 500) -1 10 2.0 8
             , Proton (Point 400 200) 1.5 8 1.5 5
-            , Proton (Point 600 200) -1 10 2.0 5
             , Proton (Point 700 300) -2.0 9.5 2.0 5
             , Proton (Point 700 700) 2.0 8.5 1.5 5
             , Proton (Point 400 300) 1.3 10 2.0 5
