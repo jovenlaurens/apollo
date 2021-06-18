@@ -259,17 +259,18 @@ renderGameButton_2 level =
 renderGameButton_3 : State -> Int -> Html Msg
 renderGameButton_3 state textIndex =
     button
-        [ style "background" "#34495f"
-        , style "position" "absolute"
-        , style "top" "89%"
+        [ style "position" "absolute"
+        , style "top" "50%"
         , style "left" "5%"
-        , style "color" "#fff"
+        , style "height" "45%"
+        , style "width" "90%"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskervillef"
         , style "font-size" "4%"
-        , style "height" "6%"
-        , style "width" "10%"
+        , style "background-color" "Transparent"
+        , style "outline" "none"
+        , style "padding" "0"
         , style "display"
             (if state == Playing then
                 "none"
@@ -279,7 +280,7 @@ renderGameButton_3 state textIndex =
             )
         , onClick (ChangeText textIndex 0)
         ]
-        [ text "Next" ]
+        [ ]
 
 
 drawEarth : Int -> Earth -> List (Svg msg)
@@ -347,10 +348,6 @@ drawEarth level earth =
 
 
 
---<rect x="50" y="20" rx="20" ry="20" width="150" height="150"
---style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;
---stroke-opacity:0.9
-
 
 renderChatBox : Model -> Html Msg
 renderChatBox model =
@@ -359,6 +356,8 @@ renderChatBox model =
         , style "position" "absolute"
         , style "top" "50%"
         , style "left" "5%"
+        , style "height" "45%"
+        , style "width" "90%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display"
@@ -370,8 +369,6 @@ renderChatBox model =
             )
         , style "font-family" "Baskerville"
         , style "font-size" "2em"
-        , style "height" "45%"
-        , style "width" "90%"
         ]
         [ text (showText model.submodel.text_num) ]
 
@@ -473,78 +470,8 @@ renderAudio url =
         [ text "error" ]
 
 
-renderGameButton : String -> Html Msg
-renderGameButton txt =
-    button
-        [ style "background" "#34495f"
-        , style "border" "0"
-        , style "bottom" "0"
-        , style "color" "#fff"
-        , style "cursor" "pointer"
-        , style "display" "block"
-        , style "font-family" "Baskerville"
-        , style "font-size" "18px"
-        , style "font-weight" "300"
-        , style "height" "60px"
-        , style "line-height" "60px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "width" "120px"
-        , style "position" "relative"
-        , style "left" "440px"
-        , style "top" "200px"
-        , style "margin" "30px 0 0"
-        , onClick EnterGame
-        ]
-        [ text txt ]
 
 
-renderCover : Model -> Html Msg
-renderCover model =
-    div
-        [ HtmlAttr.style "width" "100%"
-        , HtmlAttr.style "height" "100%"
-        , HtmlAttr.style "position" "absolute"
-        , HtmlAttr.style "left" "0"
-        , HtmlAttr.style "top" "0"
-        , HtmlAttr.style "background-image" "url('assets/Cover.png')"
-        , HtmlAttr.style "background-size" "cover"
-        ]
-        [ button
-            [ style "background" "#34495f"
-            , style "border" "0"
-            , style "bottom" "40%"
-            , style "color" "#fff"
-            , style "cursor" "pointer"
-            , style "display" "block"
-            , style "font-family" "Baskerville"
-            , style "font-size" "18px"
-            , style "font-weight" "300"
-            , style "height" "12.5%"
-            , style "left" "17%"
-            , style "line-height" "60px"
-            , style "outline" "none"
-            , style "padding" "0"
-            , style "position" "absolute"
-            , style "width" "12.7%"
-            , style "background-color" "#564d7c"
-            , onClick PlayInterval
-            ]
-            []
-        ]
-
-
-renderTitle : String -> Html Msg
-renderTitle txt =
-    div
-        [ style "color" "white"
-        , style "font-size" "100px"
-        , style "line-height" "60px"
-        , style "margin" "30px 0 0"
-        , style "top" "100px"
-        , style "position" "relative"
-        ]
-        [ text txt ]
 
 
 renderLogo : List (Html Msg)
