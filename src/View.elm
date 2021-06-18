@@ -410,7 +410,7 @@ renderChat model =
                 "block"
             )
         , style "font-family" "Baskerville"
-        , style "font-size" "1.8em"
+        , style "font-size" "1.5em"
         , style "color" "White"
         , style "margin" "4% 5% 4% 5%"
         ]
