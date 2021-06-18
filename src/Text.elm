@@ -185,7 +185,7 @@ changeIndexToNewOne old trigue =
 
 textBase : List Text
 textBase =
-    [ Text 0 "Apollo, by Ocean Cat Studio-Default"
+    [ Text 0 "Welcome to Apollo! This is a story in the future, in everyone's mind."
     , Text 1 "In 2077, people have occupied most area of the solar system. A huge interplanetary empire has been established. You, one of the freshmen in the most powerful space fleet of the empire, when something strange happened."
     , Text 2 "A kind of secret particle ejected by the sun, started to attack the world with its high speed and high temperature. Your team is assigned to drive the firmest spacecraft, Apollo, to protect everything in the world."
     , Text 3 "By pressing the <- or -> on the keyboard, Apollo will turn anticlockwise or clockwise around the track. It can make the particle bounce back into the inner area, bounce back, again and again. "
@@ -219,7 +219,7 @@ textBase =
     , Text 35 "It’s hard to survive, but you must stay here, for everyone, for your heart and soul."
     , Text 36 "Welcome back, my child."
     , Text 37 "Your mission has been completed."
-    , Text 38 "Congratulations! "
+    , Text 38 "Congratulations! Most people have succeeded in leaving the solar system and trying to find a new homeland, except you."
     , Text 39 "Your will live in our mind."
     , Text 40 "Made by Ocean Cat Studio \n Team member: Tingting Ding. Xu He. JOVEN LAURENS NICHOLAS,Yuewen Hou \n (Press Resume to restart this level)  "
     , Text 41 "Apollo, by Ocean Cat Studio\n--Level 4"
