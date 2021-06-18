@@ -221,17 +221,17 @@ renderGameButton_1 state =
                     ( "New game", Start )
     in
     button
-        [ style "background" "#34495f"
-        , style "position" "absolute"
+        [ style "position" "absolute"
         , style "top" "2%"
         , style "left" "2%"
+        , style "height" "6%"
+        , style "width" "10%"
+        , style "background" "#34495f"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskerville"
         , style "font-size" "4%"
-        , style "height" "6%"
-        , style "width" "10%"
         , onClick msg
         ]
         [ text txt ]
@@ -268,7 +268,6 @@ renderGameButton_3 state textIndex =
         , style "display" "block"
         , style "font-family" "Baskervillef"
         , style "font-size" "4%"
-        , style "background-color" "Transparent"
         , style "outline" "none"
         , style "padding" "0"
         , style "display"
@@ -278,6 +277,7 @@ renderGameButton_3 state textIndex =
              else
                 "block"
             )
+        , style "background-color" "Transparent"
         , onClick (ChangeText textIndex 0)
         ]
         [ ]
@@ -352,13 +352,11 @@ drawEarth level earth =
 renderChatBox : Model -> Html Msg
 renderChatBox model =
     div
-        [ style "background" "#34495f"
-        , style "position" "absolute"
+        [ style "position" "absolute"
         , style "top" "50%"
         , style "left" "5%"
         , style "height" "45%"
         , style "width" "90%"
-        , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display"
             (if model.submodel.state == Playing then
@@ -370,8 +368,49 @@ renderChatBox model =
         , style "font-family" "Baskerville"
         , style "font-size" "2em"
         ]
-        [ text (showText model.submodel.text_num) ]
+        [ Svg.svg
+            [ SvgAttr.width "100%"
+            , SvgAttr.height "100%"
+            ]
+            [ Svg.rect
+                [ SvgAttr.width "95%"
+                , SvgAttr.height "95%"
+                , SvgAttr.x "2.5%"
+                , SvgAttr.y "2.5%"
+                , SvgAttr.fill "#34495f"
+                , SvgAttr.fillOpacity "0.7"
+                , SvgAttr.stroke "white"
+                , SvgAttr.strokeWidth "1%"
+                , SvgAttr.rx "10%"
+                , SvgAttr.ry "10%"
+                , SvgAttr.strokeDasharray "10 10"
+                ]
+                []
+            ]
+        ]
 
+renderChat : Model -> Html Msg
+renderChat model =
+    div
+        [ style "position" "absolute"
+        , style "top" "50%"
+        , style "left" "5%"
+        , style "height" "45%"
+        , style "width" "82%"
+        , style "cursor" "pointer"
+        , style "display"
+            (if model.submodel.state == Playing then
+                "none"
+
+             else
+                "block"
+            )
+        , style "font-family" "Baskerville"
+        , style "font-size" "1.8em"
+        , style "color" "White"
+        , style "margin" "4% 5% 4% 5%"
+        ]
+        [text (showText model.submodel.text_num)]
 
 renderInfo : Model -> Html Msg
 renderInfo model =
@@ -402,7 +441,7 @@ renderLevel model =
     div
         [ style "background" "0e1f2f"
         , style "border" "0"
-        , style "top" "8%"
+        , style "top" "3%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
@@ -645,6 +684,7 @@ view model =
                     , renderLife model
                     , renderLevel model
                     , renderChatBox model
+                    , renderChat model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
                     ]
                 , renderAudio "assets/Bgm.mp3"
