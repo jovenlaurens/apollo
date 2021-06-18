@@ -577,7 +577,7 @@ renderLogo =
         , style "padding" "0"
         , style "position" "absolute"
         , style "width" "12.7%"
-        , style "background-color" "#564d7c"
+        , style "background-color" "Transparent"
         , onClick PlayInterval
         ]
         []
@@ -706,7 +706,7 @@ view model =
                         ++ List.concat (List.map drawproton model.proton)
                     )
                 , div
-                    [ HtmlAttr.style "width" "100%" --how to adjust here?
+                    [ HtmlAttr.style "width" "100%" 
                     , HtmlAttr.style "height" "100%"
                     , HtmlAttr.style "position" "absolute"
                     , HtmlAttr.style "left" "0"
