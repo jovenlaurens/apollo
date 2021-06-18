@@ -360,7 +360,6 @@ renderChatBox model =
         , style "width" "90%"
         , style "color" "#fff"
         , style "cursor" "pointer"
-        , 
         , style "display"
             (if model.submodel.state == Playing then
                 "none"
