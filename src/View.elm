@@ -12,6 +12,128 @@ import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Text exposing (showText)
 
+view : Model -> Html Msg
+view model =
+    div
+        [ style "width" "100%"
+        , style "height" "100%"
+        , style "position" "absolute"
+        , style "left" "0"
+        , style "top" "0"
+        , style "background-color"
+            (case model.submodel.state of
+                Cover ->
+                    "#564d7c"
+
+                Interval ->
+                    "black"
+
+                _ ->
+                    "#0e1f2f"
+            )
+        ]
+        [ let
+            st =
+                model.submodel.state
+          in
+          if st == Cover || st == Interval then
+            let
+                ( w, h ) =
+                    model.size
+
+                ( wid, het ) =
+                    if (2 / 3 * w) >= h then
+                        ( 1.5 * h, h )
+
+                    else
+                        ( w, 2 / 3 * w )
+
+                ( lef, to ) =
+                    if (2 / 3 * w) >= h then
+                        ( 0.5 * (w - wid), 0 )
+
+                    else
+                        ( 0, 0.5 * (h - het) )
+            in
+            div
+                [ style "width" (String.fromFloat wid ++ "px")
+                , style "height" (String.fromFloat het ++ "px")
+                , style "position" "absolute"
+                , style "left" (String.fromFloat lef ++ "px")
+                , style "top" (String.fromFloat to ++ "px")
+                ]
+                (if st == Cover then
+                    renderLogo
+
+                 else
+                    renderInterval
+                )
+
+          else
+            let
+                ( w, h ) =
+                    model.size
+
+                line =
+                    Basics.min w h
+
+                max_ =
+                    Basics.max w h
+
+                left =
+                    if w > h then
+                        0.5 * (max_ - line)
+
+                    else
+                        0
+
+                top =
+                    if w > h then
+                        0
+
+                    else
+                        0.5 * (max_ - line)
+
+            in
+            div
+                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
+                , HtmlAttr.style "height" (String.fromFloat line ++ "px")
+                , HtmlAttr.style "position" "absolute"
+                , HtmlAttr.style "left" (String.fromFloat left ++ "px")
+                , HtmlAttr.style "top" (String.fromFloat top ++ "px")
+                , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
+                ]
+                [ Svg.svg
+                    [ SvgAttr.width "100%"
+                    , SvgAttr.height "100%"
+                    , SvgAttr.viewBox "0 0 1000 1000"
+                    ]
+                    (drawTrack
+                        ++ drawSun model.sun
+                        ++ drawSpacecraft model.spacecraft
+                        ++ drawEarth model.submodel.level model.earth
+                        ++ List.concat (List.map drawproton model.proton)
+                    )
+                , div
+                    [ HtmlAttr.style "width" "100%"
+                    , HtmlAttr.style "height" "100%"
+                    , HtmlAttr.style "position" "absolute"
+                    , HtmlAttr.style "left" "0"
+                    , HtmlAttr.style "top" "0"
+                    ]
+                    [ renderGameButton_1 model.submodel.state
+                    , renderGameButton_2 model.submodel.level
+                    , renderInfo model
+                    , renderLife model
+                    , renderLevel model
+                    , renderChatBox model
+                    , renderChat model
+                    , renderGameButton_3 model.submodel.state model.submodel.text_num
+                    ]
+                , renderAudio "assets/Bgm.mp3"
+                ]
+        ]
+
 
 drawSpacecraft : List Spacecraft -> List (Svg msg)
 drawSpacecraft spacecraft =
@@ -231,7 +353,7 @@ renderGameButton_1 state =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "100%"
+        , style "font-size" "4%"
         , style "border" "none"
         , onClick msg
         ]
@@ -249,7 +371,7 @@ renderGameButton_2 level =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "100%"
+        , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
         , style "border" "none"
@@ -269,7 +391,7 @@ renderGameButton_3 state textIndex =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskervillef"
-        , style "font-size" "100%"
+        , style "font-size" "4%"
         , style "outline" "none"
         , style "padding" "0"
         , style "border" "none"
@@ -396,7 +518,6 @@ renderChat : Model -> Html Msg
 renderChat model =
     div
         [ style "position" "absolute"
-        , style "font-family" "Baskerville"
         , style "top" "50%"
         , style "left" "5%"
         , style "height" "45%"
@@ -417,95 +538,91 @@ renderChat model =
         [ text (showText model.submodel.text_num) ]
 
 
-renderLevel : String -> Html Msg
-renderLevel txt =
+renderInfo : Model -> Html Msg
+renderInfo model =
     div
-        [ style "color" "#fff"
+        [ style "background" "#0e1f2f"
+        , style "border" "0"
+        , style "top" "2%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
         , style "font-family" "Baskerville"
+        , style "font-size" "1.5em"
         , style "font-weight" "300"
-        , style "line-height" "1"
-        , style "margin" "30px 0 0"
-        , style "left" "47%"
-        , style "top" "0%"
+        , style "height" "18%"
+        , style "left" "65%"
+        , style "line-height" "40px"
+        , style "outline" "none"
+        , style "padding" "0"
         , style "position" "absolute"
-        , style "font-size" "35px"
+        , style "width" "22%"
         ]
-        [ text txt
+        [ text ("Score: " ++ toString model.submodel.score)
         ]
 
 
-renderLvl : Int -> Html Msg
-renderLvl n =
+renderLevel : Model -> Html Msg
+renderLevel model =
     div
-        [ style "color" "#de3337"
+        [ style "background" "0e1f2f"
+        , style "border" "0"
+        , style "top" "2%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "30px"
-        , style "line-height" "1"
-        , style "margin" "5px 0 0"
-        , style "top" "6%"
-        , style "left" "50%"
-        , style "position" "absolute"
-        , style "font-size" "45px"
-        ]
-        [ text (String.fromInt n) ]
-
-
-renderLabel : String -> Html Msg
-renderLabel txt =
-    div
-        [ style "color" "#fff"
-        , style "font-family" "Baskerville"
+        , style "font-size" "1.5em"
         , style "font-weight" "300"
-        , style "line-height" "1"
-        , style "margin" "30px 0 0"
-        , style "left" "88%"
-        , style "position" "relative"
-        , style "font-size" "35px"
+        , style "height" "18%"
+        , style "left" "40%"
+        , style "line-height" "40px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "15%"
         ]
-        [ text txt ]
+        [ text ("Level:" ++ " " ++ toString model.submodel.level)
+        ]
 
 
-renderCount : Int -> Html Msg
-renderCount n =
+renderLife : Model -> Html Msg
+renderLife model =
     div
-        [ style "color" "#de3337"
+        [ style "background" "#0e1f2f"
+        , style "border" "0"
+        , style "top" "7%"
+        , style "color" "#fff"
+        , style "cursor" "pointer"
+        , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "35px"
-        , style "line-height" "1"
-        , style "margin" "5px 0 0"
-        , style "left" "88%"
-        , style "position" "relative"
+        , style "font-size" "1.5em"
+        , style "font-weight" "300"
+        , style "height" "2%"
+        , style "left" "65%"
+        , style "line-height" "40px"
+        , style "outline" "none"
+        , style "padding" "0"
+        , style "position" "absolute"
+        , style "width" "23%"
         ]
-        [ text (String.fromInt n) ]
+        [ text ("Lifes:" ++ liveSymbol model.submodel.heart) ]
 
 
-renderLive : Int -> Html Msg
-renderLive lives =
-    let
-        health =
-            case lives of
-                3 ->
-                    "❤❤❤"
+liveSymbol : Int -> String
+liveSymbol lives =
+    case lives of
+        3 ->
+            "❤❤❤"
 
-                2 ->
-                    "❤❤"
+        2 ->
+            "❤❤"
 
-                1 ->
-                    "❤"
+        1 ->
+            "❤"
 
-                _ ->
-                    ""
-    in
-    div
-        [ style "color" "#de3337"
-        , style "font-family" "Baskerville"
-        , style "font-size" "35px"
-        , style "line-height" "1"
-        , style "margin" "5px 0 0"
-        , style "left" "88%"
-        , style "position" "relative"
-        ]
-        [ text health ]
+        _ ->
+            ""
 
 
 renderAudio : String -> Html Msg
@@ -571,129 +688,3 @@ renderInterval =
     ]
 
 
-view : Model -> Html Msg
-view model =
-    div
-        [ style "width" "100%"
-        , style "height" "100%"
-        , style "position" "absolute"
-        , style "left" "0"
-        , style "top" "0"
-        , style "background-color"
-            (case model.submodel.state of
-                Cover ->
-                    "#56497b"
-
-                Interval ->
-                    "black"
-
-                _ ->
-                    "#0e1f2f"
-            )
-        ]
-        [ let
-            st =
-                model.submodel.state
-          in
-          if st == Cover || st == Interval then
-            let
-                ( w, h ) =
-                    model.size
-
-                ( wid, het ) =
-                    if (2 / 3 * w) >= h then
-                        ( 1.5 * h, h )
-
-                    else
-                        ( w, 2 / 3 * w )
-
-                ( lef, to ) =
-                    if (2 / 3 * w) >= h then
-                        ( 0.5 * (w - wid), 0 )
-
-                    else
-                        ( 0, 0.5 * (h - het) )
-            in
-            div
-                [ style "width" (String.fromFloat wid ++ "px")
-                , style "height" (String.fromFloat het ++ "px")
-                , style "position" "absolute"
-                , style "left" (String.fromFloat lef ++ "px")
-                , style "top" (String.fromFloat to ++ "px")
-                ]
-                (if st == Cover then
-                    renderLogo
-
-                 else
-                    renderInterval
-                )
-
-          else
-            let
-                ( w, h ) =
-                    model.size
-
-                line =
-                    Basics.min w h
-
-                max_ =
-                    Basics.max w h
-
-                left =
-                    if w > h then
-                        0.5 * (max_ - line)
-
-                    else
-                        0
-
-                top =
-                    if w > h then
-                        0
-
-                    else
-                        0.5 * (max_ - line)
-
-                --窗口的大小
-                --取到了最小的那个，能显示出全部
-            in
-            div
-                [ HtmlAttr.style "width" (String.fromFloat line ++ "px") --how to adjust here?
-                , HtmlAttr.style "height" (String.fromFloat line ++ "px")
-                , HtmlAttr.style "position" "absolute"
-                , HtmlAttr.style "left" (String.fromFloat left ++ "px")
-                , HtmlAttr.style "top" (String.fromFloat top ++ "px")
-                , HtmlAttr.style "background-image" "url('assets/Background.jpg')"
-                ]
-                [ Svg.svg
-                    [ SvgAttr.width "100%"
-                    , SvgAttr.height "100%"
-                    , SvgAttr.viewBox "0 0 1000 1000"
-                    ]
-                    (drawTrack
-                        ++ drawSun model.sun
-                        ++ drawSpacecraft model.spacecraft
-                        ++ drawEarth model.submodel.level model.earth
-                        ++ List.concat (List.map drawproton model.proton)
-                    )
-                , div
-                    [ HtmlAttr.style "width" "100%"
-                    , HtmlAttr.style "height" "100%"
-                    , HtmlAttr.style "position" "absolute"
-                    , HtmlAttr.style "left" "0"
-                    , HtmlAttr.style "top" "0"
-                    ]
-                    [ renderGameButton_1 model.submodel.state
-                    , renderGameButton_2 model.submodel.level
-                    , renderLabel "Score"
-                    , renderCount model.submodel.score
-                    , renderLabel "Life"
-                    , renderLive model.submodel.heart
-                    , renderLevel "Level"
-                    , renderLvl model.submodel.level
-                    , renderChatBox model
-                    , renderChat model
-                    , renderGameButton_3 model.submodel.state model.submodel.text_num
-                    ]
-                , renderAudio "assets/Bgm.mp3"
-                ]
-        ]
