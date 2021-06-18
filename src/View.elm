@@ -232,6 +232,7 @@ renderGameButton_1 state =
         , style "display" "block"
         , style "font-family" "Baskerville"
         , style "font-size" "4%"
+        , style "border" "none"
         , onClick msg
         ]
         [ text txt ]
@@ -251,6 +252,7 @@ renderGameButton_2 level =
         , style "font-size" "4%"
         , style "height" "6%"
         , style "width" "10%"
+        , style "border" "none"
         , onClick (Reinit level)
         ]
         [ text "Restart" ]
@@ -270,6 +272,7 @@ renderGameButton_3 state textIndex =
         , style "font-size" "4%"
         , style "outline" "none"
         , style "padding" "0"
+        , style "border" "none"
         , style "display"
             (if state == Playing then
                 "none"
@@ -358,6 +361,7 @@ renderChatBox model =
         , style "height" "45%"
         , style "width" "90%"
         , style "cursor" "pointer"
+        , style "outline" "none"
         , style "display"
             (if model.submodel.state == Playing then
                 "none"
