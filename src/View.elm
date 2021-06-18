@@ -360,6 +360,7 @@ renderChatBox model =
         , style "width" "90%"
         , style "color" "#fff"
         , style "cursor" "pointer"
+        , 
         , style "display"
             (if model.submodel.state == Playing then
                 "none"
@@ -386,12 +387,12 @@ renderInfo model =
         , style "font-size" "35px"
         , style "font-weight" "300"
         , style "height" "18%"
-        , style "left" "75%"
+        , style "left" "70%"
         , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "17%"
+        , style "width" "22%"
         ]
         [ text ("Score: " ++ toString model.submodel.score)
         ]
@@ -434,14 +435,14 @@ renderLife model =
         , style "font-size" "35px"
         , style "font-weight" "300"
         , style "height" "2%"
-        , style "left" "75%"
+        , style "left" "70%"
         , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
         , style "position" "absolute"
-        , style "width" "18%"
+        , style "width" "23%"
         ]
-        [ text ("Lifes： " ++ liveSymbol model.submodel.heart) ]
+        [ text ("Lifes:" ++ liveSymbol model.submodel.heart) ]
 
 
 liveSymbol : Int -> String
