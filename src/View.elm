@@ -231,7 +231,7 @@ renderGameButton_1 state =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "4%"
+        , style "font-size" "100%"
         , style "border" "none"
         , onClick msg
         ]
@@ -249,7 +249,7 @@ renderGameButton_2 level =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskerville"
-        , style "font-size" "4%"
+        , style "font-size" "100%"
         , style "height" "6%"
         , style "width" "10%"
         , style "border" "none"
@@ -269,7 +269,7 @@ renderGameButton_3 state textIndex =
         , style "cursor" "pointer"
         , style "display" "block"
         , style "font-family" "Baskervillef"
-        , style "font-size" "4%"
+        , style "font-size" "100%"
         , style "outline" "none"
         , style "padding" "0"
         , style "border" "none"
@@ -396,6 +396,7 @@ renderChat : Model -> Html Msg
 renderChat model =
     div
         [ style "position" "absolute"
+        , style "font-family" "Baskerville"
         , style "top" "50%"
         , style "left" "5%"
         , style "height" "45%"
@@ -416,91 +417,95 @@ renderChat model =
         [ text (showText model.submodel.text_num) ]
 
 
-renderInfo : Model -> Html Msg
-renderInfo model =
+renderLevel : String -> Html Msg
+renderLevel txt =
     div
-        [ style "background" "#0e1f2f"
-        , style "border" "0"
-        , style "top" "2%"
-        , style "color" "#fff"
-        , style "cursor" "pointer"
-        , style "display" "block"
+        [ style "color" "#fff"
         , style "font-family" "Baskerville"
-        , style "font-size" "1.5em"
         , style "font-weight" "300"
-        , style "height" "18%"
-        , style "left" "65%"
-        , style "line-height" "40px"
-        , style "outline" "none"
-        , style "padding" "0"
+        , style "line-height" "1"
+        , style "margin" "30px 0 0"
+        , style "left" "47%"
+        , style "top" "0%"
         , style "position" "absolute"
-        , style "width" "22%"
+        , style "font-size" "35px"
         ]
-        [ text ("Score: " ++ toString model.submodel.score)
+        [ text txt
         ]
 
 
-renderLevel : Model -> Html Msg
-renderLevel model =
+renderLvl : Int -> Html Msg
+renderLvl n =
     div
-        [ style "background" "0e1f2f"
-        , style "border" "0"
-        , style "top" "2%"
-        , style "color" "#fff"
-        , style "cursor" "pointer"
-        , style "display" "block"
+        [ style "color" "#de3337"
         , style "font-family" "Baskerville"
-        , style "font-size" "1.5em"
-        , style "font-weight" "300"
-        , style "height" "18%"
-        , style "left" "40%"
-        , style "line-height" "40px"
-        , style "outline" "none"
-        , style "padding" "0"
+        , style "font-size" "30px"
+        , style "line-height" "1"
+        , style "margin" "5px 0 0"
+        , style "top" "6%"
+        , style "left" "50%"
         , style "position" "absolute"
-        , style "width" "15%"
+        , style "font-size" "45px"
         ]
-        [ text ("Level:" ++ " " ++ toString model.submodel.level)
-        ]
+        [ text (String.fromInt n) ]
 
 
-renderLife : Model -> Html Msg
-renderLife model =
+renderLabel : String -> Html Msg
+renderLabel txt =
     div
-        [ style "background" "#0e1f2f"
-        , style "border" "0"
-        , style "top" "7%"
-        , style "color" "#fff"
-        , style "cursor" "pointer"
-        , style "display" "block"
+        [ style "color" "#fff"
         , style "font-family" "Baskerville"
-        , style "font-size" "1.5em"
         , style "font-weight" "300"
-        , style "height" "2%"
-        , style "left" "65%"
-        , style "line-height" "40px"
-        , style "outline" "none"
-        , style "padding" "0"
-        , style "position" "absolute"
-        , style "width" "23%"
+        , style "line-height" "1"
+        , style "margin" "30px 0 0"
+        , style "left" "88%"
+        , style "position" "relative"
+        , style "font-size" "35px"
         ]
-        [ text ("Lifes:" ++ liveSymbol model.submodel.heart) ]
+        [ text txt ]
 
 
-liveSymbol : Int -> String
-liveSymbol lives =
-    case lives of
-        3 ->
-            "❤❤❤"
+renderCount : Int -> Html Msg
+renderCount n =
+    div
+        [ style "color" "#de3337"
+        , style "font-family" "Baskerville"
+        , style "font-size" "35px"
+        , style "line-height" "1"
+        , style "margin" "5px 0 0"
+        , style "left" "88%"
+        , style "position" "relative"
+        ]
+        [ text (String.fromInt n) ]
 
-        2 ->
-            "❤❤"
 
-        1 ->
-            "❤"
+renderLive : Int -> Html Msg
+renderLive lives =
+    let
+        health =
+            case lives of
+                3 ->
+                    "❤❤❤"
 
-        _ ->
-            ""
+                2 ->
+                    "❤❤"
+
+                1 ->
+                    "❤"
+
+                _ ->
+                    ""
+    in
+    div
+        [ style "color" "#de3337"
+        , style "font-family" "Baskerville"
+        , style "font-size" "35px"
+        , style "line-height" "1"
+        , style "margin" "5px 0 0"
+        , style "left" "88%"
+        , style "position" "relative"
+        ]
+        [ text health ]
 
 
 renderAudio : String -> Html Msg
@@ -577,7 +582,7 @@ view model =
         , style "background-color"
             (case model.submodel.state of
                 Cover ->
-                    "#564d7c"
+                    "#56497b"
 
                 Interval ->
                     "black"
@@ -679,9 +684,12 @@ view model =
                     ]
                     [ renderGameButton_1 model.submodel.state
                     , renderGameButton_2 model.submodel.level
-                    , renderInfo model
-                    , renderLife model
-                    , renderLevel model
+                    , renderLabel "Score"
+                    , renderCount model.submodel.score
+                    , renderLabel "Life"
+                    , renderLive model.submodel.heart
+                    , renderLevel "Level"
+                    , renderLvl model.submodel.level
                     , renderChatBox model
                     , renderChat model
                     , renderGameButton_3 model.submodel.state model.submodel.text_num
@@ -689,4 +697,3 @@ view model =
                 , renderAudio "assets/Bgm.mp3"
                 ]
         ]
-
