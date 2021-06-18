@@ -134,7 +134,7 @@ textBase =
     , Text 37 "Your mission has been completed."
     , Text 38 "Congratulations! "
     , Text 39 "Your will live in our mind."
-    , Text 40 "Made by Ocean Cat Studio\n Team member: Tingting Ding. Xu He. JOVEN LAURENS NICHOLAS,Yuewen Hou"
+    , Text 40 "Made by Ocean Cat Studio \n Team member: Tingting Ding. Xu He. JOVEN LAURENS NICHOLAS,Yuewen Hou \n (Press Resume to restart this level)  "
     , Text 41 "Apollo, by Ocean Cat Studio\n--Level 4"
     , Text 42 "Oh no, the spacecraft escaped successfully! You lose one chance! (Press Resume to continue)"
     ]
