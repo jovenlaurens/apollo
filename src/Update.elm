@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Messages exposing (Earth_State(..), Keydir(..), Msg(..))
 import Model exposing (Model, State(..), initial)
 import Random exposing (..)
-import Star exposing (Earth, Proton, Spacecraft, Sun, defaultSpacecraft)
+import Star exposing (Proton, Spacecraft, defaultSpacecraft)
 import Text exposing (changeIndexToNewOne)
 
 
@@ -311,15 +311,13 @@ loseheart model =
         opr = 
             model.proton |> List.head |> Maybe.withDefault (Proton (Point 300 300) 0.6 7.5 2.0 6)
 
-        heart_ =
-            0
+        heart_ = sbm.heart - 1
         ( nproton, nseed) = reinitProton model.seed opr.intensity model.proton
     in
     { model | submodel = { sbm | heart = heart_ , state = Paused, text_num = changeIndexToNewOne sbm.text_num 3} 
             , proton = nproton 
             , seed = nseed
     }
-
 
 protonbounce : Model -> Model
 protonbounce model =
@@ -501,13 +499,13 @@ renewSpc spacecraft =
 spcangle : Float -> Float -> Keydir -> Float
 spcangle angle velocity direction =
     case direction of
-        Key_right a ->
+        Key_right _ ->
             angle - velocity
 
-        Key_left a ->
+        Key_left _ ->
             angle + velocity
 
-        Key_none a ->
+        Key_none _ ->
             angle
 
 
@@ -572,7 +570,7 @@ spcdirchange_inside keydir index list =
 
     else
         case list of
-            x :: xs ->
+            x :: _ ->
                 let
                     old =
                         List.drop 1 list |> List.head |> Maybe.withDefault defaultSpacecraft
@@ -586,7 +584,7 @@ spcdirchange_inside keydir index list =
 reinitProton : Random.Seed -> Int -> List Proton -> ( List Proton, Random.Seed )
 reinitProton seed inten list =
     case list of
-        x :: xs ->
+        _ :: xs ->
             let
                 ( proton, nseed ) =
                     generateNewProton seed
@@ -602,6 +600,8 @@ reinitProton seed inten list =
 
 
 
+--这里是proton的库
+
 
 generateNewProton : Random.Seed -> ( Proton, Random.Seed )
 generateNewProton seed =
@@ -613,9 +613,9 @@ generateNewProton seed =
             [ Proton (Point 300 300) 0.2 7.5 2.0 5 --need to be improved
             , Proton (Point 300 500) -1 10 2.0 8
             , Proton (Point 400 200) 1.5 8 1.5 5
-            , Proton (Point 700 700) -2.0 8.5 1.5 5
+            , Proton (Point 700 700) 2.0 8.5 1.5 5
             , Proton (Point 400 300) 1.3 10 2.0 5
-            , Proton (Point 500 600) -1.0 10 2.0 5
+            , Proton (Point 500 600) 1.0 10 2.0 5
             ]
 
         nproton =
