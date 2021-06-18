@@ -616,8 +616,7 @@ generateNewProton seed =
             , Proton (Point 700 700) -1.1 8.5 1.5 5
             , Proton (Point 400 300) 0.8 10 2.0 5
             , Proton (Point 500 600) -1.0 10 2.0 5
-            , Proton (Point 600 200) -1 10 2.0 5
-            , Proton (Point 700 300)  2.0 9.5 2.0 5
+            , Proton (Point 600 200) 1 10 2.0 5
             ]
 
         nproton =
