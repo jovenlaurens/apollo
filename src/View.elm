@@ -425,7 +425,7 @@ renderInfo model =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "华文行楷"
+        , style "font-family" "Baskerville"
         , style "font-size" "1.5em"
         , style "font-weight" "300"
         , style "height" "18%"
@@ -445,15 +445,15 @@ renderLevel model =
     div
         [ style "background" "0e1f2f"
         , style "border" "0"
-        , style "top" "3%"
+        , style "top" "2%"
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "华文行楷"
+        , style "font-family" "Baskerville"
         , style "font-size" "1.5em"
         , style "font-weight" "300"
         , style "height" "18%"
-        , style "left" "45%"
+        , style "left" "40%"
         , style "line-height" "40px"
         , style "outline" "none"
         , style "padding" "0"
@@ -473,7 +473,7 @@ renderLife model =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "华文行楷"
+        , style "font-family" "Baskerville"
         , style "font-size" "1.5em"
         , style "font-weight" "300"
         , style "height" "2%"
@@ -533,7 +533,6 @@ renderLogo =
         , style "color" "#fff"
         , style "cursor" "pointer"
         , style "display" "block"
-        , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "18px"
         , style "font-weight" "300"
         , style "height" "12.5%"
@@ -691,7 +690,3 @@ view model =
                 ]
         ]
 
-
-printp : Proton -> String
-printp proton =
-    Debug.toString proton.intensity
