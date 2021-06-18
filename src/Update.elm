@@ -628,7 +628,7 @@ generateNewProton seed =
 addSpacecraft : List Spacecraft -> List Spacecraft
 addSpacecraft spacecraft =
     if List.length spacecraft == 1 then
-        spacecraft ++ List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 2) 0.01)
+        spacecraft ++ List.singleton (Spacecraft (Point 800.0 500.0) 0.0 (Key_none 2) 0.015)
 
     else
         spacecraft
