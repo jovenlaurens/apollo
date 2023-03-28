@@ -30,6 +30,7 @@ elm make src/main.elm
 ### Ocean Cat Studio
 
 ![](assets/LogoDark.png)
+
 Team member:
 
 - Joven Laurens Nicholas
