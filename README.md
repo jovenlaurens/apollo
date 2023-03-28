@@ -27,6 +27,11 @@ elm make src/main.elm
 
 ## Contributors
 
+### Ocean Cat Studio
+
+![](assets/LogoDark.png)
+Team member:
+
 - Joven Laurens Nicholas
 - TingTing Ding 丁婷婷
 - Xu He 何煦
