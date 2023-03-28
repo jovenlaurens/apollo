@@ -27,7 +27,7 @@ elm make src/main.elm
 
 ## Awards
 
-- **Best Artwork Design** - [SIlverFOCS](https://focs.ji.sjtu.edu.cn/silverfocs/famewall/)
+- **Best Artwork Design** - [SilverFOCS](https://focs.ji.sjtu.edu.cn/silverfocs/famewall/)
 
 ## Contributors
 
