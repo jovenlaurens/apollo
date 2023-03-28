@@ -31,7 +31,7 @@ elm make src/main.elm
 
 ## Contributors
 
-**Ocean Cat Studio**
+**OCEAN CAT STUDIO.**
 
 ![](assets/LogoDark.png)
 
